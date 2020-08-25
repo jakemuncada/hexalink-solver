@@ -34,7 +34,8 @@ class HexCell:
         mid = rows // 2
 
         deltaX = (self.col - mid) * math.sqrt(3) * HexCell.CELL_SIDE_LENGTH
-        deltaY = (self.row - mid) * ((2 * HexCell.CELL_SIDE_LENGTH) - (HexCell.CELL_SIDE_LENGTH * COS_60))
+        deltaY = (self.row - mid) * ((2 * HexCell.CELL_SIDE_LENGTH) -
+                                     (HexCell.CELL_SIDE_LENGTH * COS_60))
 
         deltaX += math.fabs(self.row - mid) * (math.sqrt(3) * HexCell.CELL_SIDE_LENGTH / 2)
 
