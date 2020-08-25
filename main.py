@@ -1,7 +1,11 @@
 """A Hexagon Slitherlink Game"""
 
+import os
 import pygame
 from hexboard import HexBoard
+
+# Initialize window location
+os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (20, 50)
 
 # Initialize pygame
 pygame.init()
