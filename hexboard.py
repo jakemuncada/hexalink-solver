@@ -4,17 +4,14 @@ from enum import Enum
 
 
 class HexBoard:
-    """The Hexagon Slitherlink board class.
+    """The Hexagon Slitherlink board class."""
 
-    Args:
-        rows (int): The number of rows of the board. Must be an odd number greater than 3.
-        cellData (string): The string containing the required sides of each cell.
+    __createKey = object()
 
-    Raises:
-        AttributeError: If the rows or cell data is invalid.
-    """
+    def __init__(self, createKey, rows, cellData=None):
+        assert(createKey == HexBoard.__createKey), \
+            "HexBoard objects must be created using HexBoard.create."
 
-    def __init__(self, rows, cellData):
         HexBoard.validateData(rows, cellData)
 
         self.rows = rows
@@ -24,10 +21,32 @@ class HexBoard:
         cellIdx = 0
         for row in range(rows):
             for col in range(self.getNumOfCols(row)):
-                reqSides = cellData[cellIdx]
+                reqSides = cellData[cellIdx] if cellData is not None else "."
                 reqSides = None if reqSides == "." else int(reqSides)
                 self.board[row].append(HexCell(row, col, reqSides))
                 cellIdx += 1
+
+        self._registerSides()
+
+    def _registerSides(self):
+        """Register the sides to each cell."""
+        for rowArr in self.board:
+            for cell in rowArr:
+                print(cell)
+
+    @classmethod
+    def create(cls, rows, cellData=None):
+        """Create a HexBoard.
+        
+        Args:
+            rows (int): The number of rows of the board. Must be an odd number greater than 3.
+            cellData (string): The string containing the required sides of each cell. Optional.
+
+        Raises:
+            ValueError: If the rows or cell data is invalid.
+        """
+        board = cls(cls.__createKey, rows, cellData)
+        return board
 
     @staticmethod
     def validateData(rows, cellData):
@@ -43,6 +62,9 @@ class HexBoard:
 
         if rows < 3 or rows % 2 == 0:
             raise ValueError("The number of rows must be an odd number greater than 1.")
+
+        if cellData is None:
+            return
 
         # Get the total number of cells
         totalCells = 0
@@ -98,23 +120,33 @@ class HexCell:
         self.row = row
         self.col = col
         self.reqSides = reqSides
-        self.sides = []
+        self.sides = [None, None, None, None, None, None]
 
-        for sideDir in HexSideDir:
-            self.sides.append(HexSide(sideDir, SideStatus.UNSET))
+    def registerSide(self, sideDir, hexSide):
+        """Register a side of the cell.
+
+        Args:
+            sideDir (HexSideDir): The direction of the side to be registered.
+            hexSide (HexSide): The side object to be registered.
+        """
+        self.sides[sideDir] = hexSide
+
+    def __str__(self):
+        """Returns the string describing the Cell."""
+        ret = f"[{self.row},{self.col}]"
+        return ret
 
 
 class HexSide:
     """A side of a HexCell.
 
     Args:
-        direction (HexSideDir): The direction of the side.
         status (SideStatus): The status of the side.
     """
 
-    def __init__(self, direction, status):
-        self.direction = direction
+    def __init__(self, status):
         self.status = status
+        self.adjCell = {}
 
     def isActive(self):
         """Returns true if the side is active. False otherwise."""
@@ -124,11 +156,20 @@ class HexSide:
         """Return true if the side is blank. False otherwise."""
         return self.status == SideStatus.BLANK
 
+    def registerAdjacentCell(self, cell, sideDir):
+        """Register an adjacent cell to this Side.
+
+        Args:
+            cell (HexCell): The cell to be registered.
+            sideDir (HexSideDir): The direction of the cell where this Side is.
+        """
+        self.adjCell[sideDir] = cell
+
 
 class SideStatus(Enum):
     """The status of a Side. Can be `UNSET`, `ACTIVE`, or `BLANK`.
 
-    `UNSET is when the side is neither active nor blank.
+    `UNSET` is when the side is neither active nor blank.
     `ACTIVE` is when the side is a part of the cell border.
     `BLANK` is when the side is removed from the cell.
     """

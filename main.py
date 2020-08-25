@@ -13,7 +13,7 @@ win = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Slitherlink")
 
 # Game Board
-board = HexBoard(5, "...24.2143..53...4.")
+board = HexBoard.create(5, "...24.2143..53...4.")
 
 # Colors
 WHITE = (255, 255, 255)
