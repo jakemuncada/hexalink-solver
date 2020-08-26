@@ -16,13 +16,16 @@ class HexSide:
         self.length = length
         self.status = status
         self.adjCells = {}
-        self.connSides = [[], []]
         self.endpoints = (vertex1, vertex2)
 
         # Calculate midpoint
         midX = (vertex1.coords.x + vertex2.coords.x) / 2
         midY = (vertex1.coords.y + vertex2.coords.y) / 2
         self.midpoint = Point((midX, midY))
+
+        # Register yourself to the vertex
+        vertex1.sides.append(self)
+        vertex2.sides.append(self)
 
     def isActive(self):
         """Returns true if the side is active. False otherwise."""
@@ -35,9 +38,9 @@ class HexSide:
     def getAllConnectedSides(self):
         """Returns all the connected sides."""
         ret = []
-        for connSide in self.connSides[0]:
+        for connSide in self.endpoints[0].getAllSidesExcept(self.id):
             ret.append(connSide)
-        for connSide in self.connSides[1]:
+        for connSide in self.endpoints[1].getAllSidesExcept(self.id):
             ret.append(connSide)
         return ret
 

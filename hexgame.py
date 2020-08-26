@@ -55,7 +55,7 @@ class HexGame:
         self._registerAdjacentCells()
         self._registerVertices()
         self._registerSides()
-        self._registerSideConnectivity()
+        # self._registerSideConnectivity()
 
     def _registerAdjacentCells(self):
         """Register the adjacent cells of each cell."""
@@ -67,16 +67,55 @@ class HexGame:
 
     def _registerVertices(self):
         """Register the vertices of each cell."""
+
+        def registerVertexAtNeighbor(neighborCell, direction, vertex):
+            if neighborCell is not None:
+                neighborCell.vertices[direction] = vertex
+
         for rowArr in self.board:
             for cell in rowArr:
                 for vtxDir in HexVertexDir:
                     if cell.vertices[vtxDir] is None:
-                        vertex = HexVertex()
+                        vertex = HexVertex(len(self.vertices))
                         vertex.calcCoords(cell.center, cell.sideLength, vtxDir)
                         cell.vertices[vtxDir] = vertex
 
                         # Add this vertex to the list of all vertices
                         self.vertices.append(vertex)
+
+                        # Also register this vertex to the neighbors
+                        if vtxDir == HexVertexDir.T:
+                            adjCell1 = self.getAdjCellAtDir(cell, HexSideDir.UL)
+                            registerVertexAtNeighbor(adjCell1, HexVertexDir.LR, vertex)
+                            adjCell2 = self.getAdjCellAtDir(cell, HexSideDir.UR)
+                            registerVertexAtNeighbor(adjCell2, HexVertexDir.LL, vertex)
+                        elif vtxDir == HexVertexDir.UR:
+                            adjCell1 = self.getAdjCellAtDir(cell, HexSideDir.UR)
+                            registerVertexAtNeighbor(adjCell1, HexVertexDir.B, vertex)
+                            adjCell2 = self.getAdjCellAtDir(cell, HexSideDir.R)
+                            registerVertexAtNeighbor(adjCell2, HexVertexDir.UL, vertex)
+                        elif vtxDir == HexVertexDir.LR:
+                            adjCell1 = self.getAdjCellAtDir(cell, HexSideDir.R)
+                            registerVertexAtNeighbor(adjCell1, HexVertexDir.LL, vertex)
+                            adjCell2 = self.getAdjCellAtDir(cell, HexSideDir.LR)
+                            registerVertexAtNeighbor(adjCell2, HexVertexDir.T, vertex)
+                        elif vtxDir == HexVertexDir.B:
+                            adjCell1 = self.getAdjCellAtDir(cell, HexSideDir.LL)
+                            registerVertexAtNeighbor(adjCell1, HexVertexDir.UR, vertex)
+                            adjCell2 = self.getAdjCellAtDir(cell, HexSideDir.LR)
+                            registerVertexAtNeighbor(adjCell2, HexVertexDir.UL, vertex)
+                        elif vtxDir == HexVertexDir.LL:
+                            adjCell1 = self.getAdjCellAtDir(cell, HexSideDir.L)
+                            registerVertexAtNeighbor(adjCell1, HexVertexDir.LR, vertex)
+                            adjCell2 = self.getAdjCellAtDir(cell, HexSideDir.LL)
+                            registerVertexAtNeighbor(adjCell2, HexVertexDir.T, vertex)
+                        elif vtxDir == HexVertexDir.UL:
+                            adjCell1 = self.getAdjCellAtDir(cell, HexSideDir.UL)
+                            registerVertexAtNeighbor(adjCell1, HexVertexDir.B, vertex)
+                            adjCell2 = self.getAdjCellAtDir(cell, HexSideDir.L)
+                            registerVertexAtNeighbor(adjCell2, HexVertexDir.UR, vertex)
+                        else:
+                            raise AssertionError(f"Invalid vertex direction: {vtxDir}")
 
     def _registerSides(self):
         """Register the sides of each cell."""
@@ -105,36 +144,36 @@ class HexGame:
                             adjCell.sides[sideDir.opposite()] = side
                             side.registerAdjacentCell(adjCell, sideDir.opposite())
 
-    def _registerSideConnectivity(self):
-        """For each side, register its connected sides."""
-        for rowArr in self.board:
-            for cell in rowArr:
-                for sideDir in HexSideDir:
-                    side = cell.sides[sideDir]
+    # def _registerSideConnectivity(self):
+    #     """For each side, register its connected sides."""
+    #     for rowArr in self.board:
+    #         for cell in rowArr:
+    #             for sideDir in HexSideDir:
+    #                 side = cell.sides[sideDir]
 
-                    # NOTE: Register the side's upper vertex to connSides[0]
-                    # and the lower vertex to connSides[1]
+    #                 # NOTE: Register the side's upper vertex to connSides[0]
+    #                 # and the lower vertex to connSides[1]
 
-                    if sideDir == HexSideDir.UL:
-                        side.connSides[0].append(cell.sides[HexSideDir.UR])
-                        side.connSides[1].append(cell.sides[HexSideDir.L])
-                    elif sideDir == HexSideDir.UR:
-                        side.connSides[0].append(cell.sides[HexSideDir.UL])
-                        side.connSides[1].append(cell.sides[HexSideDir.R])
-                    elif sideDir == HexSideDir.R:
-                        side.connSides[0].append(cell.sides[HexSideDir.UR])
-                        side.connSides[1].append(cell.sides[HexSideDir.LR])
-                    elif sideDir == HexSideDir.LR:
-                        side.connSides[0].append(cell.sides[HexSideDir.R])
-                        side.connSides[1].append(cell.sides[HexSideDir.LL])
-                    elif sideDir == HexSideDir.LL:
-                        side.connSides[0].append(cell.sides[HexSideDir.L])
-                        side.connSides[1].append(cell.sides[HexSideDir.LR])
-                    elif sideDir == HexSideDir.L:
-                        side.connSides[0].append(cell.sides[HexSideDir.UL])
-                        side.connSides[1].append(cell.sides[HexSideDir.LL])
-                    else:
-                        raise AssertionError(f"Invalid side direction: {sideDir}")
+    #                 if sideDir == HexSideDir.UL:
+    #                     side.connSides[0].append(cell.sides[HexSideDir.UR])
+    #                     side.connSides[1].append(cell.sides[HexSideDir.L])
+    #                 elif sideDir == HexSideDir.UR:
+    #                     side.connSides[0].append(cell.sides[HexSideDir.UL])
+    #                     side.connSides[1].append(cell.sides[HexSideDir.R])
+    #                 elif sideDir == HexSideDir.R:
+    #                     side.connSides[0].append(cell.sides[HexSideDir.UR])
+    #                     side.connSides[1].append(cell.sides[HexSideDir.LR])
+    #                 elif sideDir == HexSideDir.LR:
+    #                     side.connSides[0].append(cell.sides[HexSideDir.R])
+    #                     side.connSides[1].append(cell.sides[HexSideDir.LL])
+    #                 elif sideDir == HexSideDir.LL:
+    #                     side.connSides[0].append(cell.sides[HexSideDir.L])
+    #                     side.connSides[1].append(cell.sides[HexSideDir.LR])
+    #                 elif sideDir == HexSideDir.L:
+    #                     side.connSides[0].append(cell.sides[HexSideDir.UL])
+    #                     side.connSides[1].append(cell.sides[HexSideDir.LL])
+    #                 else:
+    #                     raise AssertionError(f"Invalid side direction: {sideDir}")
 
     def validateData(self):
         """Validates the initialization input.
