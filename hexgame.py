@@ -144,37 +144,6 @@ class HexGame:
                             adjCell.sides[sideDir.opposite()] = side
                             side.registerAdjacentCell(adjCell, sideDir.opposite())
 
-    # def _registerSideConnectivity(self):
-    #     """For each side, register its connected sides."""
-    #     for rowArr in self.board:
-    #         for cell in rowArr:
-    #             for sideDir in HexSideDir:
-    #                 side = cell.sides[sideDir]
-
-    #                 # NOTE: Register the side's upper vertex to connSides[0]
-    #                 # and the lower vertex to connSides[1]
-
-    #                 if sideDir == HexSideDir.UL:
-    #                     side.connSides[0].append(cell.sides[HexSideDir.UR])
-    #                     side.connSides[1].append(cell.sides[HexSideDir.L])
-    #                 elif sideDir == HexSideDir.UR:
-    #                     side.connSides[0].append(cell.sides[HexSideDir.UL])
-    #                     side.connSides[1].append(cell.sides[HexSideDir.R])
-    #                 elif sideDir == HexSideDir.R:
-    #                     side.connSides[0].append(cell.sides[HexSideDir.UR])
-    #                     side.connSides[1].append(cell.sides[HexSideDir.LR])
-    #                 elif sideDir == HexSideDir.LR:
-    #                     side.connSides[0].append(cell.sides[HexSideDir.R])
-    #                     side.connSides[1].append(cell.sides[HexSideDir.LL])
-    #                 elif sideDir == HexSideDir.LL:
-    #                     side.connSides[0].append(cell.sides[HexSideDir.L])
-    #                     side.connSides[1].append(cell.sides[HexSideDir.LR])
-    #                 elif sideDir == HexSideDir.L:
-    #                     side.connSides[0].append(cell.sides[HexSideDir.UL])
-    #                     side.connSides[1].append(cell.sides[HexSideDir.LL])
-    #                 else:
-    #                     raise AssertionError(f"Invalid side direction: {sideDir}")
-
     def validateData(self):
         """Validates the initialization input.
 
