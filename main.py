@@ -14,13 +14,16 @@ os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (20, 50)
 # Initialize pygame
 pygame.init()
 
+# Initialize font
+FONT = pygame.font.SysFont("Courier", 15)
+
 # Screen
 WIDTH = 1280
 HEIGHT = 960
 HALF_WIDTH = WIDTH // 2
 HALF_HEIGHT = HEIGHT // 2
 CELL_SIDE_WIDTH = 20
-win = pygame.display.set_mode((WIDTH, HEIGHT))
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Slitherlink")
 
 # Colors
@@ -31,15 +34,17 @@ DARKER_GRAY = (35, 35, 35)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 PINK = (255, 0, 255)
+CYAN = (0, 255, 255)
+YELLOW = (255, 255, 0)
 
 
 def render(game):
     """Draws the game board."""
-    win.fill(BLACK)
+    screen.fill(BLACK)
 
     for rowArr in game.board:
         for cell in rowArr:
-            pygame.draw.circle(win, WHITE, cell.center.get(), 2)
+            pygame.draw.circle(screen, WHITE, cell.center.get(), 2)
 
     for side in game.sides:
         if side.status == SideStatus.UNSET:
@@ -59,14 +64,29 @@ def render(game):
         ep2 = side.endpoints[1].get()
 
         if not isDashed:
-            pygame.draw.line(win, color, ep1, ep2, lineWidth)
+            pygame.draw.line(screen, color, ep1, ep2, lineWidth)
         else:
             drawDashedLine(color, ep1, ep2, lineWidth)
 
-        pygame.draw.circle(win, WHITE, ep1, 4)
-        pygame.draw.circle(win, WHITE, ep2, 4)
+        displayText(side.id, side.midpoint, YELLOW)
+
+        pygame.draw.circle(screen, WHITE, ep1, 4)
+        pygame.draw.circle(screen, WHITE, ep2, 4)
 
     pygame.display.update()
+
+
+def displayText(text, coords, color):
+    """Display text on the screen.
+
+    Args:
+        text (string): The text to display.
+        coords (Point): The center coordinates of the text rect.
+        color (3-tuple): The text color.
+    """
+    fontSurface = FONT.render(str(text), True, color)
+    rect = fontSurface.get_rect(center=coords.get())
+    screen.blit(fontSurface, rect)
 
 
 def drawDashedLine(color, startPos, endPos, width=1, dashLength=5):
@@ -88,7 +108,7 @@ def drawDashedLine(color, startPos, endPos, width=1, dashLength=5):
     for index in range(0, length // dashLength, 2):
         start = origin + (slope * index * dashLength)
         end = origin + (slope * (index + 1) * dashLength)
-        pygame.draw.line(win, color, start.get(), end.get(), width)
+        pygame.draw.line(screen, color, start.get(), end.get(), width)
 
 
 def handleClick(game):
