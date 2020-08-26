@@ -114,7 +114,7 @@ class HexBoard:
                 raise ValueError(f"The given data string contains an invalid character ({c}).")
 
     def getCell(self, row, col):
-        """Get the cell at the specified row and column. Returns None if not found."""
+        """Get the cell at the specified row and column of the board. Returns None if not found."""
         if row < 0 or row >= self.rows:
             return None
         if col < 0 or col >= len(self.board[row]):

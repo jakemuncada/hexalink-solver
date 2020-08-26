@@ -76,7 +76,15 @@ def render():
 
 
 def drawDashedLine(color, startPos, endPos, width=1, dashLength=5):
-    """Draw a dashed line on the window."""
+    """Draw a dashed line on the window.
+
+    Args:
+        color (3-tuple): The line color.
+        startPos (Point): The start point of the line.
+        endPos (Point): The end point of the line.
+        width (int): The line width.
+        dashLength (int): The length of the dash.
+    """
     origin = Point(startPos)
     target = Point(endPos)
     displacement = target - origin
