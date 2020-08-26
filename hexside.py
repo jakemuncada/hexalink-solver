@@ -1,9 +1,7 @@
 """The side of a HexCell."""
 
-
-from sidestatus import SideStatus
-from hexdir import HexSideDir
 from point import Point
+from sidestatus import SideStatus
 
 
 class HexSide:
@@ -13,13 +11,18 @@ class HexSide:
         status (SideStatus): The status of the side.
     """
 
-    def __init__(self, idx, status=SideStatus.UNSET):
+    def __init__(self, idx, vertex1, vertex2, length, status=SideStatus.UNSET):
         self.id = idx
+        self.length = length
         self.status = status
         self.adjCells = {}
         self.connSides = [[], []]
-        self.endpoints = None
-        self.midpoint = None
+        self.endpoints = (vertex1, vertex2)
+
+        # Calculate midpoint
+        midX = (vertex1.coords.x + vertex2.coords.x) / 2
+        midY = (vertex1.coords.y + vertex2.coords.y) / 2
+        self.midpoint = Point((midX, midY))
 
     def isActive(self):
         """Returns true if the side is active. False otherwise."""
@@ -68,54 +71,6 @@ class HexSide:
             sideDir (HexSideDir): The direction of the cell where this Side is.
         """
         self.adjCells[sideDir] = cell
-
-    def calcCoords(self, cellCenter, sideDir, verticalDelta, horizontalDelta, sideLength):
-        """Calculate and store the coordinates of the endpoints and its midpoint.
-
-        Args:
-            cellCenter (Point): The reference cell center point.
-            sideDir (HexSideDir): The direction of this Side in relation to the reference cell.
-            verticalDelta (float): The vertical (y-coord) distance from the center to a side-vertex.
-            horizontalDelta (float): The horizontal (x-coord) distance
-                from the center to a side-vertex.
-        """
-        if self.endpoints is None:
-            if sideDir == HexSideDir.UL:
-                dx1 = -horizontalDelta
-                dy1 = -verticalDelta
-                dx2 = 0
-                dy2 = -sideLength
-            if sideDir == HexSideDir.UR:
-                dx1 = 0
-                dy1 = -sideLength
-                dx2 = horizontalDelta
-                dy2 = -verticalDelta
-            if sideDir == HexSideDir.R:
-                dx1 = horizontalDelta
-                dy1 = -verticalDelta
-                dx2 = horizontalDelta
-                dy2 = verticalDelta
-            if sideDir == HexSideDir.LR:
-                dx1 = horizontalDelta
-                dy1 = verticalDelta
-                dx2 = 0
-                dy2 = sideLength
-            if sideDir == HexSideDir.LL:
-                dx1 = 0
-                dy1 = sideLength
-                dx2 = -horizontalDelta
-                dy2 = verticalDelta
-            if sideDir == HexSideDir.L:
-                dx1 = -horizontalDelta
-                dy1 = verticalDelta
-                dx2 = -horizontalDelta
-                dy2 = -verticalDelta
-
-            endpoint1 = Point((cellCenter.x + dx1, cellCenter.y + dy1))
-            endpoint2 = Point((cellCenter.x + dx2, cellCenter.y + dy2))
-            midpoint = Point(((endpoint1.x + endpoint2.x) / 2, (endpoint1.y + endpoint2.y) / 2))
-            self.endpoints = (endpoint1, endpoint2)
-            self.midpoint = midpoint
 
     def __str__(self):
         """Returns a string describing the Side."""

@@ -60,8 +60,8 @@ def render(game):
             lineWidth = 4
             color = DARKER_GRAY
 
-        ep1 = side.endpoints[0].get()
-        ep2 = side.endpoints[1].get()
+        ep1 = side.endpoints[0].coords.get()
+        ep2 = side.endpoints[1].coords.get()
 
         if not isDashed:
             pygame.draw.line(screen, color, ep1, ep2, lineWidth)
@@ -72,6 +72,10 @@ def render(game):
 
         pygame.draw.circle(screen, WHITE, ep1, 4)
         pygame.draw.circle(screen, WHITE, ep2, 4)
+
+    for vertex in game.vertices:
+        vtxCoord = vertex.coords.get()
+        pygame.draw.circle(screen, PINK, vtxCoord, 4)
 
     pygame.display.update()
 
@@ -128,7 +132,7 @@ def handleClick(game):
         side.toggleStatus()
 
     execTime = helpers.measureEnd("Click")
-    print(f"{execTime}ms")
+    print("handleClick: {:.3f}ms".format(execTime))
 
 
 def reset(game):

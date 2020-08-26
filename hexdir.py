@@ -27,6 +27,27 @@ class HexSideDir(IntEnum):
         if self == HexSideDir.L:
             return HexSideDir.R
 
+    def connectedVertex(self):
+        """Get the vertices associated with this direction.
+
+        Returns:
+            (HexVertexDir, HexVertexDir): The two vertex directions associated with this direction.
+                The return will always be sorted according to this order: T, UR, LR, B, LL, UR
+        """
+        if self == HexSideDir.UL:
+            return (HexVertexDir.T, HexVertexDir.UL)
+        if self == HexSideDir.UR:
+            return (HexVertexDir.T, HexVertexDir.UR)
+        if self == HexSideDir.R:
+            return (HexVertexDir.UR, HexVertexDir.LR)
+        if self == HexSideDir.LR:
+            return (HexVertexDir.LR, HexVertexDir.B)
+        if self == HexSideDir.LL:
+            return (HexVertexDir.LL, HexVertexDir.B)
+        if self == HexSideDir.L:
+            return (HexVertexDir.UL, HexVertexDir.LL)
+        raise AssertionError(f"Invalid side direction: {self}")
+
 
 class HexVertexDir(IntEnum):
     """The direction of a HexVertex."""

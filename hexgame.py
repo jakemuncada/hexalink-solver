@@ -2,10 +2,13 @@
 
 
 from hexside import HexSide
-from hexdir import HexSideDir
+from hexdir import HexSideDir, HexVertexDir
 from hexcell import HexCell
+from hexvertex import HexVertex
 from point import Point
 from helpers import pointToLineDist
+
+from constants import CELL_SIDE_LENGTH  # TODO
 
 
 class HexGame:
@@ -22,10 +25,9 @@ class HexGame:
             ValueError: If the rows or cell data is invalid.
         """
 
-        self.windowWidth = winWidth
-        self.windowHeight = winHeight
         self.rows = rows
         self.cellData = cellData
+        self.center = Point((winWidth // 2, winHeight // 2))
 
         # Validate and initialize the data
         self.validateData()
@@ -36,6 +38,7 @@ class HexGame:
         self.midRow = self.rows // 2
         self.board = [[] for _ in range(self.rows)]
         self.sides = []
+        self.vertices = []
 
         # Populate the cells
         cellIdx = 0
@@ -43,17 +46,15 @@ class HexGame:
             for col in range(self.getNumOfCols(row)):
                 reqSides = self.cellData[cellIdx] if self.cellData is not None else "."
                 reqSides = None if reqSides == "." else int(reqSides)
-                self.board[row].append(HexCell(row, col, reqSides))
+                cell = HexCell(row, col, CELL_SIDE_LENGTH, reqSides)
+                cell.calcCoords(self.center, self.rows)
+                self.board[row].append(cell)
                 cellIdx += 1
 
         self._registerAdjacentCells()
+        self._registerVertices()
         self._registerSides()
         self._registerSideConnectivity()
-
-        windowCenter = Point((self.windowWidth // 2, self.windowHeight // 2))
-        for rowArr in self.board:
-            for cell in rowArr:
-                cell.calcCoords(windowCenter, self.rows)
 
     def _registerAdjacentCells(self):
         """Register the adjacent cells of each cell."""
@@ -63,18 +64,41 @@ class HexGame:
                     adjCell = self.getAdjCellAtDir(cell, sideDir)
                     cell.adjCells[sideDir] = adjCell
 
+    def _registerVertices(self):
+        """Register the vertices of each cell."""
+        for rowArr in self.board:
+            for cell in rowArr:
+                for vtxDir in HexVertexDir:
+                    if cell.vertices[vtxDir] is None:
+                        vertex = HexVertex()
+                        vertex.calcCoords(cell.center, cell.sideLength, vtxDir)
+                        cell.vertices[vtxDir] = vertex
+
+                        # Add this vertex to the list of all vertices
+                        self.vertices.append(vertex)
+
     def _registerSides(self):
         """Register the sides of each cell."""
         for rowArr in self.board:
             for cell in rowArr:
                 for sideDir in HexSideDir:
                     if cell.sides[sideDir] is None:
-                        side = HexSide(len(self.sides))
-                        cell.sides[sideDir] = side
-                        side.registerAdjacentCell(cell, sideDir)
+                        # Get the vertices for this side
+                        vtxDir1, vtxDir2 = sideDir.connectedVertex()
+                        vtx1 = cell.vertices[vtxDir1]
+                        vtx2 = cell.vertices[vtxDir2]
 
+                        # Create the Side
+                        side = HexSide(len(self.sides), vtx1, vtx2, CELL_SIDE_LENGTH)
+                        # Register the Side to the Cell
+                        cell.sides[sideDir] = side
+                        # Register the Cell as an adjacent cell of the Side
+                        side.registerAdjacentCell(cell, sideDir)
+                        # Add this side to the list of all sides
                         self.sides.append(side)
 
+                        # Look at the adjacent cell of this cell.
+                        # If it is not None, also register it to the Side.
                         adjCell = cell.adjCells[sideDir]
                         if adjCell is not None:
                             adjCell.sides[sideDir.opposite()] = side
@@ -230,8 +254,8 @@ class HexGame:
         nearestSide = None
 
         for side in self.sides:
-            endPt1 = side.endpoints[0]
-            endPt2 = side.endpoints[1]
+            endPt1 = side.endpoints[0].coords
+            endPt2 = side.endpoints[1].coords
             dist = pointToLineDist(endPt1, endPt2, point)
             if dist < minDist:
                 minDist = dist
