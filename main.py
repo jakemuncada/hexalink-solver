@@ -46,30 +46,31 @@ def render():
     for rowArr in board.board:
         for cell in rowArr:
             pygame.draw.circle(win, WHITE, cell.center.get(), 2)
-            for side in cell.sides:
-                if side.status == SideStatus.UNSET:
-                    isDashed = True
-                    lineWidth = 4
-                    color = GRAY
-                elif side.status == SideStatus.ACTIVE:
-                    isDashed = False
-                    lineWidth = 5
-                    color = BLUE
-                elif side.status == SideStatus.BLANK:
-                    isDashed = True
-                    lineWidth = 4
-                    color = DARKER_GRAY
 
-                ep1 = side.endpoints[0].get()
-                ep2 = side.endpoints[1].get()
+    for side in board.sides:
+        if side.status == SideStatus.UNSET:
+            isDashed = True
+            lineWidth = 4
+            color = GRAY
+        elif side.status == SideStatus.ACTIVE:
+            isDashed = False
+            lineWidth = 5
+            color = BLUE
+        elif side.status == SideStatus.BLANK:
+            isDashed = True
+            lineWidth = 4
+            color = DARKER_GRAY
 
-                if not isDashed:
-                    pygame.draw.line(win, color, ep1, ep2, lineWidth)
-                else:
-                    drawDashedLine(color, ep1, ep2, lineWidth)
+        ep1 = side.endpoints[0].get()
+        ep2 = side.endpoints[1].get()
 
-                pygame.draw.circle(win, RED, ep1, 4)
-                pygame.draw.circle(win, RED, ep2, 4)
+        if not isDashed:
+            pygame.draw.line(win, color, ep1, ep2, lineWidth)
+        else:
+            drawDashedLine(color, ep1, ep2, lineWidth)
+
+        pygame.draw.circle(win, RED, ep1, 4)
+        pygame.draw.circle(win, RED, ep2, 4)
 
     pygame.display.update()
 
