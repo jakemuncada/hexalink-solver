@@ -45,7 +45,9 @@ def render(game):
 
     for rowArr in game.board:
         for cell in rowArr:
-            pygame.draw.circle(screen, WHITE, cell.center.get(), 2)
+            if cell.reqSides is not None:
+                reqSidesFont = pygame.font.SysFont("Courier", int(45 * game.cellSideWidth / 100))
+                displayText(str(cell.reqSides), cell.center, reqSidesFont, WHITE)
 
     for side in game.sides:
         if side.status == SideStatus.UNSET:
@@ -68,8 +70,6 @@ def render(game):
             pygame.draw.line(screen, color, ep1, ep2, lineWidth)
         else:
             drawDashedLine(color, ep1, ep2, lineWidth)
-
-        displayText(side.id, side.midpoint, YELLOW)
 
         pygame.draw.circle(screen, WHITE, ep1, 4)
         pygame.draw.circle(screen, WHITE, ep2, 4)
@@ -102,15 +102,16 @@ def drawMargins():
     pygame.draw.line(screen, WHITE, lowerLeft, upperLeft, 1)
 
 
-def displayText(text, coords, color):
+def displayText(text, coords, font, color):
     """Display text on the screen.
 
     Args:
         text (string): The text to display.
         coords (Point): The center coordinates of the text rect.
+        font (pygame.font): The font to be used.
         color (3-tuple): The text color.
     """
-    fontSurface = FONT.render(str(text), True, color)
+    fontSurface = font.render(str(text), True, color)
     rect = fontSurface.get_rect(center=coords.get())
     screen.blit(fontSurface, rect)
 
