@@ -33,7 +33,7 @@ board = HexBoard.create(WIDTH, HEIGHT, 5, "...24.2143..53...4.")
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GRAY = (120, 120, 120)
-DARKER_GRAY = (30, 30, 30)
+DARKER_GRAY = (35, 35, 35)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 PINK = (255, 0, 255)
@@ -54,7 +54,7 @@ def render():
             color = GRAY
         elif side.status == SideStatus.ACTIVE:
             isDashed = False
-            lineWidth = 5
+            lineWidth = 6
             color = BLUE
         elif side.status == SideStatus.BLANK:
             isDashed = True
@@ -69,8 +69,8 @@ def render():
         else:
             drawDashedLine(color, ep1, ep2, lineWidth)
 
-        pygame.draw.circle(win, RED, ep1, 4)
-        pygame.draw.circle(win, RED, ep2, 4)
+        pygame.draw.circle(win, WHITE, ep1, 4)
+        pygame.draw.circle(win, WHITE, ep2, 4)
 
     pygame.display.update()
 
