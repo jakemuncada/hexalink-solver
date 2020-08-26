@@ -5,6 +5,7 @@ from hexside import HexSide
 from hexsidedir import HexSideDir
 from hexcell import HexCell
 from point import Point
+from helpers import pointToLineDist
 
 
 class HexBoard:
@@ -21,6 +22,7 @@ class HexBoard:
         self.rows = rows
         self.midRow = rows // 2
         self.board = [[] for _ in range(rows)]
+        self.sides = []
 
         # Populate the cells
         cellIdx = 0
@@ -51,6 +53,8 @@ class HexBoard:
                         side = HexSide()
                         cell.sides[sideDir] = side
                         side.registerAdjacentCell(cell, sideDir)
+
+                        self.sides.append(side)
 
                         adjCell = cell.adjCells[sideDir]
                         if adjCell is not None:
@@ -146,6 +150,9 @@ class HexBoard:
         Args:
             cell (HexCell): The cell to check.
             direction (HexSideDir): The direction of the adjacency.
+
+        Returns:
+            HexCell: The adjacent cell. Returns None if there is no adjacent cell.
         """
 
         if direction == HexSideDir.UL:
@@ -179,3 +186,26 @@ class HexBoard:
             ret = self.getCell(cell.row, cell.col - 1)
 
         return ret
+
+    def getNearestSide(self, point):
+        """Get the nearest side from a point.
+
+        Args:
+            point (Point): The reference point.
+
+        Returns:
+            (HexSide, float): The nearest side and its distance from the point.
+        """
+
+        minDist = 999999999.0
+        nearestSide = None
+
+        for side in self.sides:
+            endPt1 = side.endpoints[0]
+            endPt2 = side.endpoints[1]
+            dist = pointToLineDist(endPt1, endPt2, point)
+            if dist < minDist:
+                minDist = dist
+                nearestSide = side
+
+        return nearestSide, minDist

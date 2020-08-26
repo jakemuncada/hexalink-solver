@@ -1,10 +1,9 @@
 """A Hexagon Slitherlink Game"""
 
 import os
-import random
-from datetime import datetime
 
 import pygame
+import helpers
 from point import Point
 from hexboard import HexBoard
 from sidestatus import SideStatus
@@ -14,9 +13,6 @@ os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (20, 50)
 
 # Initialize pygame
 pygame.init()
-
-# Seed the RNG
-random.seed(datetime.now())
 
 # Screen
 WIDTH = 1280
@@ -37,22 +33,10 @@ board = HexBoard.create(WIDTH, HEIGHT, 5, "...24.2143..53...4.")
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GRAY = (120, 120, 120)
-DARKER_GRAY = (25, 25, 25)
+DARKER_GRAY = (30, 30, 30)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
-
-
-for rowArr2 in board.board:
-    for cell2 in rowArr2:
-        pygame.draw.circle(win, WHITE, cell2.center.get(), 2)
-        for side2 in cell2.sides:
-            asdf = random.randint(1, 3)
-            if asdf == 1:
-                side2.status = SideStatus.UNSET
-            elif asdf == 2:
-                side2.status = SideStatus.ACTIVE
-            elif asdf == 3:
-                side2.status = SideStatus.BLANK
+PINK = (255, 0, 255)
 
 
 def render():
@@ -65,7 +49,7 @@ def render():
             for side in cell.sides:
                 if side.status == SideStatus.UNSET:
                     isDashed = True
-                    lineWidth = 5
+                    lineWidth = 4
                     color = GRAY
                 elif side.status == SideStatus.ACTIVE:
                     isDashed = False
@@ -73,7 +57,7 @@ def render():
                     color = BLUE
                 elif side.status == SideStatus.BLANK:
                     isDashed = True
-                    lineWidth = 5
+                    lineWidth = 4
                     color = DARKER_GRAY
 
                 ep1 = side.endpoints[0].get()
@@ -90,7 +74,7 @@ def render():
     pygame.display.update()
 
 
-def drawDashedLine(color, startPos, endPos, width=1, dashLength=6):
+def drawDashedLine(color, startPos, endPos, width=1, dashLength=5):
     """Draw a dashed line on the window."""
     origin = Point(startPos)
     target = Point(endPos)
@@ -104,6 +88,26 @@ def drawDashedLine(color, startPos, endPos, width=1, dashLength=6):
         pygame.draw.line(win, color, start.get(), end.get(), width)
 
 
+def handleClick():
+    """Handle the mouse click event."""
+
+    helpers.measureStart("Click")
+
+    mouseX, mouseY = pygame.mouse.get_pos()
+    mousePos = Point((mouseX, mouseY))
+
+    side, dist = board.getNearestSide(mousePos)
+
+    # If the distance is greather than this threshold, the click will not register.
+    toggleDistanceThreshold = 20
+
+    if dist < toggleDistanceThreshold:
+        side.toggleStatus()
+
+    execTime = helpers.measureEnd("Click")
+    print(f"{execTime}ms")
+
+
 def main():
     """Main function."""
 
@@ -114,7 +118,7 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                pass
+                handleClick()
 
         render()
 

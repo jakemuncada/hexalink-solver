@@ -17,6 +17,7 @@ class HexSide:
         self.status = status
         self.adjCells = {}
         self.endpoints = None
+        self.midpoint = None
 
     def isActive(self):
         """Returns true if the side is active. False otherwise."""
@@ -25,6 +26,23 @@ class HexSide:
     def isBlank(self):
         """Return true if the side is blank. False otherwise."""
         return self.status == SideStatus.BLANK
+
+    def toggleStatus(self):
+        """Toggles the status from `UNSET` to `ACTIVE` to `BLANK`.
+
+        Returns:
+            SideStatus: The status of the side after toggling.
+        """
+        if self.status == SideStatus.UNSET:
+            self.status = SideStatus.ACTIVE
+        elif self.status == SideStatus.ACTIVE:
+            self.status = SideStatus.BLANK
+        elif self.status == SideStatus.BLANK:
+            self.status = SideStatus.UNSET
+        else:
+            raise AssertionError(f"Invalid status: {self.status}")
+
+        return self.status
 
     def registerAdjacentCell(self, cell, sideDir):
         """Register an adjacent cell to this Side.
@@ -36,7 +54,7 @@ class HexSide:
         self.adjCells[sideDir] = cell
 
     def calcCoords(self, cellCenter, sideDir, verticalDelta, horizontalDelta, sideLength):
-        """Calculate and store the coordinates of the endpoints.
+        """Calculate and store the coordinates of the endpoints and its midpoint.
 
         Args:
             cellCenter (Point): The reference cell center point.
@@ -79,7 +97,9 @@ class HexSide:
 
             endpoint1 = Point((cellCenter.x + dx1, cellCenter.y + dy1))
             endpoint2 = Point((cellCenter.x + dx2, cellCenter.y + dy2))
+            midpoint = Point(((endpoint1.x + endpoint2.x) / 2, (endpoint1.y + endpoint2.y) / 2))
             self.endpoints = (endpoint1, endpoint2)
+            self.midpoint = midpoint
 
     def __str__(self):
         """Returns a string describing the Side."""

@@ -28,6 +28,12 @@ class Point:
     def __str__(self):
         return f"{self.x}, {self.y}"
 
+    def dist(self, other):
+        """Get distance to another point."""
+        xSquared = (self.x - other.x) * (self.x - other.x)
+        ySquared = (self.y - other.y) * (self.y - other.y)
+        return sqrt(xSquared + ySquared)
+
     def get(self):
-        """Returns the original tuple"""
+        """Returns the x and y coordinate as a tuple of ints."""
         return (int(self.x), int(self.y))
