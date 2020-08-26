@@ -34,7 +34,8 @@ class HexVertex:
         Args:
             exceptSideId(int): The id of the side to be excluded from the list.
         """
-        return [filter(lambda side: side.id != exceptSideId, self.sides)]
+        return [filter(lambda side: side.id != exceptSideId and
+                       side.status == SideStatus.ACTIVE, self.sides)]
 
     def calcCoords(self, cellCenter, cellSideLength, vertexDir):
         """Calculate and store the coordinates of the vertex.
