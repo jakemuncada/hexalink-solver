@@ -44,7 +44,7 @@ class HexSide:
             ret.append(connSide)
         return ret
 
-    def toggleStatus(self, bubbles=True):
+    def toggleStatus(self):
         """Toggles the status from `UNSET` to `ACTIVE` to `BLANK`.
 
         Returns:
@@ -58,11 +58,6 @@ class HexSide:
             self.status = SideStatus.UNSET
         else:
             raise AssertionError(f"Invalid status: {self.status}")
-
-        if bubbles:
-            connSides = self.getAllConnectedSides()
-            for connSide in connSides:
-                connSide.toggleStatus(False)
 
         return self.status
 
