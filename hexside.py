@@ -2,7 +2,7 @@
 
 
 from sidestatus import SideStatus
-from hexsidedir import HexSideDir
+from hexdir import HexSideDir
 from point import Point
 
 
@@ -13,9 +13,11 @@ class HexSide:
         status (SideStatus): The status of the side.
     """
 
-    def __init__(self, status=SideStatus.UNSET):
+    def __init__(self, idx, status=SideStatus.UNSET):
+        self.id = idx
         self.status = status
         self.adjCells = {}
+        self.connSides = [[], []]
         self.endpoints = None
         self.midpoint = None
 
@@ -24,10 +26,19 @@ class HexSide:
         return self.status == SideStatus.ACTIVE
 
     def isBlank(self):
-        """Return true if the side is blank. False otherwise."""
+        """Returns true if the side is blank. False otherwise."""
         return self.status == SideStatus.BLANK
 
-    def toggleStatus(self):
+    def getAllConnectedSides(self):
+        """Returns all the connected sides."""
+        ret = []
+        for connSide in self.connSides[0]:
+            ret.append(connSide)
+        for connSide in self.connSides[1]:
+            ret.append(connSide)
+        return ret
+
+    def toggleStatus(self, bubbles=True):
         """Toggles the status from `UNSET` to `ACTIVE` to `BLANK`.
 
         Returns:
@@ -41,6 +52,11 @@ class HexSide:
             self.status = SideStatus.UNSET
         else:
             raise AssertionError(f"Invalid status: {self.status}")
+
+        if bubbles:
+            connSides = self.getAllConnectedSides()
+            for connSide in connSides:
+                connSide.toggleStatus(False)
 
         return self.status
 

@@ -1,7 +1,7 @@
 """A cell with 6 sides."""
 
 import math
-from hexsidedir import HexSideDir
+from hexdir import HexSideDir
 from point import Point
 
 COS_60 = math.cos(60 * math.pi / 180)

@@ -25,9 +25,6 @@ pygame.display.set_caption("Slitherlink")
 
 # Game Board
 board = HexBoard.create(WIDTH, HEIGHT, 5, "...24.2143..53...4.")
-# for rowArr in board.board:
-#     for cell in rowArr:
-#         print(cell.center)
 
 # Colors
 WHITE = (255, 255, 255)

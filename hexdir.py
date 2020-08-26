@@ -1,4 +1,4 @@
-"""The direction of a HexSide."""
+"""The direction enums of a Hex."""
 
 from enum import IntEnum
 
@@ -26,3 +26,13 @@ class HexSideDir(IntEnum):
             return HexSideDir.UR
         if self == HexSideDir.L:
             return HexSideDir.R
+
+
+class HexVertexDir(IntEnum):
+    """The direction of a HexVertex."""
+    T = 0
+    UR = 1
+    LR = 2
+    B = 3
+    LL = 4
+    UL = 5

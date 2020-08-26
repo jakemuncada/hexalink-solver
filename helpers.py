@@ -1,6 +1,6 @@
 # pylint: disable=invalid-name
 
-"""Helper functions."""
+"""Helper functions for calculations and stuff."""
 
 
 from math import sqrt
