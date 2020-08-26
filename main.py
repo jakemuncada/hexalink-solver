@@ -1,16 +1,18 @@
 """A Hexagon Slitherlink Game"""
 
 import os
+import re
 
 import pygame
 import helpers
 import constants
+import inputfile
 from point import Point
 from hexgame import HexGame
 from sidestatus import SideStatus
 
 # Initialize window location
-os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (20, 50)
+os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (10, 20)
 
 # Initialize pygame
 pygame.init()
@@ -41,26 +43,27 @@ def render(game):
     screen.fill(BLACK)
 
     # Margin
-    drawMargins()
+    # drawMargins()
 
     for rowArr in game.board:
         for cell in rowArr:
             if cell.reqSides is not None:
-                reqSidesFont = pygame.font.SysFont("Courier", int(45 * game.cellSideWidth / 100))
+                # reqSidesFont = pygame.font.SysFont("Courier", int(60 * game.cellSideWidth / 100))
+                reqSidesFont = pygame.font.SysFont("Courier", 20)
                 displayText(str(cell.reqSides), cell.center, reqSidesFont, WHITE)
 
     for side in game.sides:
         if side.status == SideStatus.UNSET:
             isDashed = True
-            lineWidth = 4
+            lineWidth = 2
             color = GRAY
         elif side.status == SideStatus.ACTIVE:
             isDashed = False
-            lineWidth = 6
+            lineWidth = 3
             color = constants.SIDE_COLORS[side.colorIdx]
         elif side.status == SideStatus.BLANK:
             isDashed = True
-            lineWidth = 4
+            lineWidth = 2
             color = DARKER_GRAY
 
         ep1 = side.endpoints[0].coords.get()
@@ -71,12 +74,12 @@ def render(game):
         else:
             drawDashedLine(color, ep1, ep2, lineWidth)
 
-        pygame.draw.circle(screen, WHITE, ep1, 4)
-        pygame.draw.circle(screen, WHITE, ep2, 4)
+        pygame.draw.circle(screen, WHITE, ep1, 2)
+        pygame.draw.circle(screen, WHITE, ep2, 2)
 
     for vertex in game.vertices:
         vtxCoord = vertex.coords.get()
-        pygame.draw.circle(screen, PINK, vtxCoord, 4)
+        pygame.draw.circle(screen, WHITE, vtxCoord, 2)
 
     pygame.display.update()
 
@@ -168,17 +171,20 @@ def main():
 
     run = True
 
+    rows = inputfile.INPUT1["rows"]
+    dataStr = re.sub(r"\s+", "", inputfile.INPUT1["dataStr"])
+
     horizontalMargin = constants.SCREEN_LEFT_MARGIN + constants.SCREEN_RIGHT_MARGIN
     verticalMargin = constants.SCREEN_TOP_MARGIN + constants.SCREEN_BOTTOM_MARGIN
     targetWidth = constants.SCREEN_WIDTH - horizontalMargin
     targetHeight = constants.SCREEN_HEIGHT - verticalMargin
 
-    cellSideWidth = helpers.calculateOptimalSideLength(targetWidth, targetHeight, 5)
+    cellSideWidth = helpers.calculateOptimalSideLength(targetWidth, targetHeight, rows)
 
     centerX = targetWidth // 2 + constants.SCREEN_LEFT_MARGIN
     centerY = targetHeight // 2 + constants.SCREEN_TOP_MARGIN
 
-    game = HexGame((centerX, centerY), cellSideWidth, 5, "...24.2143..53...4.")
+    game = HexGame((centerX, centerY), cellSideWidth, rows, dataStr)
 
     while run:
         for event in pygame.event.get():
