@@ -8,16 +8,16 @@ from hexvertex import HexVertex
 from point import Point
 from helpers import pointToLineDist
 
-from constants import CELL_SIDE_LENGTH  # TODO
-
 
 class HexGame:
     """The Hexagon Slitherlink class."""
 
-    def __init__(self, winWidth, winHeight, rows, cellData=None):
+    def __init__(self, center, cellSideWidth, rows, cellData=None):
         """Create a HexGame.
 
         Args:
+            center (2-tuple): The center coordinates of the board.
+            cellSideWidth (int): The width of the side of the cell.
             rows (int): The number of rows of the board. Must be an odd number greater than 3.
             cellData (string): The string containing the required sides of each cell. Optional.
 
@@ -26,8 +26,9 @@ class HexGame:
         """
 
         self.rows = rows
+        self.cellSideWidth = cellSideWidth
         self.cellData = cellData
-        self.center = Point((winWidth // 2, winHeight // 2))
+        self.center = Point(center)
 
         # Validate and initialize the data
         self.validateData()
@@ -46,7 +47,7 @@ class HexGame:
             for col in range(self.getNumOfCols(row)):
                 reqSides = self.cellData[cellIdx] if self.cellData is not None else "."
                 reqSides = None if reqSides == "." else int(reqSides)
-                cell = HexCell(row, col, CELL_SIDE_LENGTH, reqSides)
+                cell = HexCell(row, col, self.cellSideWidth, reqSides)
                 cell.calcCoords(self.center, self.rows)
                 self.board[row].append(cell)
                 cellIdx += 1
@@ -89,7 +90,7 @@ class HexGame:
                         vtx2 = cell.vertices[vtxDir2]
 
                         # Create the Side
-                        side = HexSide(len(self.sides), vtx1, vtx2, CELL_SIDE_LENGTH)
+                        side = HexSide(len(self.sides), vtx1, vtx2, self.cellSideWidth)
                         # Register the Side to the Cell
                         cell.sides[sideDir] = side
                         # Register the Cell as an adjacent cell of the Side

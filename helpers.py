@@ -3,8 +3,9 @@
 """Helper functions for calculations and stuff."""
 
 
-from math import sqrt
+import math
 from time import perf_counter
+from constants import COS_60
 
 
 # For execution time measurement
@@ -54,13 +55,13 @@ def pointToLineDist(A, B, E):
         # Finding the magnitude
         y = E.y - B.y
         x = E.x - B.x
-        reqAns = sqrt(x * x + y * y)
+        reqAns = math.sqrt(x * x + y * y)
 
     # Case 2
     elif AB_AE < 0:
         y = E.y - A.y
         x = E.x - A.x
-        reqAns = sqrt(x * x + y * y)
+        reqAns = math.sqrt(x * x + y * y)
 
     # Case 3
     else:
@@ -70,10 +71,29 @@ def pointToLineDist(A, B, E):
         y1 = AB[1]
         x2 = AE[0]
         y2 = AE[1]
-        mod = sqrt(x1 * x1 + y1 * y1)
+        mod = math.sqrt(x1 * x1 + y1 * y1)
         reqAns = abs(x1 * y2 - y1 * x2) / mod
 
     return reqAns
+
+
+def calculateOptimalSideLength(targetWidth, targetHeight, rows):
+    """Calculate the maximum value for the side length where it does not exceed
+    a target width and height.
+
+    Args:
+        targetWidth (float): The target width.
+        targetHeight (float): The target height.
+        rows (int): The number of rows of the board.
+    """
+
+    # The maximum side length that does not exceed target height
+    maxSideLengthForTargetHeight = int(targetHeight / ((2 * rows) - ((rows - 1) * COS_60)))
+
+    # The maximum side length that does not exceed target height
+    maxSideLengthForTargetWidth = int(targetWidth / (rows * math.sqrt(3)))
+
+    return min(maxSideLengthForTargetHeight, maxSideLengthForTargetWidth)
 
 
 def measureStart(name):

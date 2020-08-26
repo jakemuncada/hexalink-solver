@@ -167,10 +167,17 @@ def main():
 
     run = True
 
-    screenWidth = constants.SCREEN_WIDTH
-    screenHeight = constants.SCREEN_HEIGHT
+    horizontalMargin = constants.SCREEN_LEFT_MARGIN + constants.SCREEN_RIGHT_MARGIN
+    verticalMargin = constants.SCREEN_TOP_MARGIN + constants.SCREEN_BOTTOM_MARGIN
+    targetWidth = constants.SCREEN_WIDTH - horizontalMargin
+    targetHeight = constants.SCREEN_HEIGHT - verticalMargin
 
-    game = HexGame(screenWidth, screenHeight, 5, "...24.2143..53...4.")
+    cellSideWidth = helpers.calculateOptimalSideLength(targetWidth, targetHeight, 5)
+
+    centerX = targetWidth // 2 + constants.SCREEN_LEFT_MARGIN
+    centerY = targetHeight // 2 + constants.SCREEN_TOP_MARGIN
+
+    game = HexGame((centerX, centerY), cellSideWidth, 5, "...24.2143..53...4.")
 
     while run:
         for event in pygame.event.get():
