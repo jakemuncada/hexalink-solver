@@ -31,7 +31,7 @@ class HexGame:
         self.center = Point(center)
 
         # Validate and initialize the data
-        self.validateData()
+        self.validateInputData()
         self.init()
 
     def init(self):
@@ -144,7 +144,7 @@ class HexGame:
                             adjCell.sides[sideDir.opposite()] = side
                             side.registerAdjacentCell(adjCell, sideDir.opposite())
 
-    def validateData(self):
+    def validateInputData(self):
         """Validates the initialization input.
 
         Args:
