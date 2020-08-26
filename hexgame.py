@@ -198,8 +198,6 @@ class HexGame:
         if side.status == newStatus:
             return
 
-        print(f"Setting the new status to {newStatus}")
-
         if newStatus == SideStatus.ACTIVE:
             self._setSideActive(side)
         elif newStatus == SideStatus.BLANK:
@@ -229,7 +227,6 @@ class HexGame:
         if len(activeSides1) == 0 and len(activeSides2) == 0:
             # If both vtx1 and vtx2 have NO active sides
             nextColorIdx = helpers.getLeastUsedColor(self.sides)
-            print(nextColorIdx)
             side.colorIdx = nextColorIdx
 
         if len(activeSides1) > 0 and len(activeSides2) == 0:

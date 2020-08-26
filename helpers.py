@@ -7,7 +7,7 @@ import math
 import random
 from datetime import datetime
 from collections import deque
-from time import perf_counter
+from time import perf_counter_ns
 import constants
 from sidestatus import SideStatus
 
@@ -189,7 +189,7 @@ def measureStart(name):
     Args:
         name (string): The name of the measurement.
     """
-    startTimes[name] = perf_counter()
+    startTimes[name] = perf_counter_ns()
 
 
 def measureEnd(name):
@@ -201,4 +201,4 @@ def measureEnd(name):
     Returns:
         float: The execution time in milliseconds.
     """
-    return (perf_counter() - startTimes[name]) * 1000
+    return (perf_counter_ns() - startTimes[name]) / 1000000
