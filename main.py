@@ -4,6 +4,7 @@ import os
 
 import pygame
 import helpers
+import constants
 from point import Point
 from hexgame import HexGame
 from sidestatus import SideStatus
@@ -18,12 +19,7 @@ pygame.init()
 FONT = pygame.font.SysFont("Courier", 15)
 
 # Screen
-WIDTH = 1280
-HEIGHT = 960
-HALF_WIDTH = WIDTH // 2
-HALF_HEIGHT = HEIGHT // 2
-CELL_SIDE_WIDTH = 20
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+screen = pygame.display.set_mode((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT))
 pygame.display.set_caption("Slitherlink")
 
 # Colors
@@ -40,7 +36,12 @@ YELLOW = (255, 255, 0)
 
 def render(game):
     """Draws the game board."""
+
+    # Background
     screen.fill(BLACK)
+
+    # Margin
+    drawMargins()
 
     for rowArr in game.board:
         for cell in rowArr:
@@ -78,6 +79,27 @@ def render(game):
         pygame.draw.circle(screen, PINK, vtxCoord, 4)
 
     pygame.display.update()
+
+
+def drawMargins():
+    """Draw the margins on the screen."""
+
+    screenWidth = constants.SCREEN_WIDTH
+    screenHeight = constants.SCREEN_HEIGHT
+    topMargin = constants.SCREEN_TOP_MARGIN
+    botMargin = constants.SCREEN_BOTTOM_MARGIN
+    leftMargin = constants.SCREEN_LEFT_MARGIN
+    rightMargin = constants.SCREEN_RIGHT_MARGIN
+
+    upperLeft = (leftMargin, topMargin)
+    upperRight = (screenWidth - rightMargin, topMargin)
+    lowerLeft = (leftMargin, screenHeight - botMargin)
+    lowerRight = (screenWidth - rightMargin, screenHeight - botMargin)
+
+    pygame.draw.line(screen, WHITE, upperLeft, upperRight, 1)
+    pygame.draw.line(screen, WHITE, upperRight, lowerRight, 1)
+    pygame.draw.line(screen, WHITE, lowerRight, lowerLeft, 1)
+    pygame.draw.line(screen, WHITE, lowerLeft, upperLeft, 1)
 
 
 def displayText(text, coords, color):
@@ -145,7 +167,10 @@ def main():
 
     run = True
 
-    game = HexGame(WIDTH, HEIGHT, 5, "...24.2143..53...4.")
+    screenWidth = constants.SCREEN_WIDTH
+    screenHeight = constants.SCREEN_HEIGHT
+
+    game = HexGame(screenWidth, screenHeight, 5, "...24.2143..53...4.")
 
     while run:
         for event in pygame.event.get():
