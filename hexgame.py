@@ -2,11 +2,12 @@
 
 
 from hexside import HexSide
+from sidestatus import SideStatus
 from hexdir import HexSideDir, HexVertexDir
 from hexcell import HexCell
 from hexvertex import HexVertex
 from point import Point
-from helpers import pointToLineDist
+import helpers
 
 
 class HexGame:
@@ -175,6 +176,128 @@ class HexGame:
             if c != "." and not c.isnumeric():
                 raise ValueError(f"The given data string contains an invalid character ({c}).")
 
+    def toggleSideStatus(self, side):
+        """Toggle the given Side's status from `UNSET` to `ACTIVE` to `BLANK`."""
+        if side.status == SideStatus.UNSET:
+            self.setSideStatus(side, SideStatus.ACTIVE)
+        elif side.status == SideStatus.ACTIVE:
+            self.setSideStatus(side, SideStatus.BLANK)
+        elif side.status == SideStatus.BLANK:
+            self.setSideStatus(side, SideStatus.UNSET)
+        else:
+            raise AssertionError(f"Invalid side status: {side.status}")
+
+    def setSideStatus(self, side, newStatus):
+        """Set the status of a side, then recalculate stuff.
+
+        Args:
+            side (HexSide): The side whose status is to be set.
+            newStatus (SideStatus): The new status.
+        """
+
+        if side.status == newStatus:
+            return
+
+        print(f"Setting the new status to {newStatus}")
+
+        if newStatus == SideStatus.ACTIVE:
+            self._setSideActive(side)
+        elif newStatus == SideStatus.BLANK:
+            self._setSideBlank(side)
+        elif newStatus == SideStatus.UNSET:
+            side.status = newStatus
+        else:
+            raise AssertionError(f"Invalid side status: {newStatus}")
+
+    def _setSideActive(self, side):
+        """Set the side status to `ACTIVE`, then recalculate stuff.
+
+        Calculates what color the `Side` will become, which depends on the connected links.
+
+        Args:
+            side (HexSide): The side to be set to active.
+        """
+
+        # Get the enpoints/vertices
+        vtx1 = side.endpoints[0]
+        vtx2 = side.endpoints[1]
+
+        # Get the active sides at each endpoint
+        activeSides1 = vtx1.getActiveSidesExcept(side.id)
+        activeSides2 = vtx2.getActiveSidesExcept(side.id)
+
+        if len(activeSides1) == 0 and len(activeSides2) == 0:
+            # If both vtx1 and vtx2 have NO active sides
+            nextColorIdx = helpers.getLeastUsedColor(self.sides)
+            print(nextColorIdx)
+            side.colorIdx = nextColorIdx
+
+        if len(activeSides1) > 0 and len(activeSides2) == 0:
+            # If vtx1 has active sides but vtx2 does not
+            side.colorIdx = activeSides1[0].colorIdx
+
+        elif len(activeSides1) == 0 and len(activeSides2) > 0:
+            # If vtx2 has active sides but vtx1 does not
+            side.colorIdx = activeSides2[0].colorIdx
+
+        elif len(activeSides1) > 0 and len(activeSides2) > 0:
+            # If both have active sides
+            link1 = helpers.getLinkItems(activeSides1[0])
+            link2 = helpers.getLinkItems(activeSides2[0])
+            if len(link1) >= len(link2):
+                newColorIdx = self.sides[link1.pop()].colorIdx
+                side.colorIdx = newColorIdx
+                while len(link2) > 0:
+                    self.sides[link2.pop()].colorIdx = newColorIdx
+            else:
+                newColorIdx = self.sides[link2.pop()].colorIdx
+                side.colorIdx = newColorIdx
+                while len(link1) > 0:
+                    self.sides[link1.pop()].colorIdx = newColorIdx
+
+        # Finally, set the status of the actual side
+        side.status = SideStatus.ACTIVE
+
+    def _setSideBlank(self, side):
+        """Set the side status to `BLANK`, then recalculate stuff.
+
+        Calculates what color the `Side` will become, which depends on the connected links.
+
+        Args:
+            side (HexSide): The side to be set to active.
+        """
+
+        # Make sure to set it to BLANK so that it will not be included in the link
+        side.status = SideStatus.BLANK
+
+        # Get the enpoints/vertices
+        vtx1 = side.endpoints[0]
+        vtx2 = side.endpoints[1]
+
+        # Get the active sides at each endpoint
+        activeSides1 = vtx1.getActiveSidesExcept(side.id)
+        activeSides2 = vtx2.getActiveSidesExcept(side.id)
+
+        # If both endpoints have active sides, then recalculate color of one endpoint.
+        # However, if at least one endpoint has no active side, no need to do anything.
+        if len(activeSides1) > 0 and len(activeSides2) > 0:
+            link1 = helpers.getLinkItems(activeSides1[0])
+            link2 = helpers.getLinkItems(activeSides2[0])
+
+            if len(link1) >= len(link2):
+                # If link1 is bigger, re-color link2
+                exceptColorIdx = self.sides[link1.pop()].colorIdx
+                newColorIdx = helpers.getLeastUsedColor(self.sides, exceptColorIdx)
+                while len(link2) > 0:
+                    self.sides[link2.pop()].colorIdx = newColorIdx
+
+            else:
+                # If link2 is bigger, re-color link1
+                exceptColorIdx = self.sides[link2.pop()].colorIdx
+                newColorIdx = helpers.getLeastUsedColor(self.sides, exceptColorIdx)
+                while len(link1) > 0:
+                    self.sides[link1.pop()].colorIdx = newColorIdx
+
     def getCell(self, row, col):
         """Get the cell at the specified row and column of the board. Returns None if not found."""
         if row < 0 or row >= self.rows:
@@ -265,7 +388,7 @@ class HexGame:
         for side in self.sides:
             endPt1 = side.endpoints[0].coords
             endPt2 = side.endpoints[1].coords
-            dist = pointToLineDist(endPt1, endPt2, point)
+            dist = helpers.pointToLineDist(endPt1, endPt2, point)
             if dist < minDist:
                 minDist = dist
                 nearestSide = side

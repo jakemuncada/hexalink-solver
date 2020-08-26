@@ -57,7 +57,7 @@ def render(game):
         elif side.status == SideStatus.ACTIVE:
             isDashed = False
             lineWidth = 6
-            color = BLUE
+            color = constants.SIDE_COLORS[side.colorIdx]
         elif side.status == SideStatus.BLANK:
             isDashed = True
             lineWidth = 4
@@ -152,7 +152,7 @@ def handleClick(game):
     toggleDistanceThreshold = 20
 
     if dist < toggleDistanceThreshold:
-        side.toggleStatus()
+        game.toggleSideStatus(side)
 
     execTime = helpers.measureEnd("Click")
     print("handleClick: {:.3f}ms".format(execTime))

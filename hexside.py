@@ -13,6 +13,7 @@ class HexSide:
 
     def __init__(self, idx, vertex1, vertex2, length, status=SideStatus.UNSET):
         self.id = idx
+        self.colorIdx = idx
         self.length = length
         self.status = status
         self.adjCells = {}
@@ -41,6 +42,15 @@ class HexSide:
         for connSide in self.endpoints[0].getAllSidesExcept(self.id):
             ret.append(connSide)
         for connSide in self.endpoints[1].getAllSidesExcept(self.id):
+            ret.append(connSide)
+        return ret
+
+    def getAllActiveConnectedSides(self):
+        """Returns all the connected sides whose status is `ACTIVE`."""
+        ret = []
+        for connSide in self.endpoints[0].getActiveSidesExcept(self.id):
+            ret.append(connSide)
+        for connSide in self.endpoints[1].getActiveSidesExcept(self.id):
             ret.append(connSide)
         return ret
 

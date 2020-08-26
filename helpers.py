@@ -4,9 +4,16 @@
 
 
 import math
+import random
+from datetime import datetime
+from collections import deque
 from time import perf_counter
-from constants import COS_60
+import constants
+from sidestatus import SideStatus
 
+
+# Seed the RNG
+random.seed(datetime.now())
 
 # For execution time measurement
 startTimes = {}
@@ -88,12 +95,92 @@ def calculateOptimalSideLength(targetWidth, targetHeight, rows):
     """
 
     # The maximum side length that does not exceed target height
-    maxSideLengthForTargetHeight = int(targetHeight / ((2 * rows) - ((rows - 1) * COS_60)))
+    maxSideLengthForTargetHeight = int(targetHeight / ((2 * rows) - ((rows - 1) *
+                                                                     constants.COS_60)))
 
     # The maximum side length that does not exceed target height
     maxSideLengthForTargetWidth = int(targetWidth / (rows * math.sqrt(3)))
 
     return min(maxSideLengthForTargetHeight, maxSideLengthForTargetWidth)
+
+
+def getLeastUsedColor(sides, exceptColorIdx=None):
+    """Get the color index that has been used the least.
+
+    Args:
+        sides ([HexSide]): The array of all Sides.
+        exceptColorIdx (int): Optional. If set, this color will not be considered.
+
+    Returns:
+        int: The color index of the least used color value.
+    """
+
+    if exceptColorIdx is not None:
+        exceptColorIdx = exceptColorIdx % len(constants.SIDE_COLORS)
+
+    count = {}
+    for side in sides:
+        if side.status == SideStatus.ACTIVE:
+            colorIdx = side.colorIdx % len(constants.SIDE_COLORS)
+
+            if exceptColorIdx is not None and exceptColorIdx == colorIdx:
+                continue
+
+            if colorIdx not in count:
+                count[colorIdx] = 1
+            else:
+                count[colorIdx] += 1
+
+    minTimesUsed = 999999999
+    minUsedColorIndexes = []
+    for colorIdx in range(len(constants.SIDE_COLORS)):
+
+        # Ignore the exceptColorIdx
+        if exceptColorIdx is not None and exceptColorIdx == colorIdx:
+            continue
+
+        if colorIdx not in count:
+            if minTimesUsed > 0:
+                minTimesUsed = 0
+                minUsedColorIndexes = [colorIdx]
+            else:
+                minUsedColorIndexes.append(colorIdx)
+
+        elif count[colorIdx] < minTimesUsed:
+            minTimesUsed = count[colorIdx]
+            minUsedColorIndexes = [colorIdx]
+
+        elif count[colorIdx] == minTimesUsed:
+            minUsedColorIndexes.append(colorIdx)
+
+    return random.choice(minUsedColorIndexes)
+
+
+def getLinkItems(side):
+    """Get all the sides that are part of a link.
+
+    Args:
+        side (HexSide): A Side that is part of the link.
+
+    Returns:
+        set: The set of all Side id's that are part of the link.
+    """
+    ret = set()
+
+    if side.status != SideStatus.ACTIVE:
+        return ret
+
+    processStack = deque()
+    processStack.append(side)
+
+    while processStack:
+        side = processStack.pop()
+        if side.id not in ret:
+            ret.add(side.id)
+            for connSide in side.getAllActiveConnectedSides():
+                processStack.append(connSide)
+
+    return ret
 
 
 def measureStart(name):
