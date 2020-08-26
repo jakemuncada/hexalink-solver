@@ -1,4 +1,4 @@
-"""The Hexagon Slitherlink Board"""
+"""The Hexagon Slitherlink Game"""
 
 
 from hexside import HexSide
@@ -8,27 +8,40 @@ from point import Point
 from helpers import pointToLineDist
 
 
-class HexBoard:
-    """The Hexagon Slitherlink board class."""
+class HexGame:
+    """The Hexagon Slitherlink class."""
 
-    __createKey = object()
+    def __init__(self, winWidth, winHeight, rows, cellData=None):
+        """Create a HexGame.
 
-    def __init__(self, createKey, rows, cellData=None):
-        assert(createKey == HexBoard.__createKey), \
-            "HexBoard objects must be created using HexBoard.create."
+        Args:
+            rows (int): The number of rows of the board. Must be an odd number greater than 3.
+            cellData (string): The string containing the required sides of each cell. Optional.
 
-        HexBoard.validateData(rows, cellData)
+        Raises:
+            ValueError: If the rows or cell data is invalid.
+        """
 
+        self.windowWidth = winWidth
+        self.windowHeight = winHeight
         self.rows = rows
-        self.midRow = rows // 2
-        self.board = [[] for _ in range(rows)]
+        self.cellData = cellData
+
+        # Validate and initialize the data
+        self.validateData()
+        self.init()
+
+    def init(self):
+        """Initialize the board. Can be called again to reset board."""
+        self.midRow = self.rows // 2
+        self.board = [[] for _ in range(self.rows)]
         self.sides = []
 
         # Populate the cells
         cellIdx = 0
-        for row in range(rows):
+        for row in range(self.rows):
             for col in range(self.getNumOfCols(row)):
-                reqSides = cellData[cellIdx] if cellData is not None else "."
+                reqSides = self.cellData[cellIdx] if self.cellData is not None else "."
                 reqSides = None if reqSides == "." else int(reqSides)
                 self.board[row].append(HexCell(row, col, reqSides))
                 cellIdx += 1
@@ -36,6 +49,11 @@ class HexBoard:
         self._registerAdjacentCells()
         self._registerSides()
         self._registerSideConnectivity()
+
+        windowCenter = Point((self.windowWidth // 2, self.windowHeight // 2))
+        for rowArr in self.board:
+            for cell in rowArr:
+                cell.calcCoords(windowCenter, self.rows)
 
     def _registerAdjacentCells(self):
         """Register the adjacent cells of each cell."""
@@ -93,28 +111,7 @@ class HexBoard:
                     else:
                         raise AssertionError(f"Invalid side direction: {sideDir}")
 
-    @classmethod
-    def create(cls, windowWidth, windowHeight, rows, cellData=None):
-        """Create a HexBoard.
-
-        Args:
-            rows (int): The number of rows of the board. Must be an odd number greater than 3.
-            cellData (string): The string containing the required sides of each cell. Optional.
-
-        Raises:
-            ValueError: If the rows or cell data is invalid.
-        """
-        board = cls(cls.__createKey, rows, cellData)
-
-        windowCenter = Point((windowWidth // 2, windowHeight // 2))
-        for rowArr in board.board:
-            for cell in rowArr:
-                cell.calcCoords(windowCenter, rows)
-
-        return board
-
-    @staticmethod
-    def validateData(rows, cellData):
+    def validateData(self):
         """Validates the initialization input.
 
         Args:
@@ -125,23 +122,23 @@ class HexBoard:
             ValueError: If the rows or cell data is invalid.
         """
 
-        if rows < 3 or rows % 2 == 0:
+        if self.rows < 3 or self.rows % 2 == 0:
             raise ValueError("The number of rows must be an odd number greater than 1.")
 
-        if cellData is None:
+        if self.cellData is None:
             return
 
         # Get the total number of cells
         totalCells = 0
-        numOfColsInRow = rows
-        for row in range(rows // 2, -1, -1):
-            totalCells += numOfColsInRow if row == rows // 2 else numOfColsInRow * 2
+        numOfColsInRow = self.rows
+        for row in range(self.rows // 2, -1, -1):
+            totalCells += numOfColsInRow if row == self.rows // 2 else numOfColsInRow * 2
             numOfColsInRow -= 1
 
-        if totalCells != len(cellData):
-            raise ValueError(f"The given data string has invalid length ({len(cellData)}).")
+        if totalCells != len(self.cellData):
+            raise ValueError(f"The given data string has invalid length ({len(self.cellData)}).")
 
-        for c in cellData:
+        for c in self.cellData:
             if c != "." and not c.isnumeric():
                 raise ValueError(f"The given data string contains an invalid character ({c}).")
 

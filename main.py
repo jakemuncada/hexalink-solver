@@ -5,7 +5,7 @@ import os
 import pygame
 import helpers
 from point import Point
-from hexboard import HexBoard
+from hexgame import HexGame
 from sidestatus import SideStatus
 
 # Initialize window location
@@ -23,9 +23,6 @@ CELL_SIDE_WIDTH = 20
 win = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Slitherlink")
 
-# Game Board
-board = HexBoard.create(WIDTH, HEIGHT, 5, "...24.2143..53...4.")
-
 # Colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -36,15 +33,15 @@ BLUE = (0, 0, 255)
 PINK = (255, 0, 255)
 
 
-def render():
+def render(game):
     """Draws the game board."""
     win.fill(BLACK)
 
-    for rowArr in board.board:
+    for rowArr in game.board:
         for cell in rowArr:
             pygame.draw.circle(win, WHITE, cell.center.get(), 2)
 
-    for side in board.sides:
+    for side in game.sides:
         if side.status == SideStatus.UNSET:
             isDashed = True
             lineWidth = 4
@@ -94,7 +91,7 @@ def drawDashedLine(color, startPos, endPos, width=1, dashLength=5):
         pygame.draw.line(win, color, start.get(), end.get(), width)
 
 
-def handleClick():
+def handleClick(game):
     """Handle the mouse click event."""
 
     helpers.measureStart("Click")
@@ -102,7 +99,7 @@ def handleClick():
     mouseX, mouseY = pygame.mouse.get_pos()
     mousePos = Point((mouseX, mouseY))
 
-    side, dist = board.getNearestSide(mousePos)
+    side, dist = game.getNearestSide(mousePos)
 
     # If the distance is greather than this threshold, the click will not register.
     toggleDistanceThreshold = 20
@@ -114,19 +111,33 @@ def handleClick():
     print(f"{execTime}ms")
 
 
+def reset(game):
+    """Reset the board."""
+    game.init()
+
+
 def main():
     """Main function."""
 
     run = True
+
+    game = HexGame(WIDTH, HEIGHT, 5, "...24.2143..53...4.")
 
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                handleClick()
+                handleClick(game)
+            if event.type == pygame.KEYDOWN:
+                keys = pygame.key.get_pressed()
+                kmods = pygame.key.get_mods()
 
-        render()
+                # Ctrl-R
+                if (kmods & pygame.KMOD_CTRL) and keys[pygame.K_r]:
+                    reset(game)
+
+        render(game)
 
 
 if __name__ == "__main__":
