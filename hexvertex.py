@@ -28,6 +28,14 @@ class HexVertex:
         """Returns the number of `Side` with `ACTIVE` status."""
         return self.sides.count(lambda x: x.status == SideStatus.ACTIVE)
 
+    def getAllSidesExcept(self, exceptSideId):
+        """Returns all the sides that are connected to this vertex, except a specified `Side`.
+
+        Args:
+            exceptSideId(int): The id of the side to be excluded from the list.
+        """
+        return [filter(lambda side: side.id != exceptSideId, self.sides)]
+
     def getActiveSidesExcept(self, exceptSideId):
         """Returns the active sides that are connected to this vertex, except a specified `Side`.
 
