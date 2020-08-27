@@ -117,7 +117,7 @@ def getSideDrawInfo(side):
     elif side.status == SideStatus.ACTIVE:
         isDashed = False
         lineWidth = 3
-        color = colors.SIDE_COLORS[side.colorIdx]
+        color = colors.SIDE_COLORS[side.colorIdx % len(colors.SIDE_COLORS)]
     elif side.status == SideStatus.BLANK:
         isDashed = True
         lineWidth = 2
