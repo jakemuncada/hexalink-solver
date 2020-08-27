@@ -79,8 +79,8 @@ def render(game):
 
     # Draw the dirty vertices last so that the dots are above any of the lines
     for dirtyVertex in dirtyVertices:
-        vertexColor = helpers.getVertexColor(dirtyVertex)
-        rect = pygame.draw.circle(screen, vertexColor, dirtyVertex.coords.get(), 2)
+        radius, color = getVertexDrawInfo(dirtyVertex)
+        rect = pygame.draw.circle(screen, color, dirtyVertex.coords.get(), radius)
         updateRects.append(rect)
 
     # Draw the FPS display
@@ -126,6 +126,23 @@ def getSideDrawInfo(side):
         raise AssertionError(f"Invalid side status: {side.status}")
 
     return lineWidth, isDashed, color
+
+
+def getVertexDrawInfo(_):
+    """Get the draw info of the vertex. Returns `radius, color`,
+    which is a tuple containing the draw info.
+
+    Args:
+        vertex (HexVertex): The vertex to be drawn.
+
+    Returns:
+        radius (int): The radius of the vertex.
+        color (3-tuple): The color of the vertex.
+    """
+    # for side in vertex.sides:
+    #     if side.isActive():
+    #         return colors.SIDE_COLORS[side.colorIdx]
+    return 2, colors.WHITE
 
 
 def drawMargins():

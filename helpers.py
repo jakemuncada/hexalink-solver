@@ -185,14 +185,6 @@ def getLinkItems(side):
     return ret
 
 
-def getVertexColor(vertex):
-    """Get the color of the vertex."""
-    for side in vertex.sides:
-        if side.isActive():
-            return colors.SIDE_COLORS[side.colorIdx]
-    return colors.WHITE
-
-
 def measureStart(name):
     """Start the execution time measurement.
 
