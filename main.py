@@ -28,6 +28,7 @@ pygame.display.set_caption("Slitherlink")
 
 # Clock
 clock = pygame.time.Clock()
+FPS = 30
 
 # Colors
 WHITE = (255, 255, 255)
@@ -214,8 +215,8 @@ def main():
                 if (kmods & pygame.KMOD_CTRL) and keys[pygame.K_r]:
                     reset(game)
 
-        clock.tick(60)
         render(game)
+        clock.tick(FPS)
 
 
 if __name__ == "__main__":
