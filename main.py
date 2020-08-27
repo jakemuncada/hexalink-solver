@@ -183,8 +183,6 @@ def reset(game):
 def main():
     """Main function."""
 
-    run = True
-
     rows = inputfile.INPUT1["rows"]
     dataStr = re.sub(r"\s+", "", inputfile.INPUT1["dataStr"])
 
@@ -200,7 +198,7 @@ def main():
 
     game = HexGame((centerX, centerY), cellSideWidth, rows, dataStr)
 
-    while run:
+    while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
