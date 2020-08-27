@@ -19,10 +19,14 @@ pygame.init()
 
 # Initialize font
 FONT = pygame.font.SysFont("Courier", 15)
+FPS_FONT = pygame.font.SysFont("Arial", 18)
 
 # Screen
 screen = pygame.display.set_mode((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT))
 pygame.display.set_caption("Slitherlink")
+
+# Clock
+clock = pygame.time.Clock()
 
 # Colors
 WHITE = (255, 255, 255)
@@ -81,7 +85,15 @@ def render(game):
         vtxCoord = vertex.coords.get()
         pygame.draw.circle(screen, WHITE, vtxCoord, 2)
 
+    drawFps()
     pygame.display.update()
+
+
+def drawFps():
+    """Draw the FPS on the screen."""
+    fps = str(int(clock.get_fps()))
+    fpsText = FPS_FONT.render(fps, 1, pygame.Color("coral"))
+    screen.blit(fpsText, (10, 0))
 
 
 def drawMargins():
@@ -169,6 +181,8 @@ def reset(game):
 def main():
     """Main function."""
 
+    global renderCount, totalTime, measureFlag
+
     run = True
 
     rows = inputfile.INPUT1["rows"]
@@ -200,6 +214,7 @@ def main():
                 if (kmods & pygame.KMOD_CTRL) and keys[pygame.K_r]:
                     reset(game)
 
+        clock.tick(60)
         render(game)
 
 
