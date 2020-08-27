@@ -39,6 +39,7 @@ class HexGame:
         """Initialize the board. Can be called again to reset board."""
         self.midRow = self.rows // 2
         self.board = [[] for _ in range(self.rows)]
+        self.cells = []
         self.sides = []
         self.vertices = []
 
@@ -51,6 +52,7 @@ class HexGame:
                 cell = HexCell(row, col, self.cellSideWidth, reqSides)
                 cell.calcCoords(self.center, self.rows)
                 self.board[row].append(cell)
+                self.cells.append(cell)
                 cellIdx += 1
 
         self._registerAdjacentCells()
