@@ -84,11 +84,11 @@ class HexSide:
             SideStatus: The status of the side after toggling.
         """
         if self.status == SideStatus.UNSET:
-            self.status.setStatus(SideStatus.ACTIVE)
+            self.setStatus(SideStatus.ACTIVE)
         elif self.status == SideStatus.ACTIVE:
-            self.status.setStatus(SideStatus.BLANK)
+            self.setStatus(SideStatus.BLANK)
         elif self.status == SideStatus.BLANK:
-            self.status.setStatus(SideStatus.UNSET)
+            self.setStatus(SideStatus.UNSET)
         else:
             raise AssertionError(f"Invalid status: {self.status}")
 
