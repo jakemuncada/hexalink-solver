@@ -6,6 +6,7 @@ from sidestatus import SideStatus
 from hexdir import HexSideDir, HexVertexDir
 from hexcell import HexCell
 from hexvertex import HexVertex
+from constants import SIDE_COLORS
 from point import Point
 import helpers
 
@@ -205,7 +206,7 @@ class HexGame:
         elif newStatus == SideStatus.BLANK:
             self._setSideBlank(side)
         elif newStatus == SideStatus.UNSET:
-            side.status = newStatus
+            side.setStatus(newStatus)
         else:
             raise AssertionError(f"Invalid side status: {newStatus}")
 
@@ -229,15 +230,15 @@ class HexGame:
         if len(activeSides1) == 0 and len(activeSides2) == 0:
             # If both vtx1 and vtx2 have NO active sides
             nextColorIdx = helpers.getLeastUsedColor(self.sides)
-            side.colorIdx = nextColorIdx
+            side.setColorIdx(nextColorIdx)
 
         if len(activeSides1) > 0 and len(activeSides2) == 0:
             # If vtx1 has active sides but vtx2 does not
-            side.colorIdx = activeSides1[0].colorIdx
+            side.setColorIdx(activeSides1[0].colorIdx)
 
         elif len(activeSides1) == 0 and len(activeSides2) > 0:
             # If vtx2 has active sides but vtx1 does not
-            side.colorIdx = activeSides2[0].colorIdx
+            side.setColorIdx(activeSides2[0].colorIdx)
 
         elif len(activeSides1) > 0 and len(activeSides2) > 0:
             # If both have active sides
@@ -245,17 +246,17 @@ class HexGame:
             link2 = helpers.getLinkItems(activeSides2[0])
             if len(link1) >= len(link2):
                 newColorIdx = self.sides[link1.pop()].colorIdx
-                side.colorIdx = newColorIdx
+                side.setColorIdx(newColorIdx)
                 while len(link2) > 0:
-                    self.sides[link2.pop()].colorIdx = newColorIdx
+                    self.sides[link2.pop()].setColorIdx(newColorIdx)
             else:
                 newColorIdx = self.sides[link2.pop()].colorIdx
-                side.colorIdx = newColorIdx
+                side.setColorIdx(newColorIdx)
                 while len(link1) > 0:
-                    self.sides[link1.pop()].colorIdx = newColorIdx
+                    self.sides[link1.pop()].setColorIdx(newColorIdx)
 
         # Finally, set the status of the actual side
-        side.status = SideStatus.ACTIVE
+        side.setStatus(SideStatus.ACTIVE)
 
     def _setSideBlank(self, side):
         """Set the side status to `BLANK`, then recalculate stuff.
@@ -267,7 +268,7 @@ class HexGame:
         """
 
         # Make sure to set it to BLANK so that it will not be included in the link
-        side.status = SideStatus.BLANK
+        side.setStatus(SideStatus.BLANK)
 
         # Get the enpoints/vertices
         vtx1 = side.endpoints[0]
@@ -288,14 +289,18 @@ class HexGame:
                 exceptColorIdx = self.sides[link1.pop()].colorIdx
                 newColorIdx = helpers.getLeastUsedColor(self.sides, exceptColorIdx)
                 while len(link2) > 0:
-                    self.sides[link2.pop()].colorIdx = newColorIdx
+                    linkElem = self.sides[link2.pop()]
+                    print(f"Setting new color of {linkElem} to {SIDE_COLORS[newColorIdx]}")
+                    linkElem.setColorIdx(newColorIdx)
 
             else:
                 # If link2 is bigger, re-color link1
                 exceptColorIdx = self.sides[link2.pop()].colorIdx
                 newColorIdx = helpers.getLeastUsedColor(self.sides, exceptColorIdx)
                 while len(link1) > 0:
-                    self.sides[link1.pop()].colorIdx = newColorIdx
+                    linkElem = self.sides[link1.pop()]
+                    print(f"Setting new color of {linkElem} to {SIDE_COLORS[newColorIdx]}")
+                    linkElem.setColorIdx(newColorIdx)
 
     def getCell(self, row, col):
         """Get the cell at the specified row and column of the board. Returns None if not found."""

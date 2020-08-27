@@ -20,6 +20,7 @@ class HexCell:
     def __init__(self, row, col, sideLength, reqSides):
         self.row = row
         self.col = col
+        self.numDirty = True
         self.sideLength = sideLength
         self.center = Point()
         self.reqSides = reqSides

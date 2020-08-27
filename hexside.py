@@ -13,6 +13,7 @@ class HexSide:
 
     def __init__(self, idx, vertex1, vertex2, length, status=SideStatus.UNSET):
         self.id = idx
+        self.isDirty = True
         self.colorIdx = idx
         self.length = length
         self.status = status
@@ -27,6 +28,28 @@ class HexSide:
         # Register yourself to the vertex
         vertex1.sides.append(self)
         vertex2.sides.append(self)
+
+    def setStatus(self, newStatus):
+        """Sets the status. Does nothing if the new status is equal
+        to current status. Sets `isDirty` to true if status was changed.
+
+        Args:
+            newStatus (SideStatus): The new status.
+        """
+        if self.status != newStatus:
+            self.status = newStatus
+            self.isDirty = True
+
+    def setColorIdx(self, newColorIdx):
+        """Sets the color index. Does nothing if the new color index is equal
+        to current color index. Sets `isDirty` to true if it was changed.
+
+        Args:
+            newColorIdx (SideStatus): The new color index.
+        """
+        if self.colorIdx != newColorIdx:
+            self.colorIdx = newColorIdx
+            self.isDirty = True
 
     def isActive(self):
         """Returns true if the side is active. False otherwise."""
@@ -61,11 +84,11 @@ class HexSide:
             SideStatus: The status of the side after toggling.
         """
         if self.status == SideStatus.UNSET:
-            self.status = SideStatus.ACTIVE
+            self.status.setStatus(SideStatus.ACTIVE)
         elif self.status == SideStatus.ACTIVE:
-            self.status = SideStatus.BLANK
+            self.status.setStatus(SideStatus.BLANK)
         elif self.status == SideStatus.BLANK:
-            self.status = SideStatus.UNSET
+            self.status.setStatus(SideStatus.UNSET)
         else:
             raise AssertionError(f"Invalid status: {self.status}")
 

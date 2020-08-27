@@ -43,13 +43,21 @@ def render(game):
     # Margin
     # drawMargins()
 
-    for rowArr in game.board:
-        for cell in rowArr:
-            if cell.reqSides is not None:
-                # reqSidesFont = pygame.font.SysFont("Courier", int(60 * game.cellSideWidth / 100))
-                reqSidesFont = pygame.font.SysFont("Courier", 20)
-                displayText(str(cell.reqSides), cell.center, reqSidesFont, colors.WHITE)
+    updateRects = []
 
+    # Draw the cell numbers
+    for cell in game.cells:
+        if cell.reqSides is not None:
+            if cell.numDirty:
+                reqSidesFont = pygame.font.SysFont("Courier", 20)
+                rect = displayText(str(cell.reqSides), cell.center, reqSidesFont, colors.WHITE)
+                updateRects.append(rect)
+                cell.numDirty = False
+
+    # Array of 2-tuples which are the coords of the endpoints of the dirty sides
+    dirtyVertices = []
+
+    # Draw the sides
     for side in game.sides:
         if side.status == SideStatus.UNSET:
             isDashed = True
@@ -68,19 +76,28 @@ def render(game):
         ep2 = side.endpoints[1].coords.get()
 
         if not isDashed:
-            pygame.draw.line(screen, color, ep1, ep2, lineWidth)
+            rect = pygame.draw.line(screen, color, ep1, ep2, lineWidth)
         else:
-            drawDashedLine(color, ep1, ep2, lineWidth)
+            rect = drawDashedLine(color, ep1, ep2, lineWidth)
 
-        pygame.draw.circle(screen, colors.WHITE, ep1, 2)
-        pygame.draw.circle(screen, colors.WHITE, ep2, 2)
+        # Add the dirty sides to the list
+        if side.isDirty:
+            side.isDirty = False
+            updateRects.append(rect)
+            dirtyVertices.append(ep1)
+            dirtyVertices.append(ep2)
 
-    for vertex in game.vertices:
-        vtxCoord = vertex.coords.get()
-        pygame.draw.circle(screen, colors.WHITE, vtxCoord, 2)
+    # Draw the dirty vertices last so that the dots are above any of the lines
+    for dirtyVertex in dirtyVertices:
+        rect = pygame.draw.circle(screen, colors.WHITE, dirtyVertex, 2)
+        updateRects.append(rect)
 
+    # Draw the FPS display
     drawFps()
-    pygame.display.update()
+    updateRects.append((10, 0, 30, 30))
+
+    # Update the screen, but only the areas/rects that have changed
+    pygame.display.update(updateRects)
 
 
 def drawFps():
@@ -119,10 +136,14 @@ def displayText(text, coords, font, color):
         coords (Point): The center coordinates of the text rect.
         font (pygame.font): The font to be used.
         color (3-tuple): The text color.
+
+    Returns:
+        pygame.Rect: The rect of the font surface.
     """
     fontSurface = font.render(str(text), True, color)
     rect = fontSurface.get_rect(center=coords.get())
     screen.blit(fontSurface, rect)
+    return rect
 
 
 def drawDashedLine(color, startPos, endPos, width=1, dashLength=5):
@@ -130,10 +151,13 @@ def drawDashedLine(color, startPos, endPos, width=1, dashLength=5):
 
     Args:
         color (3-tuple): The line color.
-        startPos (Point): The start point of the line.
-        endPos (Point): The end point of the line.
+        startPos (2-tuple): The start point of the line.
+        endPos (2-tuple): The end point of the line.
         width (int): The line width.
         dashLength (int): The length of the dash.
+
+    Returns:
+        pygame.Rect: The rect of the dashed line.
     """
     origin = Point(startPos)
     target = Point(endPos)
@@ -145,6 +169,15 @@ def drawDashedLine(color, startPos, endPos, width=1, dashLength=5):
         start = origin + (slope * index * dashLength)
         end = origin + (slope * (index + 1) * dashLength)
         pygame.draw.line(screen, color, start.get(), end.get(), width)
+
+    left = min(startPos[0], endPos[0])
+    top = min(startPos[1], endPos[1])
+    width = abs(startPos[0] - endPos[0])
+    height = abs(startPos[1] - endPos[1])
+    width += 3
+    height += 3
+
+    return pygame.Rect(left, top, width, height)
 
 
 def handleClick(game):
