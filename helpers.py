@@ -11,6 +11,7 @@ from time import perf_counter_ns
 
 import colors
 import constants
+from point import Point
 from sidestatus import SideStatus
 
 
@@ -19,6 +20,72 @@ random.seed(datetime.now())
 
 # For execution time measurement
 startTimes = {}
+
+
+def getNearestSide(sides, point):
+    """Get the nearest side from a point.
+
+    Args:
+        sides ([HexSide]): The list of all sides.
+        point (Point): The reference point.
+
+    Returns:
+        (HexSide, float): The nearest side and its distance from the point.
+    """
+
+    minDist = 999999999.0
+    nearestSide = None
+
+    for side in sides:
+        endPt1 = side.endpoints[0].coords
+        endPt2 = side.endpoints[1].coords
+        dist = pointToLineDist(endPt1, endPt2, point)
+        if dist < minDist:
+            minDist = dist
+            nearestSide = side
+
+    return nearestSide, minDist
+
+
+def getNearestCell(cells, point):
+    """Get the nearest cell from a point.
+
+    Args:
+        cells ([HexCell]): The list of all cells.
+        point (Point): The reference point.
+
+    Returns:
+        (HexCell, float): The nearest cell and its distance from the point.
+    """
+
+    minSqrDist = 999999999.0
+    nearestCell = None
+
+    for cell in cells:
+        sqrDistance = sqrDist(cell.center, point)
+        if sqrDistance < minSqrDist:
+            minSqrDist = sqrDistance
+            nearestCell = cell
+
+    return nearestCell, math.sqrt(minSqrDist)
+
+
+def sqrDist(p1, p2):
+    """Get the square distance between two points.
+
+    Args:
+        p1 (Point or tuple): The first point.
+        p2 (Point or tuple): The other point.
+
+    Returns:
+        float: The square distance between two points.
+    """
+    if isinstance(p1, Point):
+        p1 = p1.get()
+    if isinstance(p2, Point):
+        p2 = p2.get()
+
+    return (p2[0] - p1[0]) * (p2[0] - p1[0]) + (p2[1] - p1[1]) * (p2[1] - p1[1])
 
 
 def pointToLineDist(A, B, E):
