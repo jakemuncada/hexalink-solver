@@ -82,4 +82,6 @@ class HexSide:
 
     def __str__(self):
         """Returns a string describing the Side."""
-        return f"{self.status}"
+        for sideDir in self.adjCells:
+            return f"{str(sideDir.opposite())} of {self.adjCells[sideDir]}"
+        raise AssertionError("Did not find a valid adjacent cell.")
