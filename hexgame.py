@@ -148,6 +148,21 @@ class HexGame:
         """Register the limbs of each cell. A limb is a `HexSide` which is not part
         of the `HexCell` itself but connected to one of the cell's vertices."""
 
+        def getLimb(cell, vtxDir):
+            """Get the limb of a cell at a particular vertex direction."""
+            vtx = cell.vertices[vtxDir]
+            for limbCandidate in vtx.sides:
+                # Check if the limbCandidate is not a part of the cell
+                if limbCandidate not in cell.sides:
+                    return limbCandidate
+            # Cells at the edge of the board have no limbs at some vertices
+            return None
+
+        for cell in self.cells:
+            for vtxDir in HexVertexDir:
+                limb = getLimb(cell, vtxDir)
+                cell.limbs[vtxDir] = limb
+
     def validateInputData(self):
         """Validates the initialization input.
 
@@ -373,26 +388,3 @@ class HexGame:
             ret = self.getCell(cell.row, cell.col - 1)
 
         return ret
-
-    def getNearestSide(self, point):
-        """Get the nearest side from a point.
-
-        Args:
-            point (Point): The reference point.
-
-        Returns:
-            (HexSide, float): The nearest side and its distance from the point.
-        """
-
-        minDist = 999999999.0
-        nearestSide = None
-
-        for side in self.sides:
-            endPt1 = side.endpoints[0].coords
-            endPt2 = side.endpoints[1].coords
-            dist = helpers.pointToLineDist(endPt1, endPt2, point)
-            if dist < minDist:
-                minDist = dist
-                nearestSide = side
-
-        return nearestSide, minDist

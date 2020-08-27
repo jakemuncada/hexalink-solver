@@ -1,7 +1,7 @@
 """A cell with 6 sides."""
 
 import math
-from hexdir import HexSideDir
+from hexdir import HexSideDir, HexVertexDir
 from point import Point
 from constants import COS_60
 
@@ -26,7 +26,8 @@ class HexCell:
         self.reqSides = reqSides
         self.adjCells = [None for _ in HexSideDir]
         self.sides = [None for _ in HexSideDir]
-        self.vertices = [None for _ in range(6)]
+        self.vertices = [None for _ in HexVertexDir]
+        self.limbs = [None for _ in HexVertexDir]
 
     def calcCoords(self, boardCenter, rows):
         """Calculates and stores the x-y coordinate of the center of the cell.

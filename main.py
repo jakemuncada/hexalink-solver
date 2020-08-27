@@ -226,7 +226,7 @@ def handleClick(game):
     mouseX, mouseY = pygame.mouse.get_pos()
     mousePos = Point((mouseX, mouseY))
 
-    side, dist = game.getNearestSide(mousePos)
+    side, dist = helpers.getNearestSide(game.sides, mousePos)
 
     # If the distance is greather than this threshold, the click will not register.
     toggleDistanceThreshold = 20
