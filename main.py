@@ -57,25 +57,17 @@ def render(game):
 
     # Draw the sides
     for side in game.sides:
-        if side.status == SideStatus.UNSET:
-            isDashed = True
-            lineWidth = 2
-            color = colors.GRAY
-        elif side.status == SideStatus.ACTIVE:
-            isDashed = False
-            lineWidth = 3
-            color = colors.SIDE_COLORS[side.colorIdx]
-        elif side.status == SideStatus.BLANK:
-            isDashed = True
-            lineWidth = 2
-            color = colors.DARKER_GRAY
+        lineWidth, isDashed, color = getSideDrawInfo(side)
 
+        # The coordinates of the endpoints
         ep1 = side.endpoints[0].coords.get()
         ep2 = side.endpoints[1].coords.get()
 
         if not isDashed:
+            # If not dashed, draw a straight line
             rect = pygame.draw.line(screen, color, ep1, ep2, lineWidth)
         else:
+            # Else, draw a dashed line
             rect = drawDashedLine(color, ep1, ep2, lineWidth)
 
         # Add the dirty sides to the list
@@ -104,6 +96,36 @@ def drawFps():
     fps = str(int(clock.get_fps()))
     fpsText = FPS_FONT.render(fps, 1, pygame.Color("coral"))
     screen.blit(fpsText, (10, 0))
+
+
+def getSideDrawInfo(side):
+    """Get the draw info of the side. Returns `(lineWidth, isDashed, color)`,
+    which is a tuple containing the draw info.
+
+    Args:
+        side (HexSide): The side to be drawn.
+
+    Returns:
+        lineWidth (int): The width of the line.
+        isDashed (bool): Whether or not the line is a dashed line.
+        color (3-tuple): The color of the line.
+    """
+    if side.status == SideStatus.UNSET:
+        isDashed = True
+        lineWidth = 2
+        color = colors.GRAY
+    elif side.status == SideStatus.ACTIVE:
+        isDashed = False
+        lineWidth = 3
+        color = colors.SIDE_COLORS[side.colorIdx]
+    elif side.status == SideStatus.BLANK:
+        isDashed = True
+        lineWidth = 2
+        color = colors.DARKER_GRAY
+    else:
+        raise AssertionError(f"Invalid side status: {side.status}")
+
+    return lineWidth, isDashed, color
 
 
 def drawMargins():
