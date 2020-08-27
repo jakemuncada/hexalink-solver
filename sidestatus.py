@@ -13,3 +13,12 @@ class SideStatus(IntEnum):
     UNSET = 0
     ACTIVE = 1
     BLANK = 2
+
+    def __str__(self):
+        if self == SideStatus.UNSET:
+            return "UNSET"
+        if self == SideStatus.ACTIVE:
+            return "ACTIVE"
+        if self == SideStatus.BLANK:
+            return "BLANK"
+        raise AssertionError("Invalid Side Status")

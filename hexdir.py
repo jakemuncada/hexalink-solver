@@ -48,6 +48,21 @@ class HexSideDir(IntEnum):
             return (HexVertexDir.UL, HexVertexDir.LL)
         raise AssertionError(f"Invalid side direction: {self}")
 
+    def __str__(self):
+        if self == HexSideDir.UL:
+            return "LR"
+        if self == HexSideDir.UR:
+            return "LL"
+        if self == HexSideDir.R:
+            return "L"
+        if self == HexSideDir.LR:
+            return "UL"
+        if self == HexSideDir.LL:
+            return "UR"
+        if self == HexSideDir.L:
+            return "R"
+        raise AssertionError("Invalid Hex Side direction")
+
 
 class HexVertexDir(IntEnum):
     """The direction of a HexVertex."""
@@ -57,3 +72,18 @@ class HexVertexDir(IntEnum):
     B = 3
     LL = 4
     UL = 5
+
+    def __str__(self):
+        if self == HexVertexDir.T:
+            return "T"
+        if self == HexVertexDir.UR:
+            return "UR"
+        if self == HexVertexDir.LR:
+            return "LR"
+        if self == HexVertexDir.B:
+            return "B"
+        if self == HexVertexDir.LL:
+            return "LL"
+        if self == HexVertexDir.UL:
+            return "UL"
+        raise AssertionError("Invalid Hex Vertex direction")
