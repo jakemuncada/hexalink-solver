@@ -5,6 +5,7 @@ import re
 import sys
 
 import pygame
+import colors
 import helpers
 import constants
 import inputfile
@@ -25,28 +26,19 @@ FPS_FONT = pygame.font.SysFont("Arial", 18)
 # Screen
 screen = pygame.display.set_mode((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT))
 pygame.display.set_caption("Slitherlink")
+screen.fill((0, 0, 0))
+print(pygame.display.get_driver())
 
 # Clock
 clock = pygame.time.Clock()
 FPS = 30
-
-# Colors
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-GRAY = (120, 120, 120)
-DARKER_GRAY = (35, 35, 35)
-RED = (255, 0, 0)
-BLUE = (0, 0, 255)
-PINK = (255, 0, 255)
-CYAN = (0, 255, 255)
-YELLOW = (255, 255, 0)
 
 
 def render(game):
     """Draws the game board."""
 
     # Background
-    screen.fill(BLACK)
+    screen.fill(colors.BLACK)
 
     # Margin
     # drawMargins()
@@ -56,13 +48,13 @@ def render(game):
             if cell.reqSides is not None:
                 # reqSidesFont = pygame.font.SysFont("Courier", int(60 * game.cellSideWidth / 100))
                 reqSidesFont = pygame.font.SysFont("Courier", 20)
-                displayText(str(cell.reqSides), cell.center, reqSidesFont, WHITE)
+                displayText(str(cell.reqSides), cell.center, reqSidesFont, colors.WHITE)
 
     for side in game.sides:
         if side.status == SideStatus.UNSET:
             isDashed = True
             lineWidth = 2
-            color = GRAY
+            color = colors.GRAY
         elif side.status == SideStatus.ACTIVE:
             isDashed = False
             lineWidth = 3
@@ -70,7 +62,7 @@ def render(game):
         elif side.status == SideStatus.BLANK:
             isDashed = True
             lineWidth = 2
-            color = DARKER_GRAY
+            color = colors.DARKER_GRAY
 
         ep1 = side.endpoints[0].coords.get()
         ep2 = side.endpoints[1].coords.get()
@@ -80,12 +72,12 @@ def render(game):
         else:
             drawDashedLine(color, ep1, ep2, lineWidth)
 
-        pygame.draw.circle(screen, WHITE, ep1, 2)
-        pygame.draw.circle(screen, WHITE, ep2, 2)
+        pygame.draw.circle(screen, colors.WHITE, ep1, 2)
+        pygame.draw.circle(screen, colors.WHITE, ep2, 2)
 
     for vertex in game.vertices:
         vtxCoord = vertex.coords.get()
-        pygame.draw.circle(screen, WHITE, vtxCoord, 2)
+        pygame.draw.circle(screen, colors.WHITE, vtxCoord, 2)
 
     drawFps()
     pygame.display.update()
@@ -113,10 +105,10 @@ def drawMargins():
     lowerLeft = (leftMargin, screenHeight - botMargin)
     lowerRight = (screenWidth - rightMargin, screenHeight - botMargin)
 
-    pygame.draw.line(screen, WHITE, upperLeft, upperRight, 1)
-    pygame.draw.line(screen, WHITE, upperRight, lowerRight, 1)
-    pygame.draw.line(screen, WHITE, lowerRight, lowerLeft, 1)
-    pygame.draw.line(screen, WHITE, lowerLeft, upperLeft, 1)
+    pygame.draw.line(screen, colors.WHITE, upperLeft, upperRight, 1)
+    pygame.draw.line(screen, colors.WHITE, upperRight, lowerRight, 1)
+    pygame.draw.line(screen, colors.WHITE, lowerRight, lowerLeft, 1)
+    pygame.draw.line(screen, colors.WHITE, lowerLeft, upperLeft, 1)
 
 
 def displayText(text, coords, font, color):
