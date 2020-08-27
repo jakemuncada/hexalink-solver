@@ -182,8 +182,6 @@ def reset(game):
 def main():
     """Main function."""
 
-    global renderCount, totalTime, measureFlag
-
     run = True
 
     rows = inputfile.INPUT1["rows"]
