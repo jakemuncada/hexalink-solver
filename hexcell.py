@@ -3,7 +3,7 @@
 import math
 from hexdir import HexSideDir, HexVertexDir
 from point import Point
-from constants import COS_60
+from Constants import COS_60
 
 
 class HexCell:

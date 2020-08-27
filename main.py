@@ -5,9 +5,9 @@ import re
 import sys
 
 import pygame
-import colors
+import Colors
 import helpers
-import constants
+import Constants
 import inputfile
 from point import Point
 from hexgame import HexGame
@@ -24,7 +24,7 @@ FONT = pygame.font.SysFont("Courier", 15)
 FPS_FONT = pygame.font.SysFont("Arial", 18)
 
 # Screen
-screen = pygame.display.set_mode((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT))
+screen = pygame.display.set_mode((Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT))
 pygame.display.set_caption("Slitherlink")
 
 # Clock
@@ -36,7 +36,7 @@ def render(game):
     """Draws the game board."""
 
     # Background
-    screen.fill(colors.BLACK)
+    screen.fill(Colors.BLACK)
 
     # Margin
     # drawMargins()
@@ -48,7 +48,7 @@ def render(game):
         if cell.reqSides is not None:
             if cell.numDirty:
                 reqSidesFont = pygame.font.SysFont("Courier", 20)
-                rect = displayText(str(cell.reqSides), cell.center, reqSidesFont, colors.WHITE)
+                rect = displayText(str(cell.reqSides), cell.center, reqSidesFont, Colors.WHITE)
                 updateRects.append(rect)
                 cell.numDirty = False
 
@@ -113,15 +113,15 @@ def getSideDrawInfo(side):
     if side.status == SideStatus.UNSET:
         isDashed = True
         lineWidth = 2
-        color = colors.GRAY
+        color = Colors.GRAY
     elif side.status == SideStatus.ACTIVE:
         isDashed = False
         lineWidth = 3
-        color = colors.SIDE_COLORS[side.colorIdx % len(colors.SIDE_COLORS)]
+        color = Colors.SIDE_COLORS[side.colorIdx % len(Colors.SIDE_COLORS)]
     elif side.status == SideStatus.BLANK:
         isDashed = True
         lineWidth = 2
-        color = colors.DARKER_GRAY
+        color = Colors.DARKER_GRAY
     else:
         raise AssertionError(f"Invalid side status: {side.status}")
 
@@ -141,29 +141,29 @@ def getVertexDrawInfo(_):
     """
     # for side in vertex.sides:
     #     if side.isActive():
-    #         return colors.SIDE_COLORS[side.colorIdx]
-    return 2, colors.WHITE
+    #         return Colors.SIDE_COLORS[side.colorIdx]
+    return 2, Colors.WHITE
 
 
 def drawMargins():
     """Draw the margins on the screen."""
 
-    screenWidth = constants.SCREEN_WIDTH
-    screenHeight = constants.SCREEN_HEIGHT
-    topMargin = constants.SCREEN_TOP_MARGIN
-    botMargin = constants.SCREEN_BOTTOM_MARGIN
-    leftMargin = constants.SCREEN_LEFT_MARGIN
-    rightMargin = constants.SCREEN_RIGHT_MARGIN
+    screenWidth = Constants.SCREEN_WIDTH
+    screenHeight = Constants.SCREEN_HEIGHT
+    topMargin = Constants.SCREEN_TOP_MARGIN
+    botMargin = Constants.SCREEN_BOTTOM_MARGIN
+    leftMargin = Constants.SCREEN_LEFT_MARGIN
+    rightMargin = Constants.SCREEN_RIGHT_MARGIN
 
     upperLeft = (leftMargin, topMargin)
     upperRight = (screenWidth - rightMargin, topMargin)
     lowerLeft = (leftMargin, screenHeight - botMargin)
     lowerRight = (screenWidth - rightMargin, screenHeight - botMargin)
 
-    pygame.draw.line(screen, colors.WHITE, upperLeft, upperRight, 1)
-    pygame.draw.line(screen, colors.WHITE, upperRight, lowerRight, 1)
-    pygame.draw.line(screen, colors.WHITE, lowerRight, lowerLeft, 1)
-    pygame.draw.line(screen, colors.WHITE, lowerLeft, upperLeft, 1)
+    pygame.draw.line(screen, Colors.WHITE, upperLeft, upperRight, 1)
+    pygame.draw.line(screen, Colors.WHITE, upperRight, lowerRight, 1)
+    pygame.draw.line(screen, Colors.WHITE, lowerRight, lowerLeft, 1)
+    pygame.draw.line(screen, Colors.WHITE, lowerLeft, upperLeft, 1)
 
 
 def displayText(text, coords, font, color):
@@ -249,15 +249,15 @@ def main():
     rows = inputfile.INPUT1["rows"]
     dataStr = re.sub(r"\s+", "", inputfile.INPUT1["dataStr"])
 
-    horizontalMargin = constants.SCREEN_LEFT_MARGIN + constants.SCREEN_RIGHT_MARGIN
-    verticalMargin = constants.SCREEN_TOP_MARGIN + constants.SCREEN_BOTTOM_MARGIN
-    targetWidth = constants.SCREEN_WIDTH - horizontalMargin
-    targetHeight = constants.SCREEN_HEIGHT - verticalMargin
+    horizontalMargin = Constants.SCREEN_LEFT_MARGIN + Constants.SCREEN_RIGHT_MARGIN
+    verticalMargin = Constants.SCREEN_TOP_MARGIN + Constants.SCREEN_BOTTOM_MARGIN
+    targetWidth = Constants.SCREEN_WIDTH - horizontalMargin
+    targetHeight = Constants.SCREEN_HEIGHT - verticalMargin
 
     cellSideWidth = helpers.calculateOptimalSideLength(targetWidth, targetHeight, rows)
 
-    centerX = targetWidth // 2 + constants.SCREEN_LEFT_MARGIN
-    centerY = targetHeight // 2 + constants.SCREEN_TOP_MARGIN
+    centerX = targetWidth // 2 + Constants.SCREEN_LEFT_MARGIN
+    centerY = targetHeight // 2 + Constants.SCREEN_TOP_MARGIN
 
     game = HexGame((centerX, centerY), cellSideWidth, rows, dataStr)
 

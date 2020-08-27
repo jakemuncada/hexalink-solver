@@ -5,7 +5,7 @@ from math import sqrt
 from point import Point
 from sidestatus import SideStatus
 from hexdir import HexVertexDir
-from constants import COS_60
+from Constants import COS_60
 
 
 class HexVertex:

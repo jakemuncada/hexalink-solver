@@ -9,8 +9,8 @@ from datetime import datetime
 from collections import deque
 from time import perf_counter_ns
 
-import colors
-import constants
+import Colors
+import Constants
 from point import Point
 from sidestatus import SideStatus
 
@@ -165,7 +165,7 @@ def calculateOptimalSideLength(targetWidth, targetHeight, rows):
 
     # The maximum side length that does not exceed target height
     maxSideLengthForTargetHeight = int(targetHeight / ((2 * rows) - ((rows - 1) *
-                                                                     constants.COS_60)))
+                                                                     Constants.COS_60)))
 
     # The maximum side length that does not exceed target height
     maxSideLengthForTargetWidth = int(targetWidth / (rows * math.sqrt(3)))
@@ -185,12 +185,12 @@ def getLeastUsedColor(sides, exceptColorIdx=None):
     """
 
     if exceptColorIdx is not None:
-        exceptColorIdx = exceptColorIdx % len(colors.SIDE_COLORS)
+        exceptColorIdx = exceptColorIdx % len(Colors.SIDE_COLORS)
 
     count = {}
     for side in sides:
         if side.status == SideStatus.ACTIVE:
-            colorIdx = side.colorIdx % len(colors.SIDE_COLORS)
+            colorIdx = side.colorIdx % len(Colors.SIDE_COLORS)
 
             if exceptColorIdx is not None and exceptColorIdx == colorIdx:
                 continue
@@ -202,7 +202,7 @@ def getLeastUsedColor(sides, exceptColorIdx=None):
 
     minTimesUsed = 999999999
     minUsedColorIndexes = []
-    for colorIdx in range(len(colors.SIDE_COLORS)):
+    for colorIdx in range(len(Colors.SIDE_COLORS)):
 
         # Ignore the exceptColorIdx
         if exceptColorIdx is not None and exceptColorIdx == colorIdx:
