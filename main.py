@@ -2,6 +2,7 @@
 
 import os
 import re
+import sys
 
 import pygame
 import helpers
@@ -204,6 +205,7 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+                sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 handleClick(game)
             if event.type == pygame.KEYDOWN:
