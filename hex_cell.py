@@ -1,9 +1,9 @@
 """A cell with 6 sides."""
 
 import math
-from hexdir import HexSideDir, HexVertexDir
+from hex_dir import HexSideDir, HexVertexDir
 from point import Point
-from Constants import COS_60
+from constants import COS_60
 
 
 class HexCell:

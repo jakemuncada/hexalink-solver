@@ -1,13 +1,14 @@
 """The Hexagon Slitherlink Game"""
 
 
-from hexside import HexSide
-from sidestatus import SideStatus
-from hexdir import HexSideDir, HexVertexDir
-from hexcell import HexCell
-from hexvertex import HexVertex
+from hex_side import HexSide
+from side_status import SideStatus
+from hex_dir import HexSideDir, HexVertexDir
+from hex_cell import HexCell
+from hex_vertex import HexVertex
 from point import Point
-import helpers
+
+import helpers as helper
 
 
 class HexGame:
@@ -244,7 +245,7 @@ class HexGame:
 
         if len(activeSides1) == 0 and len(activeSides2) == 0:
             # If both vtx1 and vtx2 have NO active sides
-            nextColorIdx = helpers.getLeastUsedColor(self.sides)
+            nextColorIdx = helper.getLeastUsedColor(self.sides)
             side.setColorIdx(nextColorIdx)
 
         if len(activeSides1) > 0 and len(activeSides2) == 0:
@@ -257,8 +258,8 @@ class HexGame:
 
         elif len(activeSides1) > 0 and len(activeSides2) > 0:
             # If both have active sides
-            link1 = helpers.getLinkItems(activeSides1[0])
-            link2 = helpers.getLinkItems(activeSides2[0])
+            link1 = helper.getLinkItems(activeSides1[0])
+            link2 = helper.getLinkItems(activeSides2[0])
             if len(link1) >= len(link2):
                 newColorIdx = self.sides[link1.pop()].colorIdx
                 side.setColorIdx(newColorIdx)
@@ -296,13 +297,13 @@ class HexGame:
         # If both endpoints have active sides, then recalculate color of one endpoint.
         # However, if at least one endpoint has no active side, no need to do anything.
         if len(activeSides1) > 0 and len(activeSides2) > 0:
-            link1 = helpers.getLinkItems(activeSides1[0])
-            link2 = helpers.getLinkItems(activeSides2[0])
+            link1 = helper.getLinkItems(activeSides1[0])
+            link2 = helper.getLinkItems(activeSides2[0])
 
             if len(link1) >= len(link2):
                 # If link1 is bigger, re-color link2
                 exceptColorIdx = self.sides[link1.pop()].colorIdx
-                newColorIdx = helpers.getLeastUsedColor(self.sides, exceptColorIdx)
+                newColorIdx = helper.getLeastUsedColor(self.sides, exceptColorIdx)
                 while len(link2) > 0:
                     linkElem = self.sides[link2.pop()]
                     linkElem.setColorIdx(newColorIdx)
@@ -310,7 +311,7 @@ class HexGame:
             else:
                 # If link2 is bigger, re-color link1
                 exceptColorIdx = self.sides[link2.pop()].colorIdx
-                newColorIdx = helpers.getLeastUsedColor(self.sides, exceptColorIdx)
+                newColorIdx = helper.getLeastUsedColor(self.sides, exceptColorIdx)
                 while len(link1) > 0:
                     linkElem = self.sides[link1.pop()]
                     linkElem.setColorIdx(newColorIdx)

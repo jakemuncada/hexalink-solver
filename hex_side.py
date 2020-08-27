@@ -1,7 +1,7 @@
 """The side of a HexCell."""
 
 from point import Point
-from sidestatus import SideStatus
+from side_status import SideStatus
 
 
 class HexSide:
