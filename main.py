@@ -26,8 +26,6 @@ FPS_FONT = pygame.font.SysFont("Arial", 18)
 # Screen
 screen = pygame.display.set_mode((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT))
 pygame.display.set_caption("Slitherlink")
-screen.fill((0, 0, 0))
-print(pygame.display.get_driver())
 
 # Clock
 clock = pygame.time.Clock()

@@ -290,7 +290,6 @@ class HexGame:
                 newColorIdx = helpers.getLeastUsedColor(self.sides, exceptColorIdx)
                 while len(link2) > 0:
                     linkElem = self.sides[link2.pop()]
-                    print(f"Setting new color of {linkElem} to {SIDE_COLORS[newColorIdx]}")
                     linkElem.setColorIdx(newColorIdx)
 
             else:
@@ -299,7 +298,6 @@ class HexGame:
                 newColorIdx = helpers.getLeastUsedColor(self.sides, exceptColorIdx)
                 while len(link1) > 0:
                     linkElem = self.sides[link1.pop()]
-                    print(f"Setting new color of {linkElem} to {SIDE_COLORS[newColorIdx]}")
                     linkElem.setColorIdx(newColorIdx)
 
     def getCell(self, row, col):
