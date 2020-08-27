@@ -12,6 +12,7 @@ import helpers as helper
 import input_file
 from point import Point
 from hex_game import HexGame
+from hex_solver import HexSolver, HexGameMove
 from side_status import SideStatus
 
 # Initialize window location
@@ -239,6 +240,17 @@ def handleClick(game):
     print("handleClick: {:.3f}ms".format(execTime))
 
 
+def solveOne(solver):
+    """Get one move from the solver and apply it."""
+    nextMove = solver.getNextMove()
+    if nextMove is not None:
+        side = solver.game.sides[nextMove.sideId]
+        solver.game.setSideStatus(side, nextMove.newStatus)
+        print(f"Side {side} was set to {nextMove.newStatus}.")
+    else:
+        print("No moves left.")
+
+
 def reset(game):
     """Reset the board."""
     game.init()
@@ -261,6 +273,7 @@ def main():
     centerY = targetHeight // 2 + constants.SCREEN_TOP_MARGIN
 
     game = HexGame((centerX, centerY), cellSideWidth, rows, dataStr)
+    solver = HexSolver(game)
 
     while True:
         for event in pygame.event.get():
@@ -276,6 +289,10 @@ def main():
                 # Ctrl-R
                 if (kmods & pygame.KMOD_CTRL) and keys[pygame.K_r]:
                     reset(game)
+
+                # RIGHT
+                if keys[pygame.K_RIGHT]:
+                    solveOne(solver)
 
         render(game)
         clock.tick(FPS)

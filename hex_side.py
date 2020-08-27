@@ -59,6 +59,10 @@ class HexSide:
         """Returns true if the side is blank. False otherwise."""
         return self.status == SideStatus.BLANK
 
+    def isUnset(self):
+        """Returns true if the side is unset. False otherwise."""
+        return self.status == SideStatus.UNSET
+
     def getAllConnectedSides(self):
         """Returns all the connected sides."""
         ret = []
