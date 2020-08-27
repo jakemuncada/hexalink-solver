@@ -6,7 +6,6 @@ from sidestatus import SideStatus
 from hexdir import HexSideDir, HexVertexDir
 from hexcell import HexCell
 from hexvertex import HexVertex
-from constants import SIDE_COLORS
 from point import Point
 import helpers
 

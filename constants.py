@@ -12,17 +12,5 @@ SCREEN_BOTTOM_MARGIN = 10
 SCREEN_LEFT_MARGIN = 80
 SCREEN_RIGHT_MARGIN = 80
 
-# Color
-SIDE_COLORS = [
-    (255, 0, 0),  # RED
-    (0, 255, 0),  # GREEN
-    (0, 0, 255),  # BLUE
-    (255, 255, 0),  # YELLOW
-    (255, 0, 255),  # PINK
-    (0, 255, 255),  # CYAN
-    (255, 165, 0),  # ORANGE
-    (140, 52, 235)  # PURPLE
-]
-
 # Math
 COS_60 = cos(60 * pi / 180)

@@ -8,6 +8,8 @@ import random
 from datetime import datetime
 from collections import deque
 from time import perf_counter_ns
+
+import colors
 import constants
 from sidestatus import SideStatus
 
@@ -116,12 +118,12 @@ def getLeastUsedColor(sides, exceptColorIdx=None):
     """
 
     if exceptColorIdx is not None:
-        exceptColorIdx = exceptColorIdx % len(constants.SIDE_COLORS)
+        exceptColorIdx = exceptColorIdx % len(colors.SIDE_COLORS)
 
     count = {}
     for side in sides:
         if side.status == SideStatus.ACTIVE:
-            colorIdx = side.colorIdx % len(constants.SIDE_COLORS)
+            colorIdx = side.colorIdx % len(colors.SIDE_COLORS)
 
             if exceptColorIdx is not None and exceptColorIdx == colorIdx:
                 continue
@@ -133,7 +135,7 @@ def getLeastUsedColor(sides, exceptColorIdx=None):
 
     minTimesUsed = 999999999
     minUsedColorIndexes = []
-    for colorIdx in range(len(constants.SIDE_COLORS)):
+    for colorIdx in range(len(colors.SIDE_COLORS)):
 
         # Ignore the exceptColorIdx
         if exceptColorIdx is not None and exceptColorIdx == colorIdx:
@@ -181,6 +183,14 @@ def getLinkItems(side):
                 processStack.append(connSide)
 
     return ret
+
+
+def getVertexColor(vertex):
+    """Get the color of the vertex."""
+    for side in vertex.sides:
+        if side.isActive():
+            return colors.SIDE_COLORS[side.colorIdx]
+    return colors.WHITE
 
 
 def measureStart(name):

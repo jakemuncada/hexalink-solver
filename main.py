@@ -52,7 +52,7 @@ def render(game):
                 updateRects.append(rect)
                 cell.numDirty = False
 
-    # Array of 2-tuples which are the coords of the endpoints of the dirty sides
+    # Array of dirty HexVertices
     dirtyVertices = []
 
     # Draw the sides
@@ -64,7 +64,7 @@ def render(game):
         elif side.status == SideStatus.ACTIVE:
             isDashed = False
             lineWidth = 3
-            color = constants.SIDE_COLORS[side.colorIdx]
+            color = colors.SIDE_COLORS[side.colorIdx]
         elif side.status == SideStatus.BLANK:
             isDashed = True
             lineWidth = 2
@@ -82,12 +82,13 @@ def render(game):
         if side.isDirty:
             side.isDirty = False
             updateRects.append(rect)
-            dirtyVertices.append(ep1)
-            dirtyVertices.append(ep2)
+            dirtyVertices.append(side.endpoints[0])
+            dirtyVertices.append(side.endpoints[1])
 
     # Draw the dirty vertices last so that the dots are above any of the lines
     for dirtyVertex in dirtyVertices:
-        rect = pygame.draw.circle(screen, colors.WHITE, dirtyVertex, 2)
+        vertexColor = helpers.getVertexColor(dirtyVertex)
+        rect = pygame.draw.circle(screen, vertexColor, dirtyVertex.coords.get(), 2)
         updateRects.append(rect)
 
     # Draw the FPS display
