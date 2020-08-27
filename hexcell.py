@@ -56,6 +56,9 @@ class HexCell:
         """
         self.sides[sideDir] = hexSide
 
+    def __eq__(self, other):
+        return isinstance(other, HexCell) and other.row == self.row and other.col == self.col
+
     def __str__(self):
         """Returns the string describing the Cell."""
         ret = f"[{self.row},{self.col}]"
