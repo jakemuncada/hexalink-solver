@@ -77,6 +77,24 @@ class HexSide:
         Returns false otherwise."""
         return side in self.getAllConnectedSides()
 
+    def getConnectionVertex(self, side):
+        """Returns the vertex that is common between the two sides.
+        Returns None if the two sides aren't connected.
+
+        Args:
+            side: The other side.
+
+        Returns:
+            HexVertex: The common vertex. None if the two sides aren't connected.
+        """
+        if self.isConnectedTo(side):
+            verticesOfOther = set(side.endpoints)
+            if self.endpoints[0] in verticesOfOther:
+                return self.endpoints[0]
+            elif self.endpoints[1] in verticesOfOther:
+                return self.endpoints[1]
+        return None
+
     def isHanging(self):
         """Returns true if at least one endpoint has neither
         `UNSET` nor `ACTIVE` sides connected to it. False otherwise.
