@@ -15,14 +15,14 @@ import helpers as helper
 class HexGame:
     """The Hexagon Slitherlink class."""
 
-    def __init__(self, center, cellSideWidth, rows, cellData=None):
+    def __init__(self, center, cellSideWidth, rows, cellDataStr=None):
         """Create a HexGame.
 
         Args:
             center (2-tuple): The center coordinates of the board.
             cellSideWidth (int): The width of the side of the cell.
             rows (int): The number of rows of the board. Must be an odd number greater than 3.
-            cellData (string): The string containing the required sides of each cell. Optional.
+            cellDataStr (string): The string containing the required sides of each cell. Optional.
 
         Raises:
             ValueError: If the rows or cell data is invalid.
@@ -30,7 +30,7 @@ class HexGame:
 
         self.rows = rows
         self.cellSideWidth = cellSideWidth
-        self.cellData = cellData
+        self.cellDataStr = cellDataStr
         self.center = Point(center)
         self.moveHistory = []
 
@@ -51,7 +51,7 @@ class HexGame:
         cellIdx = 0
         for row in range(self.rows):
             for col in range(self.getNumOfCols(row)):
-                reqSides = self.cellData[cellIdx] if self.cellData is not None else "."
+                reqSides = self.cellDataStr[cellIdx] if self.cellDataStr is not None else "."
                 reqSides = None if reqSides == "." else int(reqSides)
                 cell = HexCell(row, col, self.cellSideWidth, reqSides)
                 cell.calcCoords(self.center, self.rows)
@@ -175,7 +175,7 @@ class HexGame:
 
         Args:
             rows (int): The number of rows of the board. Must be an odd number greater than 3.
-            cellData (string): The string containing the required sides of each cell.
+            cellDataStr (string): The string containing the required sides of each cell.
 
         Raises:
             ValueError: If the rows or cell data is invalid.
@@ -184,7 +184,7 @@ class HexGame:
         if self.rows < 3 or self.rows % 2 == 0:
             raise ValueError("The number of rows must be an odd number greater than 1.")
 
-        if self.cellData is None:
+        if self.cellDataStr is None:
             return
 
         # Get the total number of cells
@@ -194,10 +194,10 @@ class HexGame:
             totalCells += numOfColsInRow if row == self.rows // 2 else numOfColsInRow * 2
             numOfColsInRow -= 1
 
-        if totalCells != len(self.cellData):
-            raise ValueError(f"The given data string has invalid length ({len(self.cellData)}).")
+        if totalCells != len(self.cellDataStr):
+            raise ValueError(f"The given data string has invalid length ({len(self.cellDataStr)}).")
 
-        for c in self.cellData:
+        for c in self.cellDataStr:
             if c != "." and not c.isnumeric():
                 raise ValueError(f"The given data string contains an invalid character ({c}).")
 
