@@ -34,8 +34,15 @@ class HexCell:
         self.memoLimbs = None
 
     def requiredBlanks(self):
-        """Returns the number of required `BLANK` sides."""
+        """Returns the number of required `BLANK` sides. 
+        Returns None if `reqSides` is None."""
         return None if self.reqSides is None else 6 - self.reqSides
+
+    def remainingReqs(self):
+        """Returns the number of remaining `ACTIVE` requirements.
+        Returns None if `reqSides` is None."""
+        activeCount = self.countActiveSides()
+        return None if self.reqSides is None else self.reqSides - activeCount
 
     def countActiveSides(self):
         """Returns the number of currently `ACTIVE` sides."""
