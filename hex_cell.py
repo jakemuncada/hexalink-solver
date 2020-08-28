@@ -53,6 +53,14 @@ class HexCell:
                 count += 1
         return count
 
+    def countUnsetSides(self):
+        """Returns the number of currently `UNSET` sides."""
+        count = 0
+        for side in self.sides:
+            if side.isUnset():
+                count += 1
+        return count
+
     def getAdjacentCells(self):
         """Returns the not-None adjacent cells."""
         if self.memoAdjCells is None:
