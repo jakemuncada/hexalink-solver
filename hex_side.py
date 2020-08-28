@@ -26,6 +26,9 @@ class HexSide:
         self.adjCells = {}
         self.endpoints = (vertex1, vertex2)
 
+        # Memo
+        self._connSides = None  # Will be memoized by getAllConnectedSides()
+
         # Calculate midpoint
         midX = (vertex1.coords.x + vertex2.coords.x) / 2
         midY = (vertex1.coords.y + vertex2.coords.y) / 2
@@ -92,12 +95,13 @@ class HexSide:
 
     def getAllConnectedSides(self):
         """Returns all the connected sides."""
-        ret = []
-        for connSide in self.endpoints[0].getAllSidesExcept(self.id):
-            ret.append(connSide)
-        for connSide in self.endpoints[1].getAllSidesExcept(self.id):
-            ret.append(connSide)
-        return ret
+        if self._connSides is None:
+            self._connSides = []
+            for connSide in self.endpoints[0].getAllSidesExcept(self.id):
+                self._connSides.append(connSide)
+            for connSide in self.endpoints[1].getAllSidesExcept(self.id):
+                self._connSides.append(connSide)
+        return self._connSides
 
     def getAllActiveConnectedSides(self):
         """Returns all the connected sides whose status is `ACTIVE`."""
