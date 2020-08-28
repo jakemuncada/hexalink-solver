@@ -105,6 +105,18 @@ class HexCell:
     # SIDE GETTERS
     ##################################################
 
+    def getActiveSides(self):
+        """Returns a list of all the `ACTIVE` sides of this cell."""
+        return list(filter(lambda side: side.isActive(), self.sides))
+
+    def getBlankSides(self):
+        """Returns a list of all the `BLANK` sides of this cell."""
+        return list(filter(lambda side: side.isBlank(), self.sides))
+
+    def getUnsetSides(self):
+        """Returns a list of all the `UNSET` sides of this cell."""
+        return list(filter(lambda side: side.isUnset(), self.sides))
+
     def getAllSidesExcept(self, *exclusions):
         """Returns a list of all sides excluding a given list of sides.
 
