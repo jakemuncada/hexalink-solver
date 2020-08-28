@@ -25,9 +25,22 @@ class HexVertex:
         """Returns true if the number of active sides is greater than or equal to 2."""
         return self.countActiveSides() >= 2
 
+    def isDead(self):
+        """Returns true if all sides connected to this vertex is `BLANK`. False otherwise."""
+        return self.countBlankSides() == len(self.sides)
+
+    def isDeadEnd(self):
+        """Returns true if one side connected to this vertex is `ACTIVE`
+        and all the rest are `BLANK`."""
+        return self.countActiveSides() == 1 and self.countBlankSides() == len(self.sides) - 1
+
     def countActiveSides(self):
-        """Returns the number of `Side` with `ACTIVE` status."""
+        """Returns the number of `Sides` with `ACTIVE` status."""
         return self.sides.count(lambda x: x.status == SideStatus.ACTIVE)
+
+    def countBlankSides(self):
+        """Returns the number of `Sides` with `BLANK` status."""
+        return self.sides.count(lambda x: x.status == SideStatus.BLANK)
 
     def getAllSidesExcept(self, exceptSideId):
         """Returns all the sides that are connected to this vertex, except a specified `Side`.
