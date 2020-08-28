@@ -85,6 +85,17 @@ class HexCell:
     # SIDE GETTERS
     ##################################################
 
+    def getAllSidesExcept(self, *exclusions):
+        """Returns a list of all sides excluding a given list of sides.
+
+        Args:
+            exclusionList ([HexSide]): A list containing the exceptions.
+
+        Returns:
+            [HexSide]: The list of all sides excluding the given list of sides.
+        """
+        return list(filter(lambda side: side not in exclusions, self.sides))
+
     def getCap(self, direction):
         """Returns a tuple which contains the cap of the cell in a given direction
         and the limbs which are attached to the cap.
