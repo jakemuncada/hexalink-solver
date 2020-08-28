@@ -278,6 +278,19 @@ def checkAllSidesAreBlank(sides):
     return True
 
 
+def checkAllSidesAreUnset(sides):
+    """Returns true if the given list of sides are all `UNSET`.
+    Returns false otherwise.
+
+    Args:
+        sides ([HexSide]): A list of sides.
+    """
+    for side in sides:
+        if not side.isUnset():
+            return False
+    return True
+
+
 def measureStart(name):
     """Start the execution time measurement.
 
