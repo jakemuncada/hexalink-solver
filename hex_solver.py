@@ -2,7 +2,7 @@
 
 from side_status import SideStatus
 from hex_game_move import HexGameMove
-from hex_dir import HexSideDir
+from hex_dir import HexSideDir, HexVertexDir
 
 # Define SideStatus members
 BLANK = SideStatus.BLANK
@@ -17,8 +17,21 @@ class HexSolver:
         self.game = game
         self.nextMoveList = []
         self.processedSideIds = set()
+        self.currMoveSequence = None
 
         self.initialBoardInspection()
+        self.solveAll()
+
+    def solveAll(self):
+        """Solve the whole board."""
+        while True:
+            nextMove = self.getNextMove()
+            if nextMove is None:
+                break
+            side = self.game.sides[nextMove.sideId]
+            self.game.setSideStatus(side, nextMove.newStatus)
+            self.inspectObviousVicinity(side)
+            # print(f"Side {side} was set to {nextMove.newStatus}.")
 
     def initialBoardInspection(self):
         """Inspect the board and register one-time obvious moves into the `nextMoveList`.
@@ -85,9 +98,35 @@ class HexSolver:
             ・If the Side is connected to an existing intersection.
             ・If the Side is connected to an active Side which has nowhere else to go.
         """
+        # Do not process non-`UNSET` sides.
+        if not side.isUnset():
+            return
+
         # Check if the side is hanging
         if side.isHanging():
             self.addNextMove(side, BLANK)
+            return
+
+        vtx1, vtx2 = side.endpoints
+
+        # Check if either enpoint connects to an intersection
+        if vtx1.isIntersection() or vtx2.isIntersection():
+            self.addNextMove(side, BLANK)
+            return
+
+        # The connected sides on the each enpoint
+        connSides1 = vtx1.getAllSidesExcept(side.id)
+        connSides2 = vtx2.getAllSidesExcept(side.id)
+
+        for endPtSides in [connSides1, connSides2]:
+            countActive = 0
+            countBlank = 0
+            for connSide in endPtSides:
+                countActive += 1 if connSide.isActive() else 0
+                countBlank += 1 if connSide.isBlank() else 0
+                if countActive == 1 and countActive + countBlank == len(endPtSides):
+                    self.addNextMove(side, ACTIVE)
+                    return
 
     def inspectObviousCell(self, cell):
         """Inspect a given cell for obvious clues.
@@ -101,6 +140,29 @@ class HexSolver:
 
             elif cell.countBlankSides() == cell.requiredBlanks():
                 self.addNextMoves(cell.getUnsetSides(), ACTIVE)
+
+            else:
+                self.inspectForBisectorOfRemainingTwo(cell)
+
+        for side in cell.sides:
+            self.inspectObviousSide(side)
+
+    def inspectForBisectorOfRemainingTwo(self, cell):
+        """If the given cell only has one remaining requirement and has
+        two adjacent `UNSET` sides, bisect these with an `ACTIVE` limb."""
+        if cell.reqSides == 5:
+            print(cell.reqSides, str(cell), cell.remainingReqs(), cell.countUnsetSides())
+        if cell.remainingReqs() == 1 and cell.countUnsetSides() == 2:
+            print(cell.reqSides, str(cell))
+            unsetSides = cell.getUnsetSides()
+            if unsetSides[0].isConnectedTo(unsetSides[1]):
+                for vtxDir in HexVertexDir:
+                    vtx = cell.vertices[vtxDir]
+                    if unsetSides[0] in vtx.sides and unsetSides[1] in vtx.sides:
+                        limb = cell.limbs[vtxDir]
+                        if limb is not None:
+                            self.addNextMove(limb, ACTIVE)
+                        return
 
     def addNextMove(self, side, newStatus):
         """Add a `HexGameMove` to the `nextMoveList`.
