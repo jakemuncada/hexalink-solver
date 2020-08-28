@@ -118,6 +118,7 @@ class HexSide:
         return ret
 
     def getAdjCells(self):
+        """Returns a list containing the adjacent cells."""
         return self.adjCells.values()
 
     def toggleStatus(self):
