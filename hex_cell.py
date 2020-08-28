@@ -96,6 +96,24 @@ class HexCell:
         """
         return list(filter(lambda side: side not in exclusions, self.sides))
 
+    def getAllSidesConnectedTo(self, side):
+        """Returns a list of all sides of the cell which are connected to a given side.
+
+        If the given side is part of the cell, it will not be included in the returned list.
+
+        Args:
+            side (HexSide): The given side.
+
+        Returns:
+            [HexSide]: A list of all sides of the cell which are connected to the given side.
+        """
+        ret = []
+        validSides = set(side.getAllConnectedSides())
+        for candidateSide in self.sides:
+            if candidateSide in validSides:
+                ret.append(candidateSide)
+        return ret
+
     def getCap(self, direction):
         """Returns a tuple which contains the cap of the cell in a given direction
         and the limbs which are attached to the cap.
