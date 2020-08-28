@@ -41,6 +41,7 @@ class HexGame:
         self.midRow = self.rows // 2
         self.board = [[] for _ in range(self.rows)]
         self.cells = []
+        self.reqCells = []  # Cells that have a required number of sides
         self.sides = []
         self.vertices = []
 
@@ -53,8 +54,11 @@ class HexGame:
                 cell = HexCell(row, col, self.cellSideWidth, reqSides)
                 cell.calcCoords(self.center, self.rows)
                 self.board[row].append(cell)
-                self.cells.append(cell)
                 cellIdx += 1
+                # Append the cells to the list
+                self.cells.append(cell)
+                if reqSides is not None:
+                    self.reqCells.append(cell)
 
         self._registerAdjacentCells()
         self._registerVertices()
