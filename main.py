@@ -12,7 +12,7 @@ import helpers as helper
 import input_file
 from point import Point
 from hex_game import HexGame
-from hex_solver import HexSolver, HexGameMove
+from hex_solver import HexSolver
 from side_status import SideStatus
 
 # Initialize window location
