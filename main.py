@@ -46,13 +46,12 @@ def render(game):
     updateRects = []
 
     # Draw the cell numbers
-    for cell in game.cells:
-        if cell.reqSides is not None:
+    for cell in game.reqCells:
+        if cell.numDirty:
             reqSidesFont = pygame.font.SysFont("Courier", 20)
             rect = displayText(str(cell.reqSides), cell.center, reqSidesFont, colors.WHITE)
-            if cell.numDirty:
-                updateRects.append(rect)
-                cell.numDirty = False
+            updateRects.append(rect)
+            cell.numDirty = False
 
     # Array of dirty HexVertices
     dirtyVertices = []
