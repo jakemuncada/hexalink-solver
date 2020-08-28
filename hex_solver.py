@@ -83,13 +83,25 @@ class HexSolver:
                             self.addNextMoves(cap1 + cap2, ACTIVE)
                             self.addNextMoves(limbs1 + limbs2, BLANK)
 
+    def inspectEverything(self):
+        """Inspect all cells and all sides."""
+        for cell in self.game.reqCells:
+            self.inspectObviousCell(cell)
+        for side in self.game.sides:
+            self.inspectObviousSide(side)
+
     def inspectObviousVicinity(self, side):
         """Inspect the connected sides and adjacent cells of a given `HexSide`
         for obvious clues. Adds the obvious moves to the `nextMoveList`."""
+        # Inspect the sides that are connected to this side
         for connSide in side.getAllConnectedSides():
             self.inspectObviousSide(connSide)
+        # Inspect the cells this side is connected to
         for adjCell in side.getAdjCells():
             self.inspectObviousCell(adjCell)
+        # Inspect the cells for whom this side is a limb of
+        for connCell in side.getConnectedCells():
+            self.inspectObviousCell(connCell)
 
     def inspectObviousSide(self, side):
         """Inspect a given `HexSide` for obvious clues. Does not process non-`UNSET` sides.
@@ -245,6 +257,9 @@ class HexSolver:
         ret = None
         if len(self.nextMoveList) > 0:
             ret = self.nextMoveList.pop(0)
+        else:
+            self.inspectEverything()
+            ret = None if len(self.nextMoveList) == 0 else self.nextMoveList.pop(0)
 
         return ret
 
