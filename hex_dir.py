@@ -76,7 +76,7 @@ class HexVertexDir(IntEnum):
     LL = 4
     UL = 5
 
-    def connectedSides(self):
+    def connectedSideDirs(self):
         """Get the `HexSideDirs` connected to this vertex direction.
 
         Returns:
