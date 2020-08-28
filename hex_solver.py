@@ -45,19 +45,21 @@ class HexSolver:
                     adjCell = cell.adjCells[sideDir]
                     if adjCell is not None:
                         if adjCell.reqSides == 5:
-                            # Boundary of 5-and-5 is ACTIVE, then cap the opposite ends
+                            # Boundary of 5-and-5 is ACTIVE, then cap the opposite ends,
+                            # the remove the limbs of the cap
                             self.addNextMove(cell.sides[sideDir], SideStatus.ACTIVE)
-                            caps = cell.getCap(sideDir.opposite()) + adjCell.getCap(sideDir)
-                            self.addNextMoves(caps, SideStatus.ACTIVE)
-                            # Also, the limbs of the cap should be BLANK
-                            # TODO
+                            cap1, limbs1 = cell.getCap(sideDir.opposite())
+                            cap2, limbs2 = adjCell.getCap(sideDir)
+                            self.addNextMoves(cap1 + cap2, SideStatus.ACTIVE)
+                            self.addNextMoves(limbs1 + limbs2, SideStatus.BLANK)
 
     def addNextMove(self, side, newStatus):
         """Add a `HexGameMove` to the `nextMoveList`.
         Only `UNSET` sides can be added to the `nextMoveList`."""
-        if side.isUnset() and newStatus != SideStatus.UNSET:
+        if side.isUnset() and newStatus != SideStatus.UNSET and side not in self.processedSides:
             move = HexGameMove(side.id, newStatus)
             self.nextMoveList.append(move)
+            self.processedSides.add(side)
 
     def addNextMoves(self, sides, newStatus):
         """Add multiple `HexGameMoves` to the `nextMoveList`."""
@@ -78,7 +80,7 @@ class HexSolver:
 
         ret = None
         if len(self.nextMoveList) > 0:
-            ret = self.nextMoveList.pop()
+            ret = self.nextMoveList.pop(0)
 
         return ret
 
@@ -108,3 +110,9 @@ class HexGameMove:
         self.sideId = sideId
         self.newStatus = newStatus
         self.prevStatus = prevStatus
+
+    def __eq__(self, other):
+        return isinstance(other, HexGameMove) and \
+            self.sideId == other.sideId and \
+            self.newStatus == other.newStatus and \
+            self.prevStatus == other.prevStatus
