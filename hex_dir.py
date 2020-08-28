@@ -27,7 +27,7 @@ class HexSideDir(IntEnum):
         if self == HexSideDir.L:
             return HexSideDir.R
 
-    def connectedVertex(self):
+    def connectedVertices(self):
         """Get the vertices associated with this direction.
 
         Returns:

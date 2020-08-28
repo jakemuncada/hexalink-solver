@@ -208,7 +208,7 @@ class HexCell:
                 if len(cap) == 1:
                     cap.append(targetSide)
 
-        vtxDir1, vtxDir2 = direction.connectedVertex()  # direction of the limbs
+        vtxDir1, vtxDir2 = direction.connectedVertices()  # direction of the limbs
         limbs.append(self.limbs[vtxDir1])
         limbs.append(self.limbs[vtxDir2])
 
@@ -217,7 +217,7 @@ class HexCell:
     def getSideGroups(self):
         """Returns a list of sides grouped by connectivity."""
         # TODO improve getSideGroups docstring
-        
+
         def getGroup(side, cell, groupSet):
             """Returns"""  # TODO docstring
 
