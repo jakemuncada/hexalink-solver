@@ -84,9 +84,14 @@ def render(game):
         rect = pygame.draw.circle(screen, color, dirtyVertex.coords.get(), radius)
         updateRects.append(rect)
 
-    # Draw the FPS display
+    # Display FPS
     drawFps()
     updateRects.append((10, 0, 30, 30))
+
+    # Display clicked cell coords
+    rect = drawClickedCellCoords(game)
+    if rect is not None:
+        updateRects.append(rect)
 
     # Update the screen, but only the areas/rects that have changed
     pygame.display.update(updateRects)
@@ -97,6 +102,18 @@ def drawFps():
     fps = str(int(clock.get_fps()))
     fpsText = FPS_FONT.render(fps, 1, pygame.Color("coral"))
     screen.blit(fpsText, (10, 0))
+
+
+def drawClickedCellCoords(game):
+    """Display the clicked cell coordinates."""
+    rect = None
+    if game.clickedCell is not None:
+        text = FPS_FONT.render(str(game.clickedCell), 1, colors.WHITE)
+        game.prevClickedCell = game.clickedCell
+        game.clickedCell = None
+        rect = screen.blit(text, (10, 30))
+        rect.width = 40  # Manually widen the rect
+    return rect
 
 
 def getSideDrawInfo(side):
@@ -219,7 +236,7 @@ def drawDashedLine(color, startPos, endPos, width=1, dashLength=5):
     return pygame.Rect(left, top, width, height)
 
 
-def handleClick(game):
+def clickSide(game):
     """Handle the mouse click event."""
 
     helper.measureStart("Click")
@@ -237,6 +254,19 @@ def handleClick(game):
 
     execTime = helper.measureEnd("Click")
     print("handleClick: {:.3f}ms".format(execTime))
+
+
+def clickCell(game):
+    """Save the coordinates of the nearest cell from a clicked point."""
+
+    mouseX, mouseY = pygame.mouse.get_pos()
+    mousePos = Point((mouseX, mouseY))
+
+    cell, dist = helper.getNearestCell(game.cells, mousePos)
+
+    clickCellDistanceThreshold = game.cellSideWidth
+    if dist < clickCellDistanceThreshold:
+        game.clickedCell = cell
 
 
 def solveOne(solver):
@@ -283,7 +313,8 @@ def main():
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                handleClick(game)
+                # clickSide(game)
+                clickCell(game)
             if event.type == pygame.KEYDOWN:
                 keys = pygame.key.get_pressed()
                 kmods = pygame.key.get_mods()

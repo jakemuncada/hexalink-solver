@@ -47,6 +47,9 @@ class HexGame:
         self.sides = []
         self.vertices = []
 
+        # For displaying the clicked cell coordinates
+        self.clickedCell = None
+
         # Populate the cells
         cellIdx = 0
         for row in range(self.rows):
