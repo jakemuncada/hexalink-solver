@@ -72,6 +72,11 @@ class HexSide:
         """Returns true if the side is unset. False otherwise."""
         return self.status == UNSET
 
+    def isConnectedTo(self, side):
+        """Returns true if this `Side` is connected to a given `Side`.
+        Returns false otherwise."""
+        return side in self.getAllConnectedSides()
+
     def isHanging(self):
         """Returns true if at least one endpoint has neither
         `UNSET` nor `ACTIVE` sides connected to it. False otherwise.
