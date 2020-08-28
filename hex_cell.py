@@ -45,28 +45,6 @@ class HexCell:
             self.memoLimbs = list(filter(lambda limb: limb is not None, self.limbs))
         return self.memoLimbs
 
-    def getCap(self, direction):
-        """Returns the cap of the cell in a given direction.
-
-        A cap is composed of three connected sides which are part of the cell.
-        The direction is determined by the side in the center.
-
-        Args:
-            direction (HexSideDir): The direction of the cap.
-
-        Returns:
-            [HexSide]: The list of the three sides which compose the cap.
-        """
-        targetSide = self.sides[direction]
-        ret = [targetSide]
-
-        connSides = targetSide.getAllConnectedSides()
-        for side in connSides:
-            if side in self.sides:
-                ret.append(side)
-
-        return ret
-
     def calcCoords(self, boardCenter, rows):
         """Calculates and stores the x-y coordinate of the center of the cell.
 
@@ -102,3 +80,40 @@ class HexCell:
         """Returns the string describing the Cell."""
         ret = f"[{self.row},{self.col}]"
         return ret
+
+    ##################################################
+    # SIDE GETTERS
+    ##################################################
+
+    def getCap(self, direction):
+        """Returns a tuple which contains the cap of the cell in a given direction
+        and the limbs which are attached to the cap.
+
+        A cap is composed of three connected sides which are part of the cell.
+        The direction is determined by the side in the center.
+
+        Args:
+            direction (HexSideDir): The direction of the cap.
+
+        Returns:
+            [HexSide]: The list containing three sides which compose the cap.
+            [HexSide]: The list containing the limbs attached to the cap.
+                       Some caps may have only one or no limbs at all (for cells at the edge).
+        """
+        cap = []
+        limbs = []
+
+        targetSide = self.sides[direction]
+        connSides = targetSide.getAllConnectedSides()
+        for side in connSides:
+            if side in self.sides:
+                cap.append(side)
+                # The mid-link of the cap should be in the middle of the list
+                if len(cap) == 1:
+                    cap.append(targetSide)
+
+        vtxDir1, vtxDir2 = direction.connectedVertex()  # direction of the limbs
+        limbs.append(self.limbs[vtxDir1])
+        limbs.append(self.limbs[vtxDir2])
+
+        return cap, limbs
