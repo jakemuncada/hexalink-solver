@@ -37,6 +37,22 @@ class HexCell:
         """Returns the number of required `BLANK` sides."""
         return None if self.reqSides is None else 6 - self.reqSides
 
+    def countActiveSides(self):
+        """Returns the number of currently `ACTIVE` sides."""
+        count = 0
+        for side in self.sides:
+            if side.isActive():
+                count += 1
+        return count
+
+    def countBlankSides(self):
+        """Returns the number of currently `BLANK` sides."""
+        count = 0
+        for side in self.sides:
+            if side.isBlank():
+                count += 1
+        return count
+
     def getAdjacentCells(self):
         """Returns the not-None adjacent cells."""
         if self.memoAdjCells is None:
