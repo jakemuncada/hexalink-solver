@@ -80,6 +80,26 @@ class HexCell:
             self.memoLimbs = list(filter(lambda limb: limb is not None, self.limbs))
         return self.memoLimbs
 
+    def getLimbAt(self, vertex):
+        """Returns the limb connected at the given vertex.
+
+        Args:
+            vertex (HexVertex or HexVertexDir): The vertex (or vertex direction) of the limb.
+
+        Returns:
+            HexSide: The limb connected at the given vertex.
+                     None if there is no limb at that location.
+        """
+        if isinstance(vertex, HexVertexDir):
+            vertex = self.vertices[vertex]
+
+        if vertex is not None:
+            for candidateLimb in vertex.sides:
+                if candidateLimb not in self.sides:
+                    return candidateLimb
+
+        return None
+
     def calcCoords(self, boardCenter, rows):
         """Calculates and stores the x-y coordinate of the center of the cell.
 
