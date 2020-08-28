@@ -3,6 +3,7 @@
 from side_status import SideStatus
 from hex_game_move import HexGameMove
 from hex_dir import HexSideDir, HexVertexDir
+from helpers import checkAllSidesAreUnset
 
 # Define SideStatus members
 BLANK = SideStatus.BLANK
@@ -143,6 +144,7 @@ class HexSolver:
 
             else:
                 self.inspectForBisectorOfRemainingTwo(cell)
+                self.inspectSideGroups(cell)
 
         for side in cell.sides:
             self.inspectObviousSide(side)
@@ -150,10 +152,7 @@ class HexSolver:
     def inspectForBisectorOfRemainingTwo(self, cell):
         """If the given cell only has one remaining requirement and has
         two adjacent `UNSET` sides, bisect these with an `ACTIVE` limb."""
-        if cell.reqSides == 5:
-            print(cell.reqSides, str(cell), cell.remainingReqs(), cell.countUnsetSides())
         if cell.remainingReqs() == 1 and cell.countUnsetSides() == 2:
-            print(cell.reqSides, str(cell))
             unsetSides = cell.getUnsetSides()
             if unsetSides[0].isConnectedTo(unsetSides[1]):
                 for vtxDir in HexVertexDir:
@@ -163,6 +162,39 @@ class HexSolver:
                         if limb is not None:
                             self.addNextMove(limb, ACTIVE)
                         return
+
+    def inspectSideGroups(self, cell):
+        """
+        Inspects the cell's side groups if there are deducible `ACTIVE` or `BLANK` groups.
+        Does not process non-required cells.
+        """
+
+        # Don't process non-required cells
+        if cell.reqSides is not None:
+            cellGroups = cell.getSideGroups()
+
+            if cell.row == 15 and cell.col == 0:
+                print(f"HERE: {cellGroups}")
+
+            for group in cellGroups:
+                # print(len(group), cell.requiredBlanks() - cell.countBlankSides())
+                # print(len(group), cell.reqSides - cell.countActiveSides())
+
+                if cell.row == 15 and cell.col == 0:
+                    print(f"HERE: {group}")
+
+                # Check if the group is unset
+                if checkAllSidesAreUnset(group):
+
+                    # Check if the group should be active
+                    if len(group) > cell.requiredBlanks() - cell.countBlankSides():
+                        print(f"Group should be active: {cell}")
+                        self.addNextMoves(group, ACTIVE)
+                    
+                    # Check if the group should be blank
+                    elif len(group) > cell.reqSides - cell.countActiveSides():
+                        print(f"Group should be blank: {cell}")
+                        self.addNextMoves(group, BLANK)
 
     def addNextMove(self, side, newStatus):
         """Add a `HexGameMove` to the `nextMoveList`.
