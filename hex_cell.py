@@ -34,7 +34,7 @@ class HexCell:
         self.memoLimbs = None
 
     def requiredBlanks(self):
-        """Returns the number of required `BLANK` sides. 
+        """Returns the number of required `BLANK` sides.
         Returns None if `reqSides` is None."""
         return None if self.reqSides is None else 6 - self.reqSides
 
@@ -217,7 +217,7 @@ class HexCell:
     def getSideGroups(self):
         """Returns a list of sides grouped by connectivity."""
         # TODO improve getSideGroups docstring
-
+        
         def getGroup(side, cell, groupSet):
             """Returns"""  # TODO docstring
 

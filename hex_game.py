@@ -172,6 +172,8 @@ class HexGame:
             for vtxDir in HexVertexDir:
                 limb = getLimb(cell, vtxDir)
                 cell.limbs[vtxDir] = limb
+                if limb is not None:
+                    limb.connCells[vtxDir] = cell
 
     def validateInputData(self):
         """Validates the initialization input.

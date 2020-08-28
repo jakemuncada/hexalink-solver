@@ -24,6 +24,7 @@ class HexSide:
         self.length = length
         self.status = status
         self.adjCells = {}  # Can be listed by getAdjCells()
+        self.connCells = {}  # Can be listed by getConnectedCells()
         self.endpoints = (vertex1, vertex2)
 
         # Memo
@@ -138,6 +139,10 @@ class HexSide:
     def getAdjCells(self):
         """Returns a list containing the adjacent cells."""
         return self.adjCells.values()
+
+    def getConnectedCells(self):
+        """Returns a list of cells of which this side is a limb of."""
+        return self.connCells.values()
 
     def toggleStatus(self):
         """Toggles the status from `UNSET` to `ACTIVE` to `BLANK`.
