@@ -3,6 +3,7 @@
 
 from hex_side import HexSide
 from side_status import SideStatus
+from hex_game_move import HexGameMove
 from hex_dir import HexSideDir, HexVertexDir
 from hex_cell import HexCell
 from hex_vertex import HexVertex
@@ -31,6 +32,7 @@ class HexGame:
         self.cellSideWidth = cellSideWidth
         self.cellData = cellData
         self.center = Point(center)
+        self.moveHistory = []
 
         # Validate and initialize the data
         self.validateInputData()
@@ -220,6 +222,9 @@ class HexGame:
 
         if side.status == newStatus:
             return
+
+        move = HexGameMove(side.id, newStatus, side.status)
+        self.moveHistory.append(move)
 
         if newStatus == SideStatus.ACTIVE:
             self._setSideActive(side)
