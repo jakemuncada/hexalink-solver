@@ -168,7 +168,7 @@ def calculateOptimalSideLength(targetWidth, targetHeight, rows):
                                                                      constants.COS_60)))
 
     # The maximum side length that does not exceed target height
-    maxSideLengthForTargetWidth = int(targetWidth / (rows * math.sqrt(3)))
+    maxSideLengthForTargetWidth = int(targetWidth / (rows * constants.SQRT3))
 
     return min(maxSideLengthForTargetHeight, maxSideLengthForTargetWidth)
 

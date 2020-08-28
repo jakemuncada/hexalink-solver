@@ -1,6 +1,6 @@
 """Constants"""
 
-from math import cos, pi
+from math import cos, pi, sqrt
 
 # Screen
 SCREEN_WIDTH = 1900
@@ -14,3 +14,4 @@ SCREEN_RIGHT_MARGIN = 80
 
 # Math
 COS_60 = cos(60 * pi / 180)
+SQRT3 = sqrt(3)

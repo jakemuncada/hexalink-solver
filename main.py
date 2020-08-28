@@ -48,9 +48,9 @@ def render(game):
     # Draw the cell numbers
     for cell in game.cells:
         if cell.reqSides is not None:
+            reqSidesFont = pygame.font.SysFont("Courier", 20)
+            rect = displayText(str(cell.reqSides), cell.center, reqSidesFont, colors.WHITE)
             if cell.numDirty:
-                reqSidesFont = pygame.font.SysFont("Courier", 20)
-                rect = displayText(str(cell.reqSides), cell.center, reqSidesFont, colors.WHITE)
                 updateRects.append(rect)
                 cell.numDirty = False
 

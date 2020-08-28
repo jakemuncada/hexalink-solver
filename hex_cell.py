@@ -3,7 +3,7 @@
 import math
 from hex_dir import HexSideDir, HexVertexDir
 from point import Point
-from constants import COS_60
+from constants import COS_60, SQRT3
 
 
 class HexCell:
@@ -76,10 +76,10 @@ class HexCell:
         self.center = Point()
         mid = rows // 2
 
-        deltaX = (self.col - mid) * math.sqrt(3) * self.sideLength
+        deltaX = (self.col - mid) * SQRT3 * self.sideLength
         deltaY = (self.row - mid) * ((2 * self.sideLength) - (self.sideLength * COS_60))
 
-        deltaX += math.fabs(self.row - mid) * (math.sqrt(3) * self.sideLength / 2)
+        deltaX += math.fabs(self.row - mid) * (SQRT3 * self.sideLength / 2)
 
         self.center += Point((deltaX, deltaY))
         self.center += boardCenter

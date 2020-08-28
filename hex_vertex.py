@@ -1,11 +1,9 @@
 """A vertex of a HexCell."""
 
-from math import sqrt
-
 from point import Point
 from side_status import SideStatus
 from hex_dir import HexVertexDir
-from constants import COS_60
+from constants import COS_60, SQRT3
 
 
 class HexVertex:
@@ -76,7 +74,7 @@ class HexVertex:
         verticalDelta = cellSideLength - (cellSideLength * COS_60)
 
         # Horizontal (x-axis) distance from the center to the UR vertex (vertex of UR and R).
-        horizontalDelta = sqrt(3) * cellSideLength / 2
+        horizontalDelta = SQRT3 * cellSideLength / 2
 
         if vertexDir == HexVertexDir.T:
             dx = 0
