@@ -213,3 +213,39 @@ class HexCell:
         limbs.append(self.limbs[vtxDir2])
 
         return cap, limbs
+
+    def getSideGroups(self):
+        """Returns a list of sides grouped by connectivity."""
+        # TODO improve getSideGroups docstring
+
+        def getGroup(side, cell, groupSet):
+            """Returns"""  # TODO docstring
+
+            # Recursion base case
+            if side in groupSet:
+                return groupSet
+
+            groupSet.add(side)
+
+            connSides = self.getAllSidesConnectedTo(side)
+            assert(len(connSides) == 2), "Expected two connected sides"
+
+            for connSide in connSides:
+                vtx = side.getConnectionVertex(connSide)
+                limb = self.getLimbAt(vtx)
+                if limb is None or limb.isBlank():
+                    groupSet.update(getGroup(connSide, cell, groupSet))
+
+            return groupSet
+
+        ret = []
+
+        finishedSides = set()
+        for side in self.sides:
+            if side not in finishedSides:
+                group = getGroup(side, self, set())
+                for groupMember in group:
+                    finishedSides.add(groupMember)
+                ret.append(list(group))
+
+        return ret
