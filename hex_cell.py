@@ -33,6 +33,10 @@ class HexCell:
         self.memoAdjCells = None
         self.memoLimbs = None
 
+    def requiredBlanks(self):
+        """Returns the number of required `BLANK` sides."""
+        return None if self.reqSides is None else 6 - self.reqSides
+
     def getAdjacentCells(self):
         """Returns the not-None adjacent cells."""
         if self.memoAdjCells is None:
