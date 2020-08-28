@@ -252,6 +252,32 @@ def getLinkItems(side):
     return ret
 
 
+def checkAllSidesAreActive(sides):
+    """Returns true if the given list of sides are all `ACTIVE`.
+    Returns false otherwise.
+
+    Args:
+        sides ([HexSide]): A list of sides.
+    """
+    for side in sides:
+        if not side.isActive():
+            return False
+    return True
+
+
+def checkAllSidesAreBlank(sides):
+    """Returns true if the given list of sides are all `BLANK`.
+    Returns false otherwise.
+
+    Args:
+        sides ([HexSide]): A list of sides.
+    """
+    for side in sides:
+        if not side.isBlank():
+            return False
+    return True
+
+
 def measureStart(name):
     """Start the execution time measurement.
 
