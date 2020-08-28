@@ -110,6 +110,9 @@ class HexSide:
     def __eq__(self, other):
         return isinstance(other, HexSide) and other.id == self.id
 
+    def __hash__(self):
+        return hash(self.id)
+
     def __str__(self):
         """Returns a string describing the Side."""
         for sideDir in self.adjCells:
