@@ -14,6 +14,15 @@ class SideStatus(IntEnum):
     ACTIVE = 1
     BLANK = 2
 
+    @classmethod
+    def export(cls, namespace):
+        """Export the member enums to the namespace.
+
+        Usage:
+            SideStatus.export(globals())
+        """
+        namespace.update(cls.__members__)
+
     def __str__(self):
         if self == SideStatus.UNSET:
             return "UNSET"
