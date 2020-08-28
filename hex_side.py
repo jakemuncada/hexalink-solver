@@ -3,6 +3,11 @@
 from point import Point
 from side_status import SideStatus
 
+# Define SideStatus members
+UNSET = SideStatus.UNSET
+ACTIVE = SideStatus.ACTIVE
+BLANK = SideStatus.BLANK
+
 
 class HexSide:
     """A side of a HexCell.
@@ -11,7 +16,7 @@ class HexSide:
         status (SideStatus): The status of the side.
     """
 
-    def __init__(self, idx, vertex1, vertex2, length, status=SideStatus.UNSET):
+    def __init__(self, idx, vertex1, vertex2, length, status=UNSET):
         self.id = idx
         self.isDirty = True
         self.colorIdx = idx
@@ -53,15 +58,15 @@ class HexSide:
 
     def isActive(self):
         """Returns true if the side is active. False otherwise."""
-        return self.status == SideStatus.ACTIVE
+        return self.status == ACTIVE
 
     def isBlank(self):
         """Returns true if the side is blank. False otherwise."""
-        return self.status == SideStatus.BLANK
+        return self.status == BLANK
 
     def isUnset(self):
         """Returns true if the side is unset. False otherwise."""
-        return self.status == SideStatus.UNSET
+        return self.status == UNSET
 
     def getAllConnectedSides(self):
         """Returns all the connected sides."""
@@ -87,12 +92,12 @@ class HexSide:
         Returns:
             SideStatus: The status of the side after toggling.
         """
-        if self.status == SideStatus.UNSET:
-            self.setStatus(SideStatus.ACTIVE)
-        elif self.status == SideStatus.ACTIVE:
-            self.setStatus(SideStatus.BLANK)
-        elif self.status == SideStatus.BLANK:
-            self.setStatus(SideStatus.UNSET)
+        if self.status == UNSET:
+            self.setStatus(ACTIVE)
+        elif self.status == ACTIVE:
+            self.setStatus(BLANK)
+        elif self.status == BLANK:
+            self.setStatus(UNSET)
         else:
             raise AssertionError(f"Invalid status: {self.status}")
 
