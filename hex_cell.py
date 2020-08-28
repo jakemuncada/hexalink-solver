@@ -208,7 +208,7 @@ class HexCell:
                 if len(cap) == 1:
                     cap.append(targetSide)
 
-        vtxDir1, vtxDir2 = direction.connectedVertices()  # direction of the limbs
+        vtxDir1, vtxDir2 = direction.connectedVertexDirs()  # direction of the limbs
         limbs.append(self.limbs[vtxDir1])
         limbs.append(self.limbs[vtxDir2])
 

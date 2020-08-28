@@ -134,7 +134,7 @@ class HexGame:
             for sideDir in HexSideDir:
                 if cell.sides[sideDir] is None:
                     # Get the vertices for this side
-                    vtxDir1, vtxDir2 = sideDir.connectedVertices()
+                    vtxDir1, vtxDir2 = sideDir.connectedVertexDirs()
                     vtx1 = cell.vertices[vtxDir1]
                     vtx2 = cell.vertices[vtxDir2]
 
