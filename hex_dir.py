@@ -34,6 +34,9 @@ class HexSideDir(IntEnum):
             (HexVertexDir, HexVertexDir): The two vertex directions associated with this direction.
                 The return will always be sorted according to this order: T, UR, LR, B, LL, UR
         """
+
+        # TODO the sort order should not matter
+
         if self == HexSideDir.UL:
             return (HexVertexDir.T, HexVertexDir.UL)
         if self == HexSideDir.UR:
@@ -72,6 +75,26 @@ class HexVertexDir(IntEnum):
     B = 3
     LL = 4
     UL = 5
+
+    def connectedSides(self):
+        """Get the `HexSideDirs` connected to this vertex direction.
+
+        Returns:
+            (HexSide, HexSide): The two side directions connected to this vertex direction.
+        """
+        if self == HexVertexDir.T:
+            return (HexSideDir.UL, HexSideDir.UR)
+        if self == HexVertexDir.UR:
+            return (HexSideDir.UR, HexSideDir.R)
+        if self == HexVertexDir.LR:
+            return (HexSideDir.R, HexSideDir.LR)
+        if self == HexVertexDir.B:
+            return (HexSideDir.LR, HexSideDir.LL)
+        if self == HexVertexDir.LL:
+            return (HexSideDir.LL, HexSideDir.L)
+        if self == HexVertexDir.UL:
+            return (HexSideDir.L, HexSideDir.UL)
+        raise AssertionError("Invalid Hex Side direction")
 
     def __str__(self):
         if self == HexVertexDir.T:
