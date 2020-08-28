@@ -2,6 +2,7 @@
 
 from point import Point
 from side_status import SideStatus
+from helpers import checkAllSidesAreBlank
 
 # Define SideStatus members
 UNSET = SideStatus.UNSET
@@ -67,6 +68,27 @@ class HexSide:
     def isUnset(self):
         """Returns true if the side is unset. False otherwise."""
         return self.status == UNSET
+
+    def isHanging(self):
+        """Returns true if at least one endpoint has neither
+        `UNSET` nor `ACTIVE` sides connected to it. False otherwise.
+
+        Only `UNSET` and `ACTIVE` sides can be hanging. Meaning this will return false
+        if this side's own status is `BLANK`.
+        """
+
+        if self.status == UNSET or self.status == ACTIVE:
+            # Check the first endpoint
+            connectedSides = self.endpoints[0].getAllSidesExcept(self.id)
+            if checkAllSidesAreBlank(connectedSides):
+                return True
+
+            # Check the second endpoint
+            connectedSides = self.endpoints[1].getAllSidesExcept(self.id)
+            if checkAllSidesAreBlank(connectedSides):
+                return True
+
+        return False
 
     def getAllConnectedSides(self):
         """Returns all the connected sides."""
