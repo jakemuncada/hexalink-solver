@@ -138,7 +138,7 @@ class HexGame:
                     # Register the Side to the Cell
                     cell.sides[sideDir] = side
                     # Register the Cell as an adjacent cell of the Side
-                    side.registerAdjacentCell(cell, sideDir)
+                    side.adjCells[sideDir] = cell
                     # Add this side to the list of all sides
                     self.sides.append(side)
 
@@ -147,7 +147,7 @@ class HexGame:
                     adjCell = cell.adjCells[sideDir]
                     if adjCell is not None:
                         adjCell.sides[sideDir.opposite()] = side
-                        side.registerAdjacentCell(adjCell, sideDir.opposite())
+                        side.adjCells[sideDir.opposite()] = adjCell
 
     def _registerLimbs(self):
         """Register the limbs of each cell. A limb is a `HexSide` which is not part

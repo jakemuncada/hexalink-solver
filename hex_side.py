@@ -23,7 +23,7 @@ class HexSide:
         self.colorIdx = idx
         self.length = length
         self.status = status
-        self.adjCells = {}
+        self.adjCells = {}  # Can be listed by getAdjCells()
         self.endpoints = (vertex1, vertex2)
 
         # Memo
@@ -117,6 +117,9 @@ class HexSide:
             ret.append(connSide)
         return ret
 
+    def getAdjCells(self):
+        return self.adjCells.values()
+
     def toggleStatus(self):
         """Toggles the status from `UNSET` to `ACTIVE` to `BLANK`.
 
@@ -133,15 +136,6 @@ class HexSide:
             raise AssertionError(f"Invalid status: {self.status}")
 
         return self.status
-
-    def registerAdjacentCell(self, cell, sideDir):
-        """Register an adjacent cell to this Side.
-
-        Args:
-            cell (HexCell): The cell to be registered.
-            sideDir (HexSideDir): The direction of the cell where this Side is.
-        """
-        self.adjCells[sideDir] = cell
 
     def __eq__(self, other):
         return isinstance(other, HexSide) and other.id == self.id
