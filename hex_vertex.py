@@ -17,9 +17,13 @@ class HexVertex:
         self.coords = None
 
     def isValid(self):
-        """Returns true if this vertex is valid, i.e. has less than 3 active sides.
-        False otherwise."""
-        return self.countActiveSides() < 3
+        """Returns true if this vertex is valid. Returns false otherwise.
+
+        Validity checks:
+            1) Should have less than 3 active sides.
+            2) Should not be dead end.
+        """
+        return self.countActiveSides() < 3 and not self.isDeadEnd()
 
     def isIntersection(self):
         """Returns true if the number of active sides is greater than or equal to 2."""
