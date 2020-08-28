@@ -246,6 +246,7 @@ def solveOne(solver):
     if nextMove is not None:
         side = solver.game.sides[nextMove.sideId]
         solver.game.setSideStatus(side, nextMove.newStatus)
+        solver.inspectObviousVicinity(side)
         print(f"Side {side} was set to {nextMove.newStatus}.")
     else:
         print("No moves left.")
@@ -274,6 +275,8 @@ def main():
 
     game = HexGame((centerX, centerY), cellSideWidth, rows, dataStr)
     solver = HexSolver(game)
+
+    # TODO Use pygame.display.get_active() to solve text disappearing after minimize window
 
     while True:
         for event in pygame.event.get():

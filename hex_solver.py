@@ -69,6 +69,39 @@ class HexSolver:
                             self.addNextMoves(cap1 + cap2, ACTIVE)
                             self.addNextMoves(limbs1 + limbs2, BLANK)
 
+    def inspectObviousVicinity(self, side):
+        """Inspect the connected sides and adjacent cells of a given `HexSide`
+        for obvious clues. Adds the obvious moves to the `nextMoveList`."""
+        for connSide in side.getAllConnectedSides():
+            self.inspectObviousSide(connSide)
+        for adjCell in side.getAdjCells():
+            self.inspectObviousCell(adjCell)
+
+    def inspectObviousSide(self, side):
+        """Inspect a given `HexSide` for obvious clues. Does not process non-`UNSET` sides.
+
+        Some obvious clues include:
+            ・If the Side is hanging.
+            ・If the Side is connected to an existing intersection.
+            ・If the Side is connected to an active Side which has nowhere else to go.
+        """
+        # Check if the side is hanging
+        if side.isHanging():
+            self.addNextMove(side, BLANK)
+
+    def inspectObviousCell(self, cell):
+        """Inspect a given cell for obvious clues.
+
+        Some obvious clues include:
+            ・If the cell already has the correct number of ACTIVE or BLANK sides.
+        """
+        if cell.reqSides is not None:
+            if cell.countActiveSides() == cell.reqSides:
+                self.addNextMoves(cell.getUnsetSides(), BLANK)
+
+            elif cell.countBlankSides() == cell.requiredBlanks():
+                self.addNextMoves(cell.getUnsetSides(), ACTIVE)
+
     def addNextMove(self, side, newStatus):
         """Add a `HexGameMove` to the `nextMoveList`.
         Only `UNSET` sides can be added to the `nextMoveList`.
@@ -125,7 +158,7 @@ class HexSolver:
         """Check if the `HexGameMoves` in the `nextMoveList` are still correct/valid.
         Remove all the incorrect moves.
         """
-        # TODO
+        # TODO implement validateMoveList
 
 
 #################################################################
