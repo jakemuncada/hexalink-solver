@@ -38,11 +38,19 @@ class HexVertex:
 
     def countActiveSides(self):
         """Returns the number of `Sides` with `ACTIVE` status."""
-        return self.sides.count(lambda x: x.status == SideStatus.ACTIVE)
+        count = 0
+        for side in self.sides:
+            if side.isActive():
+                count += 1
+        return count
 
     def countBlankSides(self):
         """Returns the number of `Sides` with `BLANK` status."""
-        return self.sides.count(lambda x: x.status == SideStatus.BLANK)
+        count = 0
+        for side in self.sides:
+            if side.isBlank():
+                count += 1
+        return count
 
     def getAllSidesExcept(self, exceptSideId):
         """Returns all the sides that are connected to this vertex, except a specified `Side`.
