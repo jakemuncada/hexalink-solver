@@ -31,8 +31,8 @@ class HexCell:
         self.limbs = [None for _ in HexVertexDir]
 
         # Memoized stuff
-        self.memoAdjCells = None
-        self.memoLimbs = None
+        self._memoAdjCells = None
+        self._memoLimbs = None
 
     def isFullySet(self):
         """Returns true if there are no more UNSET sides remaining in the cell."""
@@ -75,15 +75,15 @@ class HexCell:
 
     def getAdjacentCells(self):
         """Returns the not-None adjacent cells."""
-        if self.memoAdjCells is None:
-            self.memoAdjCells = list(filter(lambda adjCell: adjCell is not None, self.adjCells))
-        return self.memoAdjCells
+        if self._memoAdjCells is None:
+            self._memoAdjCells = list(filter(lambda adjCell: adjCell is not None, self.adjCells))
+        return self._memoAdjCells
 
     def getLimbs(self):
         """Returns the not-None limbs."""
-        if self.memoLimbs is None:
-            self.memoLimbs = list(filter(lambda limb: limb is not None, self.limbs))
-        return self.memoLimbs
+        if self._memoLimbs is None:
+            self._memoLimbs = list(filter(lambda limb: limb is not None, self.limbs))
+        return self._memoLimbs
 
     def getLimbAt(self, vertex):
         """Returns the limb connected at the given HexVertex or HexVertexDir.
