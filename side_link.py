@@ -53,3 +53,9 @@ class SideLink:
             f"Expected a link with {len(sides)} to have {len(sides)} linkVertices."
 
         self.endpoints = tuple(tempEndpoints)
+
+    def __len__(self):
+        return len(self.sides)
+
+    def __iter__(self):
+        return self.sides.__iter__()
