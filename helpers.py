@@ -291,6 +291,33 @@ def checkAllSidesAreUnset(sides):
     return True
 
 
+def countActiveSides(sides):
+    """Returns the number of active sides in a collection."""
+    count = 0
+    for side in sides:
+        if side.isActive():
+            count += 1
+    return count
+
+
+def countBlankSides(sides):
+    """Returns the number of blank sides in a collection."""
+    count = 0
+    for side in sides:
+        if side.isBlank():
+            count += 1
+    return count
+
+
+def countUnsetSides(sides):
+    """Returns the number of unset sides in a collection."""
+    count = 0
+    for side in sides:
+        if side.isUnset():
+            count += 1
+    return count
+
+
 def measureStart(name):
     """Start the execution time measurement.
 
