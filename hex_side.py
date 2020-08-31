@@ -148,8 +148,16 @@ class HexSide:
                 self._connSides.append(connSide)
         return self._connSides
 
+    def getAllLinkedSides(self):
+        """Returns a list of all the linked sides."""
+        ret = []
+        for connSide in self.getAllConnectedSides():
+            if self.isLinkedTo(connSide):
+                ret.append(connSide)
+        return ret
+
     def getAllActiveConnectedSides(self):
-        """Returns all the connected sides whose status is `ACTIVE`."""
+        """Returns a list of all the connected sides whose status is `ACTIVE`."""
         ret = []
         for connSide in self.endpoints[0].getActiveSidesExcept(self.id):
             ret.append(connSide)
