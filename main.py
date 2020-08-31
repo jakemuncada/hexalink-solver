@@ -112,7 +112,7 @@ def drawClickedCellCoords(game):
         game.prevClickedCell = game.clickedCell
         game.clickedCell = None
         rect = screen.blit(text, (10, 30))
-        rect.width = 40  # Manually widen the rect
+        rect.width = 50  # Manually widen the rect
     return rect
 
 
