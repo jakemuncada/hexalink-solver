@@ -78,25 +78,32 @@ class HexSide:
         Returns false otherwise."""
         return otherSide in self.getAllConnectedSides()
 
-    def isLinkedTo(self, otherSide):
+    def isLinkedTo(self, otherSide, ignoreStatus=False):
         """
         Returns true if this `Side` is linked to another side. Returns false otherwise.
 
         A side is linked with another side if:
             1. Both sides are UNSET or ACTIVE. (Neither side is BLANK.)
-            2. Both sides have the same status.
+            2. Both sides have the same status (if ignoreStatus is False).
             3. Both sides share a common vertex.
             4. All other Sides which also share the common vertex are BLANK.
+
+        Args:
+            otherSide (HexSide): The other side.
+            ignoreStatus (bool): If true, either side can have any non-BLANK status.
+                                 If false, both sides is required to have the same status.
+                                 Optional. Defaults to False.
         """
-        if (self.status == ACTIVE or self.status == UNSET) and self.status == otherSide.status:
-            # Get common vertex
-            commonVertex = self.getConnectionVertex(otherSide)
-            if commonVertex is not None:
-                # Check if all other sides which share the common vertex are BLANK
-                for vertSide in commonVertex.sides:
-                    if vertSide != self and vertSide != otherSide and not vertSide.isBlank():
-                        return False
-                return True
+        if (self.status == ACTIVE or self.status == UNSET):
+            if ignoreStatus or self.status == otherSide.status:
+                # Get common vertex
+                commonVertex = self.getConnectionVertex(otherSide)
+                if commonVertex is not None:
+                    # Check if all other sides which share the common vertex are BLANK
+                    for vertSide in commonVertex.sides:
+                        if vertSide != self and vertSide != otherSide and not vertSide.isBlank():
+                            return False
+                    return True
         return False
 
     def getConnectionVertex(self, otherSide):
@@ -148,11 +155,18 @@ class HexSide:
                 self._connSides.append(connSide)
         return self._connSides
 
-    def getAllLinkedSides(self):
-        """Returns a list of all the linked sides."""
+    def getAllLinkedSides(self, ignoreStatus=False):
+        """
+        Returns a list of all the linked sides.
+
+        Args:
+            ignoreStatus (bool): If true, either side can have any non-BLANK status.
+                                 If false, both sides is required to have the same status.
+                                 Optional. Defaults to False.
+        """
         ret = []
         for connSide in self.getAllConnectedSides():
-            if self.isLinkedTo(connSide):
+            if self.isLinkedTo(connSide, ignoreStatus):
                 ret.append(connSide)
         return ret
 
