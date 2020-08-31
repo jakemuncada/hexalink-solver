@@ -83,7 +83,7 @@ class HexSide:
         Returns true if this `Side` is linked to another side. Returns false otherwise.
 
         A side is linked with another side if:
-            1. Both sides are UNSET or ACTIVE. (Neither side is BLANK.)
+            1. Neither side is BLANK. (Important)
             2. Both sides have the same status (if ignoreStatus is False).
             3. Both sides share a common vertex.
             4. All other Sides which also share the common vertex are BLANK.
