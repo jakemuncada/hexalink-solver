@@ -139,7 +139,7 @@ class HexSide:
         return False
 
     def getAllConnectedSides(self):
-        """Returns all the connected sides."""
+        """Returns list of all the connected sides."""
         if self._connSides is None:
             self._connSides = []
             for connSide in self.endpoints[0].getAllSidesExcept(self.id):
