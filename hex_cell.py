@@ -214,12 +214,23 @@ class HexCell:
 
         return cap, limbs
 
-    def getSideGroups(self):
-        """Returns a list of sides grouped by connectivity."""
-        # TODO improve getSideGroups docstring
+    def getUnsetSideGroups(self):
+        """
+        Returns a list of `UNSET` sides grouped by connectivity.
 
-        def getGroup(side, cell, groupSet):
-            """Returns"""  # TODO docstring
+        Two sides are part of a group when the limb bisecting them is either None or blank.
+
+        Returns:
+            [[HexSide]]: A list containing the side groups. A side group is a list of Sides.
+        """
+
+        def getUnsetGroup(side, cell, groupSet):
+            """Returns list of all the `UNSET` sides that are part of the same group
+            as a given Side. Returns None if the side is not `UNSET`."""
+
+            # Return None if side is ACTIVE or BLANK.
+            if not side.isUnset():
+                return None
 
             # Recursion base case
             if side in groupSet:
@@ -228,13 +239,13 @@ class HexCell:
             groupSet.add(side)
 
             connSides = self.getAllCellSidesConnectedTo(side)
-            assert(len(connSides) == 2), "Expected two connected sides"
+            assert(len(connSides) == 2), "Expected two connected sides."
 
             for connSide in connSides:
-                vtx = side.getConnectionVertex(connSide)
-                limb = self.getLimbAt(vtx)
-                if limb is None or limb.isBlank():
-                    groupSet.update(getGroup(connSide, cell, groupSet))
+                if side.isCoupledTo(connSide):
+                    connGroup = getUnsetGroup(connSide, cell, groupSet)
+                    if connGroup is not None:
+                        groupSet.update(connGroup)
 
             return groupSet
 
@@ -243,9 +254,10 @@ class HexCell:
         finishedSides = set()
         for side in self.sides:
             if side not in finishedSides:
-                group = getGroup(side, self, set())
-                for groupMember in group:
-                    finishedSides.add(groupMember)
-                ret.append(list(group))
+                group = getUnsetGroup(side, self, set())
+                if group is not None:
+                    for groupMember in group:
+                        finishedSides.add(groupMember)
+                    ret.append(list(group))
 
         return ret

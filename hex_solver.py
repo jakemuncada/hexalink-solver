@@ -183,30 +183,18 @@ class HexSolver:
 
         # Don't process non-required cells
         if cell.reqSides is not None:
-            cellGroups = cell.getSideGroups()
+            unsetGroups = cell.getUnsetSideGroups()
 
-            if cell.row == 15 and cell.col == 0:
-                print(f"HERE: {cellGroups}")
+            for group in unsetGroups:
+                # Check if the group should be active
+                if len(group) > cell.requiredBlanks() - cell.countBlankSides():
+                    print(f"Group should be active: {cell}")
+                    self.addNextMoves(group, ACTIVE)
 
-            for group in cellGroups:
-                # print(len(group), cell.requiredBlanks() - cell.countBlankSides())
-                # print(len(group), cell.reqSides - cell.countActiveSides())
-
-                if cell.row == 15 and cell.col == 0:
-                    print(f"HERE: {group}")
-
-                # Check if the group is unset
-                if checkAllSidesAreUnset(group):
-
-                    # Check if the group should be active
-                    if len(group) > cell.requiredBlanks() - cell.countBlankSides():
-                        print(f"Group should be active: {cell}")
-                        self.addNextMoves(group, ACTIVE)
-                    
-                    # Check if the group should be blank
-                    elif len(group) > cell.reqSides - cell.countActiveSides():
-                        print(f"Group should be blank: {cell}")
-                        self.addNextMoves(group, BLANK)
+                # Check if the group should be blank
+                elif len(group) > cell.reqSides - cell.countActiveSides():
+                    print(f"Group should be blank: {cell}")
+                    self.addNextMoves(group, BLANK)
 
     def addNextMove(self, side, newStatus):
         """Add a `HexGameMove` to the `nextMoveList`.
