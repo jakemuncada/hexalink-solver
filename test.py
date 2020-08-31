@@ -37,6 +37,27 @@ def testCustomClassInSet():
     for obj in mySet:
         print(obj)
 
+
+def testItemInTuple():
+    """Test whether you can use the `in` keyword in testing if a tuple contains an item."""
+    tpl = (1, 3, 5, 7, 9)
+
+    print("Test whether you can use the `in` keyword in testing if a tuple contains an item.")
+    print("FINDINGS: Yes, you can use the `in` keyword.")
+    print()
+
+    print(f"Tuple: {tpl}")
+
+    item = 1
+    print(f"{item} in tuple: {item in tpl}")
+    item = 2
+    print(f"{item} in tuple: {item in tpl}")
+    item = 5
+    print(f"{item} in tuple: {item in tpl}")
+    item = "str"
+    print(f"'{item}' in tuple: {item in tpl}")
+
+
 ###############################
 # CLASSES
 ###############################
@@ -71,4 +92,4 @@ class CustomClass:
 # MAIN
 ###############################
 if __name__ == "__main__":
-    testCustomClassInSet()
+    testItemInTuple()
