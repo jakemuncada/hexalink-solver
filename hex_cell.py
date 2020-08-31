@@ -91,7 +91,7 @@ class HexCell:
         return self.memoLimbs
 
     def getLimbAt(self, vertex):
-        """Returns the limb connected at the given vertex.
+        """Returns the limb connected at the given HexVertex or HexVertexDir.
 
         Args:
             vertex (HexVertex or HexVertexDir): The vertex (or vertex direction) of the limb.
@@ -233,7 +233,7 @@ class HexCell:
         """
 
         def getLink(side, cell, groupSet):
-            """Returns list of all the `UNSET` sides that are part of the same group
+            """Returns set of all the `UNSET` sides that are part of the same group
             as a given Side. Returns None if the side is not `UNSET`."""
 
             # Return None if side is ACTIVE or BLANK.
