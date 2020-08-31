@@ -225,8 +225,9 @@ class HexSolver:
 
         If enough holes have been created, the remaining UNSET sides can be deduced to be ACTIVE.
         """
+        # TODO
 
-        if cell.reqSides is not None:
+        if cell.reqSides is not None and not cell.isDone():
 
             # These are the SideDirs of the cell that is not connected to an active limb
             sideDirs = set(HexSideDir)
@@ -287,8 +288,6 @@ class HexSolver:
             GameMove: The next correct move.
         """
 
-        self.validateMoveList()
-
         ret = None
         if len(self.nextMoveList) > 0:
             ret = self.nextMoveList.pop(0)
@@ -297,12 +296,6 @@ class HexSolver:
             ret = None if len(self.nextMoveList) == 0 else self.nextMoveList.pop(0)
 
         return ret
-
-    def validateMoveList(self):
-        """Check if the `HexGameMoves` in the `nextMoveList` are still correct/valid.
-        Remove all the incorrect moves.
-        """
-        # TODO implement validateMoveList
 
 
 #################################################################
