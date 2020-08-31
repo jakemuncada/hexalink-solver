@@ -104,3 +104,9 @@ class HexVertex:
             dy = -verticalDelta
 
         self.coords = Point((cellCenter.x + dx, cellCenter.y + dy))
+
+    def __eq__(self, other):
+        return isinstance(other, HexVertex) and self.id == other.id
+
+    def __hash__(self):
+        return hash(self.id)
