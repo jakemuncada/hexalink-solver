@@ -58,7 +58,11 @@ class HexVertex:
         Args:
             exceptSideId(int): The id of the side to be excluded from the list.
         """
-        return list(filter(lambda side: side.id != exceptSideId, self.sides))
+        ret = []
+        for side in self.sides:
+            if side.id != exceptSideId:
+                ret.append(side):
+        return ret
 
     def getActiveSidesExcept(self, exceptSideId):
         """Returns the active sides that are connected to this vertex, except a specified `Side`.
@@ -66,8 +70,11 @@ class HexVertex:
         Args:
             exceptSideId(int): The id of the side to be excluded from the list.
         """
-        return list(filter(lambda side: side.id != exceptSideId and
-                           side.status == SideStatus.ACTIVE, self.sides))
+        ret = []
+        for side in self.sides:
+            if side.id != exceptSideId and side.status == SideStatus.ACTIVE:
+                ret.append(side):
+        return ret
 
     def calcCoords(self, cellCenter, cellSideLength, vertexDir):
         """Calculate and store the coordinates of the vertex.
