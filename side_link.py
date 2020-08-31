@@ -87,12 +87,21 @@ class SideLink:
         if sides is None or len(sides) <= 0:
             return False, None, None
 
+        sides = list(sides)
+
+        # Check if the sides[0] is BLANK.
+        # The other sides should be equal to sides[0].
+        if sides[0].isBlank():
+            return False, None, None
+
         linkVertices = []
 
         # The count of sides connected to each vertex
         vertexConnCount = {}
 
         for side in sides:
+            if side.status != sides[0].status:
+                return False, None, None
             for vtx in side.endpoints:
                 if vtx not in vertexConnCount:
                     vertexConnCount[vtx] = 1
