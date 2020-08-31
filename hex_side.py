@@ -78,11 +78,11 @@ class HexSide:
         Returns false otherwise."""
         return otherSide in self.getAllConnectedSides()
 
-    def isCoupledTo(self, otherSide):
+    def isLinkedTo(self, otherSide):
         """
-        Returns true if this `Side` is coupled to another side. Returns false otherwise.
+        Returns true if this `Side` is linked to another side. Returns false otherwise.
 
-        A side is coupled with another side if:
+        A side is linked with another side if:
             1. Both sides are UNSET or ACTIVE. (Neither side is BLANK.)
             2. Both sides share a common vertex.
             3. All other Sides which also share the common vertex are BLANK.

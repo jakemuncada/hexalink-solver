@@ -3,7 +3,7 @@
 from side_status import SideStatus
 from hex_game_move import HexGameMove
 from hex_dir import HexSideDir, HexVertexDir
-from helpers import checkAllSidesAreUnset
+from helpers import countBlankSides
 
 # Define SideStatus members
 BLANK = SideStatus.BLANK
@@ -156,7 +156,7 @@ class HexSolver:
 
             else:
                 self.inspectForBisectorOfRemainingTwo(cell)
-                self.inspectSideGroups(cell)
+                self.inspectUnsetSideLinks(cell)
 
         for side in cell.sides:
             self.inspectObviousSide(side)
@@ -175,7 +175,7 @@ class HexSolver:
                             self.addNextMove(limb, ACTIVE)
                         return
 
-    def inspectSideGroups(self, cell):
+    def inspectUnsetSideLinks(self, cell):
         """
         Inspects the cell's side groups if there are deducible `ACTIVE` or `BLANK` groups.
         Does not process non-required cells.
@@ -183,17 +183,15 @@ class HexSolver:
 
         # Don't process non-required cells
         if cell.reqSides is not None:
-            unsetGroups = cell.getUnsetSideGroups()
+            unsetGroups = cell.getUnsetSideLinks()
 
             for group in unsetGroups:
                 # Check if the group should be active
                 if len(group) > cell.requiredBlanks() - cell.countBlankSides():
-                    print(f"Group should be active: {cell}")
                     self.addNextMoves(group, ACTIVE)
 
                 # Check if the group should be blank
                 elif len(group) > cell.reqSides - cell.countActiveSides():
-                    print(f"Group should be blank: {cell}")
                     self.addNextMoves(group, BLANK)
 
     def addNextMove(self, side, newStatus):
