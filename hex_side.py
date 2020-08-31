@@ -84,10 +84,11 @@ class HexSide:
 
         A side is linked with another side if:
             1. Both sides are UNSET or ACTIVE. (Neither side is BLANK.)
-            2. Both sides share a common vertex.
-            3. All other Sides which also share the common vertex are BLANK.
+            2. Both sides have the same status.
+            3. Both sides share a common vertex.
+            4. All other Sides which also share the common vertex are BLANK.
         """
-        if self.status == ACTIVE or self.status == UNSET:
+        if (self.status == ACTIVE or self.status == UNSET) and self.status == otherSide.status:
             # Get common vertex
             commonVertex = self.getConnectionVertex(otherSide)
             if commonVertex is not None:
