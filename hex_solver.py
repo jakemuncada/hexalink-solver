@@ -4,6 +4,7 @@ from side_status import SideStatus
 from hex_game_move import HexGameMove
 from hex_dir import HexSideDir, HexVertexDir
 from helpers import countBlankSides
+from side_link import SideLink
 
 # Define SideStatus members
 BLANK = SideStatus.BLANK
@@ -103,14 +104,13 @@ class HexSolver:
         for connCell in side.getConnectedCells():
             self.inspectObviousCell(connCell)
 
-    def inspectObviousSide(self, side):
-        """Inspect a given `HexSide` for obvious clues. Does not process non-`UNSET` sides.
+    ###########################################################################
+    # INSPECT SIDE
+    ###########################################################################
 
-        Some obvious clues include:
-            ・If the Side is hanging.
-            ・If the Side is connected to an existing intersection.
-            ・If the Side is connected to an active Side which has nowhere else to go.
-        """
+    def inspectObviousSide(self, side):
+        """Inspect a given `HexSide` for obvious clues. Does not process non-`UNSET` sides."""
+
         # Do not process non-`UNSET` sides.
         if not side.isUnset():
             return
@@ -118,6 +118,7 @@ class HexSolver:
         self.inspectHangingSide(side)
         self.inspectConnectingToIntersection(side)
         self.inspectContinueActiveLink(side)
+        self.inspectLoopMaker(side)
 
     def inspectHangingSide(self, side):
         """Set side to BLANK if it is hanging."""
@@ -136,26 +137,55 @@ class HexSolver:
             if side.isLinkedTo(connSide, ignoreStatus=True):
                 self.addNextMove(side, ACTIVE)
 
+    def inspectLoopMaker(self, side):
+        """Inspect a side if setting it to ACTIVE will create a loop. If so, set it to BLANK."""
+
+        # Only process UNSET sides
+        if side.isUnset():
+
+            # Get the connected sides on each endpoint
+            connActiveSides1 = side.endpoints[0].getActiveSidesExcept(side.id)
+            connActiveSides2 = side.endpoints[1].getActiveSidesExcept(side.id)
+
+            # If both endpoints have an active side
+            if len(connActiveSides1) > 0 and len(connActiveSides2) > 0:
+                activeSide1 = connActiveSides1[0]
+                activeSide2 = connActiveSides2[0]
+
+                if activeSide1.colorIdx == activeSide2.colorIdx:
+                    if SideLink.isSameLink(activeSide1, activeSide2):
+                        self.addNextMove(side, BLANK)
+
+    ###########################################################################
+    # INSPECT CELL
+    ###########################################################################
+
     def inspectObviousCell(self, cell):
         """Inspect a given cell for obvious clues.
 
         Some obvious clues include:
             ・If the cell already has the correct number of ACTIVE or BLANK sides.
         """
-        if cell.reqSides is not None and not cell.isFullySet():
-            if cell.countActiveSides() == cell.reqSides:
-                self.addNextMoves(cell.getUnsetSides(), BLANK)
+        if not cell.isFullySet():
+            if cell.reqSides is not None:
+                # If already has correct number of ACTIVE sides, set others to BLANK
+                if cell.countActiveSides() == cell.reqSides:
+                    self.addNextMoves(cell.getUnsetSides(), BLANK)
 
-            elif cell.countBlankSides() == cell.requiredBlanks():
-                self.addNextMoves(cell.getUnsetSides(), ACTIVE)
+                # If already has correct number of BLANK sides, set others to ACTIVE
+                elif cell.countBlankSides() == cell.requiredBlanks():
+                    self.addNextMoves(cell.getUnsetSides(), ACTIVE)
 
-            else:
-                self.inspectSymmetrical3Cell(cell)
-                self.inspectForBisectorOfRemainingTwo(cell)
-                self.inspectUnsetSideLinks(cell)
+                # Otherwise, check other clues
+                else:
+                    self.inspectSymmetrical3Cell(cell)
+                    self.inspectForBisectorOfRemainingTwo(cell)
+                    self.inspectUnsetSideLinks(cell)
 
-        for side in cell.sides:
-            self.inspectObviousSide(side)
+            # Then, check each side individually, even for cells that have no required sides.
+            for side in cell.sides:
+                if side.isUnset():
+                    self.inspectObviousSide(side)
 
     def inspectForBisectorOfRemainingTwo(self, cell):
         """If the given cell only has one remaining requirement and has
@@ -239,6 +269,10 @@ class HexSolver:
             theoreticalBlankCount = (probableBlankCount // 2) + \
                 countBlankSides([cell.sides[side] for side in sideDirs])
 
+    ###########################################################################
+    # ADD NEXT MOVE
+    ###########################################################################
+
     def addNextMove(self, side, newStatus):
         """Add a `HexGameMove` to the `nextMoveList`.
         Only `UNSET` sides can be added to the `nextMoveList`.
@@ -275,6 +309,10 @@ class HexSolver:
                 if side.id not in self.processedSideIds:
                     self.nextMoveList.append(move)
                     self.processedSideIds.add(side.id)
+
+    ###########################################################################
+    # GET NEXT MOVE
+    ###########################################################################
 
     def getNextMove(self):
         """Get the next correct move.
