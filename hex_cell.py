@@ -265,6 +265,6 @@ class HexCell:
                 if group is not None:
                     for groupMember in group:
                         finishedSides.add(groupMember)
-                    ret.append(SideLink(group))
+                    ret.append(SideLink.fromList(group))
 
         return ret
