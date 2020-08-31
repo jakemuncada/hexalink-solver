@@ -163,7 +163,7 @@ class HexCell:
         """
         return list(filter(lambda side: side not in exclusions, self.sides))
 
-    def getAllSidesConnectedTo(self, side):
+    def getAllCellSidesConnectedTo(self, side):
         """Returns a list of all sides of the cell which are connected to a given side.
 
         If the given side is part of the cell, it will not be included in the returned list.
@@ -227,7 +227,7 @@ class HexCell:
 
             groupSet.add(side)
 
-            connSides = self.getAllSidesConnectedTo(side)
+            connSides = self.getAllCellSidesConnectedTo(side)
             assert(len(connSides) == 2), "Expected two connected sides"
 
             for connSide in connSides:
