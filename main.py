@@ -312,10 +312,14 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                # clickSide(game)
-                clickCell(game)
-            if event.type == pygame.KEYDOWN:
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if pygame.mouse.get_pressed() == (True, False, False):
+                    # Left Click
+                    clickSide(game)
+                elif pygame.mouse.get_pressed() == (False, False, True):
+                    # Right Click
+                    clickCell(game)
+            elif event.type == pygame.KEYDOWN:
                 keys = pygame.key.get_pressed()
                 kmods = pygame.key.get_mods()
 
