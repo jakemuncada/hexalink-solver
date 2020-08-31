@@ -130,6 +130,44 @@ class SideLink:
 
         return True, linkVertices, tuple(endpoints)
 
+    @staticmethod
+    def isSameLink(side1, side2):
+        """
+        Returns true if the two sides are part of the same link.
+
+        This implementation is possibly faster than getting the entire link
+        because it will return true as soon as the target is found.
+        """
+
+        # False if either side is None or Blank
+        if side1 is None or side2 is None or side1.isBlank() or side2.isBlank():
+            return False
+
+        # False if they are not the same status
+        if side1.status != side2.status:
+            return False
+
+        def findSideInLink(side, target, groupSet):
+            """Returns true if the target is part of the same link of a given side."""
+
+            # Recursion base cases
+            if side == target:
+                return True
+            if side in groupSet:
+                return False
+
+            groupSet.add(side)
+
+            linkedSides = side.getAllLinkedSides()
+            for linkedSide in linkedSides:
+                found = findSideInLink(linkedSide, target, groupSet)
+                if found:
+                    return True
+
+            return False
+
+        return findSideInLink(side1, side2, set())
+
     def __len__(self):
         return len(self.sides)
 
