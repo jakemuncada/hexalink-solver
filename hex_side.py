@@ -74,9 +74,29 @@ class HexSide:
         return self.status == UNSET
 
     def isConnectedTo(self, side):
-        """Returns true if this `Side` is connected to a given `Side`.
+        """Returns true if this `Side` shares a common vertex with a given `Side`.
         Returns false otherwise."""
         return side in self.getAllConnectedSides()
+
+    def isCoupledTo(self, otherSide):
+        """
+        Returns true if this `Side` is coupled to another side. Returns false otherwise.
+
+        A side is coupled with another side if:
+            1. Both sides are UNSET or ACTIVE. (Neither side is BLANK.)
+            2. Both sides share a common vertex.
+            3. All other Sides which also share the common vertex are BLANK.
+        """
+        if self.status == ACTIVE or self.status == UNSET:
+            # Get common vertex
+            commonVertex = self.getConnectionVertex(otherSide)
+            if commonVertex is not None:
+                # Check if all other sides which share the common vertex are BLANK
+                for vertSide in commonVertex.sides:
+                    if vertSide != self and vertSide != otherSide and not vertSide.isBlank():
+                        return False
+                return True
+        return False
 
     def getConnectionVertex(self, side):
         """Returns the vertex that is common between the two sides.
