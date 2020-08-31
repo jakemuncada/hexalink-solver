@@ -61,7 +61,7 @@ class HexVertex:
         ret = []
         for side in self.sides:
             if side.id != exceptSideId:
-                ret.append(side):
+                ret.append(side)
         return ret
 
     def getActiveSidesExcept(self, exceptSideId):
@@ -73,7 +73,7 @@ class HexVertex:
         ret = []
         for side in self.sides:
             if side.id != exceptSideId and side.status == SideStatus.ACTIVE:
-                ret.append(side):
+                ret.append(side)
         return ret
 
     def calcCoords(self, cellCenter, cellSideLength, vertexDir):

@@ -115,31 +115,26 @@ class HexSolver:
         if not side.isUnset():
             return
 
-        # Check if the side is hanging
+        self.inspectHangingSide(side)
+        self.inspectConnectingToIntersection(side)
+        self.inspectContinueActiveLink(side)
+
+    def inspectHangingSide(self, side):
+        """Set side to BLANK if it is hanging."""
         if side.isHanging():
             self.addNextMove(side, BLANK)
-            return
 
+    def inspectConnectingToIntersection(self, side):
+        """Set an UNSET side to BLANK if it is connecting to an intersection."""
         vtx1, vtx2 = side.endpoints
-
-        # Check if either enpoint connects to an intersection
-        if vtx1.isIntersection() or vtx2.isIntersection():
+        if side.isUnset() and (vtx1.isIntersection() or vtx2.isIntersection()):
             self.addNextMove(side, BLANK)
-            return
 
-        # The connected sides on the each enpoint
-        connSides1 = vtx1.getAllSidesExcept(side.id)
-        connSides2 = vtx2.getAllSidesExcept(side.id)
-
-        for endPtSides in [connSides1, connSides2]:
-            countActive = 0
-            countBlank = 0
-            for connSide in endPtSides:
-                countActive += 1 if connSide.isActive() else 0
-                countBlank += 1 if connSide.isBlank() else 0
-                if countActive == 1 and countActive + countBlank == len(endPtSides):
-                    self.addNextMove(side, ACTIVE)
-                    return
+    def inspectContinueActiveLink(self, side):
+        """Set an UNSET side to ACTIVE if it is a continuation of an active link."""
+        for connSide in side.getAllActiveConnectedSides():
+            if side.isLinkedTo(connSide, ignoreStatus=True):
+                self.addNextMove(side, ACTIVE)
 
     def inspectObviousCell(self, cell):
         """Inspect a given cell for obvious clues.
@@ -225,7 +220,7 @@ class HexSolver:
 
         If enough holes have been created, the remaining UNSET sides can be deduced to be ACTIVE.
         """
-        # TODO
+        # TODO unfinished method
 
         if cell.reqSides is not None and not cell.isDone():
 

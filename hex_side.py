@@ -117,10 +117,9 @@ class HexSide:
             HexVertex: The common vertex. None if the two sides aren't connected.
         """
         if self.isConnectedTo(otherSide):
-            verticesOfOther = set(otherSide.endpoints)
-            if self.endpoints[0] in verticesOfOther:
+            if self.endpoints[0] in otherSide.endpoints:
                 return self.endpoints[0]
-            elif self.endpoints[1] in verticesOfOther:
+            elif self.endpoints[1] in otherSide.endpoints:
                 return self.endpoints[1]
         return None
 
