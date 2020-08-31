@@ -147,7 +147,7 @@ class HexSolver:
         Some obvious clues include:
             ・If the cell already has the correct number of ACTIVE or BLANK sides.
         """
-        if cell.reqSides is not None:
+        if cell.reqSides is not None and not cell.isDone():
             if cell.countActiveSides() == cell.reqSides:
                 self.addNextMoves(cell.getUnsetSides(), BLANK)
 
@@ -155,6 +155,7 @@ class HexSolver:
                 self.addNextMoves(cell.getUnsetSides(), ACTIVE)
 
             else:
+                self.inspectSymmetrical3Cell(cell)
                 self.inspectForBisectorOfRemainingTwo(cell)
                 self.inspectUnsetSideLinks(cell)
 
@@ -175,6 +176,27 @@ class HexSolver:
                             self.addNextMove(limb, ACTIVE)
                         return
 
+    def inspectSymmetrical3Cell(self, cell):
+        """
+        Inspects if the 3-Cell fits the symmetrical pattern, which is the case where
+        all 3 active sides are linked.
+        """
+        if cell.reqSides == 3 and not cell.isDone():
+            sideLinks = cell.getUnsetSideLinks()
+            for sideLink in sideLinks:
+                # If a SideLink with len of 3 exists,
+                if len(sideLink) == 3:
+                    # Get the limbs at the two endpoints
+                    limb1 = cell.getLimbAt(sideLink.endpoints[0])
+                    limb2 = cell.getLimbAt(sideLink.endpoints[1])
+                    # Set the limb at its endpoints to ACTIVE
+                    self.addNextMove(limb1, ACTIVE)
+                    self.addNextMove(limb2, ACTIVE)
+                    # Set all other limbs to BLANK
+                    for limb in cell.getLimbs():
+                        if limb != limb1 and limb != limb2:
+                            self.addNextMove(limb, BLANK)
+
     def inspectUnsetSideLinks(self, cell):
         """
         Inspects the cell's side groups if there are deducible `ACTIVE` or `BLANK` groups.
@@ -193,6 +215,33 @@ class HexSolver:
                 # Check if the group should be blank
                 elif len(group) > cell.reqSides - cell.countActiveSides():
                     self.addNextMoves(group, BLANK)
+
+    def inspectBlanksCreatedByActiveLimbs(self, cell):
+        """
+        Inspect the cell for blanks created by an active limb.
+        Does not process non-required cells.
+
+        Active limbs create a hole in the cell on either one of the limb's two connected sides.
+
+        If enough holes have been created, the remaining UNSET sides can be deduced to be ACTIVE.
+        """
+
+        if cell.reqSides is not None:
+
+            # These are the SideDirs of the cell that is not connected to an active limb
+            sideDirs = set(HexSideDir)
+            probableBlankCount = 0
+
+            for vtxDir in HexVertexDir:
+                limb = cell.limbs[vtxDir]
+                if limb is not None and limb.isActive():
+                    for sideDir in vtxDir.connectedSideDirs():
+                        if sideDir in sideDirs:
+                            probableBlankCount += 1
+                            sideDirs.remove(sideDir)
+
+            theoreticalBlankCount = (probableBlankCount // 2) + \
+                countBlankSides([cell.sides[side] for side in sideDirs])
 
     def addNextMove(self, side, newStatus):
         """Add a `HexGameMove` to the `nextMoveList`.
