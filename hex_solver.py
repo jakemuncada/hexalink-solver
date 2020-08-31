@@ -142,7 +142,7 @@ class HexSolver:
         Some obvious clues include:
             ・If the cell already has the correct number of ACTIVE or BLANK sides.
         """
-        if cell.reqSides is not None and not cell.isDone():
+        if cell.reqSides is not None and not cell.isFullySet():
             if cell.countActiveSides() == cell.reqSides:
                 self.addNextMoves(cell.getUnsetSides(), BLANK)
 
@@ -176,7 +176,7 @@ class HexSolver:
         Inspects if the 3-Cell fits the symmetrical pattern, which is the case where
         all 3 active sides are linked.
         """
-        if cell.reqSides == 3 and not cell.isDone():
+        if cell.reqSides == 3 and not cell.isFullySet():
             sideLinks = cell.getUnsetSideLinks()
             for sideLink in sideLinks:
                 # If a SideLink with len of 3 exists,
@@ -222,7 +222,7 @@ class HexSolver:
         """
         # TODO unfinished method
 
-        if cell.reqSides is not None and not cell.isDone():
+        if cell.reqSides is not None and not cell.isFullySet():
 
             # These are the SideDirs of the cell that is not connected to an active limb
             sideDirs = set(HexSideDir)

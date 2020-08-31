@@ -34,14 +34,9 @@ class HexCell:
         self.memoAdjCells = None
         self.memoLimbs = None
 
-    def isDone(self):
-        """
-        Returns true if the number of active cells is equal to the number of required cells.
-        Also returns true if there is no required number of active sides.
-        """
-        if self.reqSides is None or self.countActiveSides() == self.reqSides:
-            return True
-        return False
+    def isFullySet(self):
+        """Returns true if there are no more UNSET sides remaining in the cell."""
+        return self.countUnsetSides() == 0
 
     def requiredBlanks(self):
         """Returns the number of required `BLANK` sides.
