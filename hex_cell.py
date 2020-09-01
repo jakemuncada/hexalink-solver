@@ -3,6 +3,7 @@
 import math
 from side_link import SideLink
 from hex_dir import HexSideDir, HexVertexDir
+from side_status import SideStatus
 from point import Point
 from constants import COS_60, SQRT3
 
@@ -33,6 +34,7 @@ class HexCell:
         # Memoized stuff
         self._memoAdjCells = None
         self._memoLimbs = None
+        self._memoDirOfLimb = None
 
     def isFullySet(self):
         """Returns true if there are no more UNSET sides remaining in the cell."""
@@ -87,6 +89,16 @@ class HexCell:
         if statusFilter is not None:
             return list(filter(lambda limb: limb.status == statusFilter, self._memoLimbs))
         return self._memoLimbs
+
+    def getDirOfLimb(self, limb):
+        """Returns the VertexDir of a given limb. 
+        Returns None if the given Side is not a limb of the cell."""
+        if self._memoDirOfLimb is None:
+            for limbDir in HexVertexDir:
+                limbId = self.limbs[limbDir].id if self.limbs[limbDir] is not None else None
+                if limbId is not None:
+                    self._memoDirOfLimb[limbId] = limbDir
+        return self._memoDirOfLimb[limb.id] if limb.id in self._memoDirOfLimb else None
 
     def getLimbAt(self, vertex):
         """Returns the limb connected at the given HexVertex or HexVertexDir.
