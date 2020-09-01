@@ -355,8 +355,6 @@ def main():
     # Initialize the solver
     solver = HexSolver(game)
 
-    # TODO Use pygame.display.get_active() to solve text disappearing after minimize window
-
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
