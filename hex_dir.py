@@ -28,6 +28,7 @@ class HexSideDir(IntEnum):
             return otherDir == HexSideDir.LR or otherDir == HexSideDir.L
         if self == HexSideDir.L:
             return otherDir == HexSideDir.LL or otherDir == HexSideDir.UL
+        raise AssertionError("Invalid Hex Side direction.")
 
     def opposite(self):
         """Get the opposite direction of a give HexSideDir."""
@@ -43,6 +44,7 @@ class HexSideDir(IntEnum):
             return HexSideDir.UR
         if self == HexSideDir.L:
             return HexSideDir.R
+        raise AssertionError("Invalid Hex Side direction.")
 
     def connectedVertexDirs(self):
         """Get the vertices associated with this direction.
@@ -51,8 +53,6 @@ class HexSideDir(IntEnum):
             (HexVertexDir, HexVertexDir): The two vertex directions associated with this direction.
                 The return will always be sorted according to this order: T, UR, LR, B, LL, UR
         """
-
-        # TODO the sort order should not matter
 
         if self == HexSideDir.UL:
             return (HexVertexDir.T, HexVertexDir.UL)
@@ -93,6 +93,54 @@ class HexVertexDir(IntEnum):
     LL = 4
     UL = 5
 
+    def opposite(self):
+        """Returns the opposite direction of this VertexDir."""
+        if self == HexVertexDir.T:
+            return HexVertexDir.B
+        if self == HexVertexDir.UR:
+            return HexVertexDir.LL
+        if self == HexVertexDir.LR:
+            return HexVertexDir.UL
+        if self == HexVertexDir.B:
+            return HexVertexDir.T
+        if self == HexVertexDir.LL:
+            return HexVertexDir.UR
+        if self == HexVertexDir.UL:
+            return HexVertexDir.LR
+        raise AssertionError("Invalid Hex Vertex direction")
+
+    def getAdjacentVertexDirs(self):
+        """Returns a tuple of the two VertexDirs that are adjacent to this VertexDir."""
+        if self == HexVertexDir.T:
+            return (HexVertexDir.UL, HexVertexDir.UR)
+        if self == HexVertexDir.UR:
+            return (HexVertexDir.T, HexVertexDir.LR)
+        if self == HexVertexDir.LR:
+            return (HexVertexDir.UR, HexVertexDir.B)
+        if self == HexVertexDir.B:
+            return (HexVertexDir.LR, HexVertexDir.LL)
+        if self == HexVertexDir.LL:
+            return (HexVertexDir.B, HexVertexDir.UL)
+        if self == HexVertexDir.UL:
+            return (HexVertexDir.LL, HexVertexDir.T)
+        raise AssertionError("Invalid Hex Vertex direction")
+
+    def get120DegVertices(self):
+        """Returns a tuple of the two VertexDirs that are 120 degrees from this VertexDir."""
+        if self == HexVertexDir.T:
+            return (HexVertexDir.LL, HexVertexDir.LR)
+        if self == HexVertexDir.UR:
+            return (HexVertexDir.UL, HexVertexDir.B)
+        if self == HexVertexDir.LR:
+            return (HexVertexDir.T, HexVertexDir.LL)
+        if self == HexVertexDir.B:
+            return (HexVertexDir.UR, HexVertexDir.UL)
+        if self == HexVertexDir.LL:
+            return (HexVertexDir.LR, HexVertexDir.T)
+        if self == HexVertexDir.UL:
+            return (HexVertexDir.B, HexVertexDir.UR)
+        raise AssertionError("Invalid Hex Vertex direction")
+
     def connectedSideDirs(self):
         """Get the `HexSideDirs` connected to this vertex direction.
 
@@ -111,7 +159,7 @@ class HexVertexDir(IntEnum):
             return (HexSideDir.LL, HexSideDir.L)
         if self == HexVertexDir.UL:
             return (HexSideDir.L, HexSideDir.UL)
-        raise AssertionError("Invalid Hex Side direction")
+        raise AssertionError("Invalid Hex Vertex direction")
 
     def __str__(self):
         if self == HexVertexDir.T:
