@@ -96,7 +96,7 @@ class HexCell:
                      None if there is no limb at that location.
         """
         if isinstance(vertex, HexVertexDir):
-            vertex = self.vertices[vertex]
+            return self.limbs[vertex]
 
         if vertex is not None:
             for candidateLimb in vertex.sides:
