@@ -12,6 +12,23 @@ class HexSideDir(IntEnum):
     LL = 4
     L = 5
 
+    def isAdjacent(self, otherDir):
+        """Returns true if the other direction is adjacent of this direction."""
+        assert(isinstance(otherDir, HexSideDir)), \
+            "Can only compare adjacency with another HexSideDir."
+        if self == HexSideDir.UL:
+            return otherDir == HexSideDir.L or otherDir == HexSideDir.UR
+        if self == HexSideDir.UR:
+            return otherDir == HexSideDir.UL or otherDir == HexSideDir.R
+        if self == HexSideDir.R:
+            return otherDir == HexSideDir.UR or otherDir == HexSideDir.LR
+        if self == HexSideDir.LR:
+            return otherDir == HexSideDir.R or otherDir == HexSideDir.LL
+        if self == HexSideDir.LL:
+            return otherDir == HexSideDir.LR or otherDir == HexSideDir.L
+        if self == HexSideDir.L:
+            return otherDir == HexSideDir.LL or otherDir == HexSideDir.UL
+
     def opposite(self):
         """Get the opposite direction of a give HexSideDir."""
         if self == HexSideDir.UL:
