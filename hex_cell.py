@@ -79,10 +79,13 @@ class HexCell:
             self._memoAdjCells = list(filter(lambda adjCell: adjCell is not None, self.adjCells))
         return self._memoAdjCells
 
-    def getLimbs(self):
-        """Returns the not-None limbs."""
+    def getLimbs(self, statusFilter=None):
+        """Returns the not-None limbs. Can optionally set a status filter
+        where the returned limbs' status must be equal to the given value."""
         if self._memoLimbs is None:
             self._memoLimbs = list(filter(lambda limb: limb is not None, self.limbs))
+        if statusFilter is not None:
+            return list(filter(lambda limb: limb.status == statusFilter, self._memoLimbs))
         return self._memoLimbs
 
     def getLimbAt(self, vertex):
