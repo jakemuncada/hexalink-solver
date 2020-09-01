@@ -183,7 +183,7 @@ class HexCell:
         """
         return list(filter(lambda side: side not in exclusions, self.sides))
 
-    def getAllCellSidesConnectedTo(self, side):
+    def getAllCellSidesConnectedToSide(self, side):
         """Returns a list of all sides of the cell which are connected to a given side.
 
         If the given side is part of the cell, it will not be included in the returned list.
@@ -199,6 +199,23 @@ class HexCell:
         for candidateSide in self.sides:
             if candidateSide in validSides:
                 ret.append(candidateSide)
+        return ret
+
+    def getAllCellSidesConnectedToVertex(self, vertex):
+        """Returns a tuple of the 2 sides of the cell which are connected to a given vertex.
+        Returns None if the given vertex is not part of the cell.
+
+        Args:
+            vertex (HexVertex): The given vertex.
+
+        Returns:
+            (HexSide, HexSide): The 2 sides of the cell which are connected to the given vertex.
+                                Returns None if the given vertex is not part of the cell.
+        """
+        ret = []
+        for side in self.sides:
+            if vertex in side.endpoints:
+                ret.append(side)
         return ret
 
     def getCap(self, direction):
@@ -256,7 +273,7 @@ class HexCell:
 
             groupSet.add(side)
 
-            connSides = self.getAllCellSidesConnectedTo(side)
+            connSides = self.getAllCellSidesConnectedToSide(side)
             assert(len(connSides) == 2), "Expected two connected sides."
 
             for connSide in connSides:

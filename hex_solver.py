@@ -62,7 +62,7 @@ class HexSolver:
                             moves = completeCell1(cell, sideDir)
                             self.extendNextMoves(moves)
                             # Lastly, polish off the 5-Cell
-                            polish = adjCell.getAllCellSidesConnectedTo(boundary)
+                            polish = adjCell.getAllCellSidesConnectedToSide(boundary)
                             self.addNextMoves(polish, ACTIVE)
 
                         ###  1-AND-1  ###
