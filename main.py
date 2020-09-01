@@ -29,32 +29,29 @@ FPS_FONT = pygame.font.SysFont("Arial", 18)
 screen = pygame.display.set_mode((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT))
 pygame.display.set_caption("Slitherlink")
 
+# Surfaces
+baseSurface = pygame.Surface((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT))
+vertexDotSurface = pygame.Surface((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT))
+reqNumSurface = pygame.Surface((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT))
+baseSurface.set_colorkey(colors.BLACK, pygame.RLEACCEL)
+vertexDotSurface.set_colorkey(colors.BLACK, pygame.RLEACCEL)
+reqNumSurface.set_colorkey(colors.BLACK, pygame.RLEACCEL)
+
 # Clock
 clock = pygame.time.Clock()
-FPS = 30
+FPS = 60
 
 
 def render(game):
     """Draws the game board."""
 
-    # Background
-    screen.fill(colors.BLACK)
+    # Draw the base surface
+    screen.blit(baseSurface, (0, 0))
 
     # Margin
     # drawMargins()
 
     updateRects = []
-
-    # Draw the cell numbers
-    for cell in game.reqCells:
-        if cell.numDirty:
-            reqSidesFont = pygame.font.SysFont("Courier", 20)
-            rect = displayText(str(cell.reqSides), cell.center, reqSidesFont, colors.WHITE)
-            updateRects.append(rect)
-            cell.numDirty = False
-
-    # Array of dirty HexVertices
-    dirtyVertices = []
 
     # Draw the sides
     for side in game.sides:
@@ -69,20 +66,19 @@ def render(game):
             rect = pygame.draw.line(screen, color, ep1, ep2, lineWidth)
         else:
             # Else, draw a dashed line
-            rect = drawDashedLine(color, ep1, ep2, lineWidth)
+            rect = pygame.draw.line(screen, colors.BLACK, ep1, ep2, 3)
+            rect = drawDashedLine(screen, color, ep1, ep2, lineWidth)
 
         # Add the dirty sides to the list
         if side.isDirty:
             side.isDirty = False
             updateRects.append(rect)
-            dirtyVertices.append(side.endpoints[0])
-            dirtyVertices.append(side.endpoints[1])
 
-    # Draw the dirty vertices last so that the dots are above any of the lines
-    for dirtyVertex in dirtyVertices:
-        radius, color = getVertexDrawInfo(dirtyVertex)
-        rect = pygame.draw.circle(screen, color, dirtyVertex.coords.get(), radius)
-        updateRects.append(rect)
+    # Overlay the vertex dots
+    screen.blit(vertexDotSurface, (0, 0))
+
+    # Overlay the cell numbser
+    screen.blit(reqNumSurface, (0, 0))
 
     # Display FPS
     drawFps()
@@ -94,13 +90,13 @@ def render(game):
         updateRects.append(rect)
 
     # Update the screen, but only the areas/rects that have changed
-    pygame.display.update(updateRects)
+    pygame.display.update()
 
 
 def drawFps():
     """Draw the FPS on the screen."""
     fps = str(int(clock.get_fps()))
-    fpsText = FPS_FONT.render(fps, 1, pygame.Color("coral"))
+    fpsText = FPS_FONT.render(fps, 1, pygame.Color("coral"), colors.BLACK)
     screen.blit(fpsText, (10, 0))
 
 
@@ -184,10 +180,11 @@ def drawMargins():
     pygame.draw.line(screen, colors.WHITE, lowerLeft, upperLeft, 1)
 
 
-def displayText(text, coords, font, color):
+def displayText(surface, text, coords, font, color):
     """Display text on the screen.
 
     Args:
+        surface (pygame.Surface): The surface to draw on.
         text (string): The text to display.
         coords (Point): The center coordinates of the text rect.
         font (pygame.font): The font to be used.
@@ -198,11 +195,11 @@ def displayText(text, coords, font, color):
     """
     fontSurface = font.render(str(text), True, color)
     rect = fontSurface.get_rect(center=coords.get())
-    screen.blit(fontSurface, rect)
+    surface.blit(fontSurface, rect)
     return rect
 
 
-def drawDashedLine(color, startPos, endPos, width=1, dashLength=5):
+def drawDashedLine(surface, color, startPos, endPos, width=1, dashLength=5):
     """Draw a dashed line on the window.
 
     Args:
@@ -224,7 +221,7 @@ def drawDashedLine(color, startPos, endPos, width=1, dashLength=5):
     for index in range(0, length // dashLength, 2):
         start = origin + (slope * index * dashLength)
         end = origin + (slope * (index + 1) * dashLength)
-        pygame.draw.line(screen, color, start.get(), end.get(), width)
+        pygame.draw.line(surface, color, start.get(), end.get(), width)
 
     left = min(startPos[0], endPos[0])
     top = min(startPos[1], endPos[1])
@@ -286,6 +283,52 @@ def reset(game):
     game.init()
 
 
+def prepareBaseSurface(game):
+    """Draw an unset game board to be used for the base surface."""
+
+    # Background
+    screen.fill(colors.BLACK)
+
+    lineWidth = 2
+    color = colors.GRAY
+
+    for side in game.sides:
+        # The coordinates of the endpoints
+        ep1 = side.endpoints[0].coords.get()
+        ep2 = side.endpoints[1].coords.get()
+        drawDashedLine(baseSurface, color, ep1, ep2, lineWidth)
+
+
+def prepareReqNumSurface(game):
+    """Draw the cell numbers."""
+
+    reqNumSurface.fill(colors.BLACK)
+
+    for cell in game.reqCells:
+        reqSidesFont = pygame.font.SysFont("Courier", 20)
+        displayText(reqNumSurface, str(cell.reqSides), cell.center, reqSidesFont, colors.WHITE)
+
+
+def prepareVertexDotSurface(game):
+    """Draw the vertex dots."""
+
+    # Background
+    screen.fill(colors.BLACK)
+
+    # Keep track of already drawn vertices
+    drawnVertices = set()
+
+    color = colors.WHITE
+    radius = 2
+
+    # Draw the cell vertices
+    for cell in game.cells:
+        for vertex in cell.vertices:
+            if vertex not in drawnVertices:
+                drawnVertices.add(vertex)
+                pygame.draw.circle(vertexDotSurface, color, vertex.coords.get(), radius)
+
+
 def main():
     """Main function."""
 
@@ -303,6 +346,13 @@ def main():
     centerY = targetHeight // 2 + constants.SCREEN_TOP_MARGIN
 
     game = HexGame((centerX, centerY), cellSideWidth, rows, dataStr)
+
+    # Prepare the surfaces
+    prepareBaseSurface(game)
+    prepareReqNumSurface(game)
+    prepareVertexDotSurface(game)
+
+    # Initialize the solver
     solver = HexSolver(game)
 
     # TODO Use pygame.display.get_active() to solve text disappearing after minimize window
