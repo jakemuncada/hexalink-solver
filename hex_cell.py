@@ -331,7 +331,6 @@ class HexCell:
                 limb = self.getLimbAt(vtxDir)
                 if limb is not None and limb.isActive():
                     sides = sidesAtVertexDir[vtxDir]
-                    print(sides[0], sides[1])
                     if checkAllSidesAreUnset(sides):
                         tempAntiPairs.append(AntiPair(sides[0], sides[1]))
 
@@ -339,3 +338,40 @@ class HexCell:
                 antiPairs = tempAntiPairs
 
         return antiPairs
+
+    def getTheoreticalBlanks(self):
+        """
+        Calculates how many sides of the cell are theoretically blank.
+
+        There are situations where a given subset of sides evidently has a BLANK.\n
+        For example, if a limb is ACTIVE, one of the connected sides is sure to be BLANK.\n
+        Also, when the cell is connected to a 5-Cell, at least one of the 3 sides
+        connected to the 5-Cell is BLANK.
+
+        Returns:
+            (int, [HexSide]): The number of theoretical blanks and the Sides
+                              that are part of the subset.
+        """
+
+        count = 0
+        theoreticalBlanks = []
+
+        antiPairs = self.getAntiPairsCausedByActiveLimbs()
+        for pair in antiPairs:
+            count += 1
+            theoreticalBlanks.append(pair.sides[0])
+            theoreticalBlanks.append(pair.sides[1])
+
+        # If the cell has an adjacent 5-Cell
+        for sideDir in HexSideDir:
+            adjCell = self.adjCells[sideDir]
+            if adjCell is not None and adjCell.reqSides == 5:
+                sides, _ = self.getCap(sideDir)
+                # Check if all the sides are UNSET
+                if checkAllSidesAreUnset(sides):
+                    # Check if all the sides are not yet in the theoretical blanks
+                    if all(side not in theoreticalBlanks for side in sides):
+                        count += 1
+                        theoreticalBlanks.extend(sides)
+
+        return count, theoreticalBlanks
