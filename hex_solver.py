@@ -182,6 +182,7 @@ class HexSolver:
                     self.inspectUnsetSideLinks(cell)
                     self.inspectTheoreticalBlanks(cell)
                     self.inspectClosedOff5Cell(cell)
+                    self.inspectOpen5Cell(cell)
 
             # Then, check each side individually, even for cells that have no required sides.
             for side in cell.sides:
@@ -269,20 +270,17 @@ class HexSolver:
         if cell.reqSides == 5 and not cell.isFullySet():
 
             def isValidToCloseOff(adjCell, sideDir):
-                """Returns true if the given cell (the cell adjacent to the 5-Cell
+                """Returns true if the given cell (the cell adjacent to the 5-Cell)
                 is fine with being closed off."""
 
                 # If the adjCell has no required sides, then it is okay to close this off
                 if adjCell.reqSides is None:
                     return True
 
-                countActive = adjCell.countActiveSides()
                 countBlank = adjCell.countBlankSides()
 
                 # The side bordering the adjCell and the 5-Cell (will become active)
                 borderSide = adjCell.sides[sideDir]
-                if borderSide.isUnset():
-                    countActive += 1
 
                 # The other sides of the adjCell that will become blank
                 otherSides = adjCell.getAllCellSidesConnectedToSide(borderSide)
@@ -291,7 +289,7 @@ class HexSolver:
                     if otherSide.isActive():
                         return False
 
-                    elif otherSide.isUnset():
+                    if otherSide.isUnset():
                         countBlank += 1
 
                         # Consider the linked sides
@@ -314,6 +312,62 @@ class HexSolver:
                         cap, limbs = cell.getCap(sideDir.opposite())
                         self.addNextMoves(cap, ACTIVE)
                         self.addNextMoves(limbs, BLANK)
+
+    def inspectOpen5Cell(self, cell):
+        """
+        Inspect a 5-Cell if it is valid to set a side to BLANK.
+
+        Checks if the cell adjacent to the 5-Cell in the direction of the BLANK
+        is still valid after gaining two ACTIVE sides.
+        """
+
+        if cell.reqSides == 5 and not cell.isFullySet():
+
+            def isValidToOpen(adjCell, sideDir):
+                """Returns true if the given cell (the cell adjacent to the 5-Cell)
+                is fine with being opened to the 5-Cell."""
+
+                # If the adjCell has no required sides, then it is valid
+                if adjCell.reqSides is None:
+                    return True
+
+                countActive = adjCell.countActiveSides()
+
+                # The side bordering the adjCell and the 5-Cell (will become blank).
+                # If it is already active, then obviously it cannot be opened.
+                borderSide = adjCell.sides[sideDir]
+                if borderSide.isActive():
+                    return False
+
+                # The other sides of the adjCell that will become active
+                otherSides = adjCell.getAllCellSidesConnectedToSide(borderSide)
+                for otherSide in otherSides:
+                    # If the otherSide is already blank, it is invalid to open to this adjCell.
+                    if otherSide.isBlank():
+                        return False
+
+                    if otherSide.isUnset():
+                        countActive += 1
+
+                        # Consider the linked sides
+                        # (the link is sure to be UNSET because otherSide is UNSET)
+                        linkedSides = otherSide.getAllLinkedSides()
+                        for linkedSide in linkedSides:
+                            if linkedSide in adjCell.sides:
+                                countActive += 1
+
+                # If we have exceeded the number of required active sides
+                if countActive > adjCell.reqSides:
+                    return False
+
+                return True
+
+            for sideDir in HexSideDir:
+                adjCell = cell.adjCells[sideDir]
+                if adjCell is not None:
+                    if not isValidToOpen(adjCell, sideDir.opposite()):
+                        side = cell.sides[sideDir]
+                        self.addNextMove(side, ACTIVE)
 
     ###########################################################################
     # ADD NEXT MOVE
