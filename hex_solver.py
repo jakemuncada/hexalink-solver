@@ -178,7 +178,6 @@ class HexSolver:
                 # Otherwise, check other clues
                 else:
                     self.inspectSymmetrical3Cell(cell)
-                    # self.inspect4CellGroupOpposite5Cell(cell)
                     self.inspectForBisectorOfRemainingTwo(cell)
                     self.inspectUnsetSideLinks(cell)
                     self.inspectTheoreticalBlanks(cell)
@@ -222,23 +221,6 @@ class HexSolver:
                     for limb in cell.getLimbs():
                         if limb != limb1 and limb != limb2:
                             self.addNextMove(limb, BLANK)
-
-    # def inspect4CellGroupOpposite5Cell(self, fourCell):
-    #     """
-    #     Inspect a 4-Cell if it has an UNSET group opposite of a 5-Cell.
-    #     If so, set that group to ACTIVE.
-    #     """
-
-    #     if fourCell.reqSides == 4 and not fourCell.isFullySet():
-    #         for cellDir in HexSideDir:
-    #             if fourCell.adjCell[cellDir].reqSides == 5:
-    #                 fiveCell = fourCell.adjCell[cellDir]
-    #                 links = fourCell.getUnsetSideLinks()
-    #                 for link in links:
-    #                     if len(link) > 2:
-    #                         self.addNextMoves(link, ACTIVE)
-    #                     elif len(link) == 2:
-    #                         for side in link:
 
     def inspectUnsetSideLinks(self, cell):
         """
