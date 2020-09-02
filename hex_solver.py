@@ -180,7 +180,7 @@ class HexSolver:
                     self.inspectSymmetrical3Cell(cell)
                     self.inspectForBisectorOfRemainingTwo(cell)
                     self.inspectUnsetSideLinks(cell)
-                    self.inspectTheoreticalBlanks(cell)
+                    self.inspectTheoreticals(cell)
                     self.inspectClosedOff5Cell(cell)
                     self.inspectOpen5Cell(cell)
 
@@ -243,21 +243,33 @@ class HexSolver:
                 elif len(group) > cell.reqSides - cell.countActiveSides():
                     self.addNextMoves(group, BLANK)
 
-    def inspectTheoreticalBlanks(self, cell):
+    def inspectTheoreticals(self, cell):
         """
-        Inspect the cell's theoretical blanks if they provide a clue.\n
-        If enough blanks have been created, the remaining UNSET sides can be deduced to be ACTIVE.
+        Inspect the cell's theoretical blanks and theoretical actives if they provide a clue.\n
+        If enough BLANK sides have been deduced, the remaining UNSET sides can be set to ACTIVE.\n
+        If enough ACTIVE sides have been deduced, the remaining UNSET sides can be set to BLANK.
         """
 
         if cell.reqSides is not None and not cell.isFullySet():
-            # Get the number of actual blank sides and the number of theoretical blank sides
+            # Get the number of actual blank sides and actual active sides
             actualBlankCount = cell.countBlankSides()
-            theoreticalBlankCount, theoreticalSides = cell.getTheoreticalBlanks()
+            actualActiveCount = cell.countActiveSides()
 
+            theoreticalCount, theoreticalSides = cell.getTheoreticalBlanks()
+            theoreticalBlankCount = theoreticalCount
+            theoreticalActiveCount = theoreticalCount
+
+            # If we have enough blanks, the unsure sides are deduced to be ACTIVE
             if theoreticalBlankCount + actualBlankCount == cell.requiredBlanks():
                 for side in cell.sides:
                     if side is not None and side.isUnset() and side not in theoreticalSides:
                         self.addNextMove(side, ACTIVE)
+
+            # If we have enough actives, the unsure sides are deduced to be BLANK
+            if theoreticalActiveCount + actualActiveCount == cell.reqSides:
+                for side in cell.sides:
+                    if side is not None and side.isUnset() and side not in theoreticalSides:
+                        self.addNextMove(side, BLANK)
 
     def inspectClosedOff5Cell(self, cell):
         """
