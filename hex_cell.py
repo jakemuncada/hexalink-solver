@@ -3,8 +3,9 @@
 import math
 from side_link import SideLink
 from hex_dir import HexSideDir, HexVertexDir
-from side_status import SideStatus
+from anti_pair import AntiPair
 from point import Point
+from helpers import checkAllSidesAreUnset
 from constants import COS_60, SQRT3
 
 
@@ -91,9 +92,10 @@ class HexCell:
         return self._memoLimbs
 
     def getDirOfLimb(self, limb):
-        """Returns the VertexDir of a given limb. 
+        """Returns the VertexDir of a given limb.
         Returns None if the given Side is not a limb of the cell."""
         if self._memoDirOfLimb is None:
+            self._memoDirOfLimb = {}
             for limbDir in HexVertexDir:
                 limbId = self.limbs[limbDir].id if self.limbs[limbDir] is not None else None
                 if limbId is not None:
@@ -295,3 +297,45 @@ class HexCell:
                     ret.append(SideLink.fromList(group))
 
         return ret
+
+    def getAntiPairsCausedByActiveLimbs(self):
+        """
+        Get list of UNSET anti-pairs caused by active limbs.
+
+        Returns:
+            [AntiPair]: The list of UNSET anti-pairs caused by active limbs.
+        """
+        antiPairs = []
+
+        # The two sides connected at the vertex dir
+        sidesAtVertexDir = {}
+        for vtxDir in HexVertexDir:
+            vtx = self.vertices[vtxDir]
+            if vtx is None:
+                sidesAtVertexDir[vtxDir] = None
+            else:
+                sidesAtVertexDir[vtxDir] = self.getAllCellSidesConnectedToVertex(vtx)
+
+        # The combination of HexVertexDirs where to check for anti-pairs
+        dirCombinations = [
+            [HexVertexDir.T, HexVertexDir.LR, HexVertexDir.LL],
+            [HexVertexDir.B, HexVertexDir.UR, HexVertexDir.UL],
+            [HexVertexDir.T, HexVertexDir.B],
+            [HexVertexDir.UR, HexVertexDir.LL],
+            [HexVertexDir.LR, HexVertexDir.UL]
+        ]
+
+        for dirs in dirCombinations:
+            tempAntiPairs = []
+            for vtxDir in dirs:
+                limb = self.getLimbAt(vtxDir)
+                if limb is not None and limb.isActive():
+                    sides = sidesAtVertexDir[vtxDir]
+                    print(sides[0], sides[1])
+                    if checkAllSidesAreUnset(sides):
+                        tempAntiPairs.append(AntiPair(sides[0], sides[1]))
+
+            if len(tempAntiPairs) > len(antiPairs):
+                antiPairs = tempAntiPairs
+
+        return antiPairs
