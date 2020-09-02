@@ -3,7 +3,6 @@
 from side_status import SideStatus
 from hex_game_move import HexGameMove
 from hex_dir import HexSideDir, HexVertexDir
-from helpers import countBlankSides
 from side_link import SideLink
 
 # Define SideStatus members
@@ -182,6 +181,7 @@ class HexSolver:
                     # self.inspect4CellGroupOpposite5Cell(cell)
                     self.inspectForBisectorOfRemainingTwo(cell)
                     self.inspectUnsetSideLinks(cell)
+                    self.inspectTheoreticalBlanks(cell)
 
             # Then, check each side individually, even for cells that have no required sides.
             for side in cell.sides:
@@ -259,33 +259,21 @@ class HexSolver:
                 elif len(group) > cell.reqSides - cell.countActiveSides():
                     self.addNextMoves(group, BLANK)
 
-    def inspectBlanksCreatedByActiveLimbs(self, cell):
+    def inspectTheoreticalBlanks(self, cell):
         """
-        Inspect the cell for blanks created by an active limb.
-        Does not process non-required cells.
-
-        Active limbs create a hole in the cell on either one of the limb's two connected sides.
-
-        If enough holes have been created, the remaining UNSET sides can be deduced to be ACTIVE.
+        Inspect the cell's theoretical blanks if they provide a clue.\n
+        If enough blanks have been created, the remaining UNSET sides can be deduced to be ACTIVE.
         """
-        # TODO unfinished method
 
         if cell.reqSides is not None and not cell.isFullySet():
+            # Get the number of theoretical blank sides
+            theoreticalBlankCount, theoreticalSides = cell.getTheoreticalBlanks()
 
-            # These are the SideDirs of the cell that is not connected to an active limb
-            sideDirs = set(HexSideDir)
-            probableBlankCount = 0
-
-            for vtxDir in HexVertexDir:
-                limb = cell.limbs[vtxDir]
-                if limb is not None and limb.isActive():
-                    for sideDir in vtxDir.connectedSideDirs():
-                        if sideDir in sideDirs:
-                            probableBlankCount += 1
-                            sideDirs.remove(sideDir)
-
-            theoreticalBlankCount = (probableBlankCount // 2) + \
-                countBlankSides([cell.sides[side] for side in sideDirs])
+            if theoreticalBlankCount == cell.requiredBlanks():
+                for side in cell.sides:
+                    if side is not None and side.isUnset() and side not in theoreticalSides:
+                        print(f"Theoretically active: {str(side)}")
+                        self.addNextMove(side, ACTIVE)
 
     ###########################################################################
     # ADD NEXT MOVE
