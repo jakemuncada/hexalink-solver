@@ -181,6 +181,7 @@ class HexSolver:
                     self.inspectForBisectorOfRemainingTwo(cell)
                     self.inspectUnsetSideLinks(cell)
                     self.inspectTheoreticalBlanks(cell)
+                    self.inspectClosedOff5Cell(cell)
 
             # Then, check each side individually, even for cells that have no required sides.
             for side in cell.sides:
@@ -256,6 +257,63 @@ class HexSolver:
                 for side in cell.sides:
                     if side is not None and side.isUnset() and side not in theoreticalSides:
                         self.addNextMove(side, ACTIVE)
+
+    def inspectClosedOff5Cell(self, cell):
+        """
+        Inspect a 5-Cell if it is valid to close off its adjacent cells.
+
+        A 5-Cell "closes off" an adjacent cell when all 3 sides
+        connected to the adjacent cell are ACTIVE.
+        """
+
+        if cell.reqSides == 5 and not cell.isFullySet():
+
+            def isValidToCloseOff(adjCell, sideDir):
+                """Returns true if the given cell (the cell adjacent to the 5-Cell
+                is fine with being closed off."""
+
+                # If the adjCell has no required sides, then it is okay to close this off
+                if adjCell.reqSides is None:
+                    return True
+
+                countActive = adjCell.countActiveSides()
+                countBlank = adjCell.countBlankSides()
+
+                # The side bordering the adjCell and the 5-Cell (will become active)
+                borderSide = adjCell.sides[sideDir]
+                if borderSide.isUnset():
+                    countActive += 1
+
+                # The other sides of the adjCell that will become blank
+                otherSides = adjCell.getAllCellSidesConnectedToSide(borderSide)
+                for otherSide in otherSides:
+                    # If the otherSide is already active, it is invalid to close off this adjCell.
+                    if otherSide.isActive():
+                        return False
+
+                    elif otherSide.isUnset():
+                        countBlank += 1
+
+                        # Consider the linked sides
+                        # (the link is sure to be UNSET because otherSide is UNSET)
+                        linkedSides = otherSide.getAllLinkedSides()
+                        for linkedSide in linkedSides:
+                            if linkedSide in adjCell.sides:
+                                countBlank += 1
+
+                # If we have exceeded the number of required blank sides
+                if countBlank > adjCell.requiredBlanks():
+                    return False
+
+                return True
+
+            for sideDir in HexSideDir:
+                adjCell = cell.adjCells[sideDir]
+                if adjCell is not None:
+                    if not isValidToCloseOff(adjCell, sideDir.opposite()):
+                        cap, limbs = cell.getCap(sideDir.opposite())
+                        self.addNextMoves(cap, ACTIVE)
+                        self.addNextMoves(limbs, BLANK)
 
     ###########################################################################
     # ADD NEXT MOVE
