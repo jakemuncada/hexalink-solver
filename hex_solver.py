@@ -269,7 +269,8 @@ class HexSolver:
             side (HexSide): The side to be set.
             newStatus (SideStatus): The new status of the side.
         """
-        if side.isUnset() and newStatus != UNSET and side.id not in self.processedSideIds:
+        if side is not None and side.isUnset() and newStatus != UNSET and \
+                side.id not in self.processedSideIds:
             move = HexGameMove(side.id, newStatus)
             self.nextMoveList.append(move)
             self.processedSideIds.add(side.id)
