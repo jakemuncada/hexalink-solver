@@ -248,13 +248,13 @@ class HexSolver:
         """
 
         if cell.reqSides is not None and not cell.isFullySet():
-            # Get the number of theoretical blank sides
+            # Get the number of actual blank sides and the number of theoretical blank sides
+            actualBlankCount = cell.countBlankSides()
             theoreticalBlankCount, theoreticalSides = cell.getTheoreticalBlanks()
 
-            if theoreticalBlankCount == cell.requiredBlanks():
+            if theoreticalBlankCount + actualBlankCount == cell.requiredBlanks():
                 for side in cell.sides:
                     if side is not None and side.isUnset() and side not in theoreticalSides:
-                        print(f"Theoretically active: {str(side)}")
                         self.addNextMove(side, ACTIVE)
 
     ###########################################################################
