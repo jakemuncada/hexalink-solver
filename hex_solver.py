@@ -64,8 +64,13 @@ class HexSolver:
                             polish = adjCell.getAllCellSidesConnectedToSide(boundary)
                             self.addNextMoves(polish, ACTIVE)
 
+                        ###  1-AND-2  ###
+                        elif adjCell.reqSides == 2:
+                            # Set boundary to BLANK
+                            self.addNextMove(cell.sides[sideDir], BLANK)
+
                         ###  1-AND-1  ###
-                        if adjCell.reqSides == 1:
+                        elif adjCell.reqSides == 1:
                             # Set boundary to BLANK
                             self.addNextMove(cell.sides[sideDir], BLANK)
 
