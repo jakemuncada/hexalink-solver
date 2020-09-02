@@ -104,7 +104,7 @@ def drawClickedCellCoords(game):
     """Display the clicked cell coordinates."""
     rect = None
     if game.clickedCell is not None:
-        text = FPS_FONT.render(str(game.clickedCell), 1, colors.WHITE)
+        text = FPS_FONT.render(str(game.clickedCell), 1, colors.WHITE, colors.BLACK)
         game.prevClickedCell = game.clickedCell
         game.clickedCell = None
         rect = screen.blit(text, (10, 30))
