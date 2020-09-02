@@ -254,6 +254,7 @@ class HexSolver:
             # Get the number of actual blank sides and actual active sides
             actualBlankCount = cell.countBlankSides()
             actualActiveCount = cell.countActiveSides()
+            setSidesCount = actualActiveCount + actualBlankCount
 
             theoreticalCount, theoreticalSides = cell.getTheoreticalBlanks()
             theoreticalBlankCount = theoreticalCount
@@ -270,6 +271,29 @@ class HexSolver:
                 for side in cell.sides:
                     if side is not None and side.isUnset() and side not in theoreticalSides:
                         self.addNextMove(side, BLANK)
+
+            # If we need just 1 more active side
+            elif theoreticalActiveCount + actualActiveCount == cell.reqSides - 1:
+                # If there are only 2 remaining unsure sides
+                if len(theoreticalSides) + setSidesCount == len(cell.sides) - 2:
+                    # Check the remaining sides
+                    remainingUnsureDirs = []
+                    remainingUnsureSides = []
+                    for sideDir in HexSideDir:
+                        side = cell.sides[sideDir]
+                        if side is not None and side.isUnset() and side not in theoreticalSides:
+                            remainingUnsureDirs.append(sideDir)
+                            remainingUnsureSides.append(side)
+
+                    assert(len(remainingUnsureSides) == 2), \
+                        "Expected only 2 remaining unsure sides."
+
+                    # And if they are adjacent to each other, set the bisecting limb to ACTIVE
+                    if remainingUnsureDirs[0].isAdjacent(remainingUnsureDirs[1]):
+                        vtx = remainingUnsureSides[0].getConnectionVertex(
+                            remainingUnsureSides[1])
+                        limb = cell.getLimbAt(vtx)
+                        self.addNextMove(limb, ACTIVE)
 
     def inspectClosedOff5Cell(self, cell):
         """
