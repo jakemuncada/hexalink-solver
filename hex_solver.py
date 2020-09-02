@@ -178,7 +178,6 @@ class HexSolver:
                 # Otherwise, check other clues
                 else:
                     self.inspectSymmetrical3Cell(cell)
-                    self.inspectForBisectorOfRemainingTwo(cell)
                     self.inspectUnsetSideLinks(cell)
                     self.inspectTheoreticals(cell)
                     self.inspectClosedOff5Cell(cell)
@@ -188,20 +187,6 @@ class HexSolver:
             for side in cell.sides:
                 if side.isUnset():
                     self.inspectObviousSide(side)
-
-    def inspectForBisectorOfRemainingTwo(self, cell):
-        """If the given cell only has one remaining requirement and has
-        two adjacent `UNSET` sides, bisect these with an `ACTIVE` limb."""
-        if cell.remainingReqs() == 1 and cell.countUnsetSides() == 2:
-            unsetSides = cell.getUnsetSides()
-            if unsetSides[0].isConnectedTo(unsetSides[1]):
-                for vtxDir in HexVertexDir:
-                    vtx = cell.vertices[vtxDir]
-                    if unsetSides[0] in vtx.sides and unsetSides[1] in vtx.sides:
-                        limb = cell.limbs[vtxDir]
-                        if limb is not None:
-                            self.addNextMove(limb, ACTIVE)
-                        return
 
     def inspectSymmetrical3Cell(self, cell):
         """
