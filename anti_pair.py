@@ -16,5 +16,17 @@ class AntiPair:
         self.cellDir = None  # Optional. Stores the vertex direction of the cell
         # where these two sides connect.
 
+    def isUnset(self):
+        """Returns true if both sides are UNSET."""
+        return self.sides[0].isUnset() and self.sides[1].isUnset()
+
+    def isBlank(self):
+        """Returns true if both sides are BLANK."""
+        return self.sides[0].isBlank() and self.sides[1].isBlank()
+    
+    def isActive(self):
+        """Returns true if both sides are ACTIVE."""
+        return self.sides[0].isActive() and self.sides[1].isActive()
+
     def __str__(self):
         return f"[{str(self.sides[0])}], [{self.sides[1]}]"
