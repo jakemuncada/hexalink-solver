@@ -209,11 +209,11 @@ class HexGame:
     def toggleSideStatus(self, side):
         """Toggle the given Side's status from `UNSET` to `ACTIVE` to `BLANK`."""
         if side.status == SideStatus.UNSET:
-            move = HexGameMove(side.id, SideStatus.ACTIVE, None, SideStatus.UNSET)
+            move = HexGameMove(side.id, SideStatus.ACTIVE, SideStatus.UNSET, msg=None)
         elif side.status == SideStatus.ACTIVE:
-            move = HexGameMove(side.id, SideStatus.BLANK, None, SideStatus.ACTIVE)
+            move = HexGameMove(side.id, SideStatus.BLANK, SideStatus.ACTIVE, msg=None)
         elif side.status == SideStatus.BLANK:
-            move = HexGameMove(side.id, SideStatus.UNSET, None, SideStatus.BLANK)
+            move = HexGameMove(side.id, SideStatus.UNSET, SideStatus.BLANK, msg=None)
         else:
             raise AssertionError(f"Invalid side status: {side.status}")
         self.setSideStatus(move)
