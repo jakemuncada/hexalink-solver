@@ -182,8 +182,8 @@ class HexSolver:
             if cell.reqSides is not None:
                 # If already has correct number of ACTIVE sides, set others to BLANK
                 if cell.countActiveSides() == cell.reqSides:
-                    msg = "Cell already has correct number of active sides, \
-                        so remove the other unset sides."
+                    msg = "Cell already has correct number of active sides, " + \
+                        "so remove the other unset sides."
                     self.addNextMoves(cell.getUnsetSides(), BLANK, msg)
 
                 # If already has correct number of BLANK sides, set others to ACTIVE
