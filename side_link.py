@@ -20,6 +20,27 @@ class SideLink:
         self.linkVertices = linkVertices
         self.endpoints = endpoints
 
+    def isUnset(self):
+        """Returns true if all the sides in the link are unset. False otherwise."""
+        for side in self.sides:
+            if not side.isUnset():
+                return False
+        return True
+
+    def isActive(self):
+        """Returns true if all the sides in the link are active. False otherwise."""
+        for side in self.sides:
+            if not side.isActive():
+                return False
+        return True
+
+    def isBlank(self):
+        """Returns true if all the sides in the link are blank. False otherwise."""
+        for side in self.sides:
+            if not side.isBlank():
+                return False
+        return True
+
     @classmethod
     def fromList(cls, sides):
         """
