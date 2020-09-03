@@ -278,7 +278,10 @@ def clickCell(game):
 
 def solveOne(game, solver):
     """Get one move from the solver and apply it."""
-    nextMove = solver.getNextMove()
+    prevMove = game.peekPrevMove()
+    prevSide = game.sides[prevMove.sideId] if prevMove is not None else None
+    prevSideCoords = prevSide.midpoint if prevSide is not None else None
+    nextMove = solver.getNextMove(prevSideCoords)
     if nextMove is not None:
         side = game.sides[nextMove.sideId]
         game.setSideStatus(nextMove)

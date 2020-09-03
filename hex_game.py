@@ -3,13 +3,15 @@
 
 from hex_side import HexSide
 from side_status import SideStatus
-from hex_game_move import HexGameMove
+from hex_game_move import HexGameMove, MovePriority
 from hex_dir import HexSideDir, HexVertexDir
 from hex_cell import HexCell
 from hex_vertex import HexVertex
 from point import Point
 
 import helpers as helper
+
+NORMAL = MovePriority.NORMAL
 
 
 class HexGame:
@@ -206,14 +208,26 @@ class HexGame:
             if c != "." and not c.isnumeric():
                 raise ValueError(f"The given data string contains an invalid character ({c}).")
 
+    def peekPrevMove(self):
+        """Peeks the previous move from the move history. None if no moves have been made."""
+        if len(self.moveHistory) > 0:
+            return self.moveHistory[len(self.moveHistory) - 1]
+        return None
+
+    def popPrevMove(self):
+        """Pops the previous move from the move history. None if no moves have been made."""
+        if len(self.moveHistory) > 0:
+            return self.moveHistory.pop()
+        return None
+
     def toggleSideStatus(self, side):
         """Toggle the given Side's status from `UNSET` to `ACTIVE` to `BLANK`."""
         if side.status == SideStatus.UNSET:
-            move = HexGameMove(side.id, SideStatus.ACTIVE, SideStatus.UNSET, msg=None)
+            move = HexGameMove(side.id, SideStatus.ACTIVE, SideStatus.UNSET, NORMAL, msg=None)
         elif side.status == SideStatus.ACTIVE:
-            move = HexGameMove(side.id, SideStatus.BLANK, SideStatus.ACTIVE, msg=None)
+            move = HexGameMove(side.id, SideStatus.BLANK, SideStatus.ACTIVE, NORMAL, msg=None)
         elif side.status == SideStatus.BLANK:
-            move = HexGameMove(side.id, SideStatus.UNSET, SideStatus.BLANK, msg=None)
+            move = HexGameMove(side.id, SideStatus.UNSET, SideStatus.BLANK, NORMAL, msg=None)
         else:
             raise AssertionError(f"Invalid side status: {side.status}")
         self.setSideStatus(move)

@@ -1,7 +1,7 @@
 """Solver for HexGame."""
 
 from side_status import SideStatus
-from hex_game_move import HexGameMove
+from hex_game_move import HexGameMove, MovePriority
 from hex_dir import HexSideDir
 from side_link import SideLink
 
@@ -9,6 +9,13 @@ from side_link import SideLink
 BLANK = SideStatus.BLANK
 ACTIVE = SideStatus.ACTIVE
 UNSET = SideStatus.UNSET
+
+# Define MovePriority members
+HIGHEST = MovePriority.HIGHEST
+HIGH = MovePriority.HIGH
+NORMAL = MovePriority.NORMAL
+LOW = MovePriority.LOW
+LOWEST = MovePriority.LOWEST
 
 
 class HexSolver:
@@ -44,9 +51,9 @@ class HexSolver:
             if cell.reqSides == 0:
                 # Remove all sides and limbs of zero-cells
                 for cellSide in cell.sides:
-                    self.addNextMove(cellSide, BLANK, "Remove sides of zero-cell.")
+                    self.addNextMove(cellSide, BLANK, HIGH, "Remove sides of zero-cell.")
                 for limb in cell.getLimbs():
-                    self.addNextMove(limb, BLANK, "Remove limbs of zero-cell.")
+                    self.addNextMove(limb, BLANK, HIGH, "Remove limbs of zero-cell.")
 
             elif cell.reqSides == 1:
                 for sideDir in HexSideDir:
@@ -56,7 +63,8 @@ class HexSolver:
                         if adjCell.reqSides == 5:
                             # Set boundary to ACTIVE
                             boundary = cell.sides[sideDir]
-                            self.addNextMove(boundary, ACTIVE, "Set boundary of 1-and-5 to active.")
+                            msg = "Set boundary of 1-and-5 to active."
+                            self.addNextMove(boundary, ACTIVE, HIGH, msg)
                             # Which means that the 1-Cell is solved, but it will be handled later
 
                         ###  1-AND-4  ###
@@ -64,20 +72,20 @@ class HexSolver:
                             # Remove the cap of 1
                             cap, limbs = cell.getCap(sideDir.opposite())
                             msg = "Remove cap of 1-Cell at direction opposite the adjacent 4-Cell."
-                            self.addNextMoves(cap, BLANK, msg)
-                            self.addNextMoves(limbs, BLANK, msg)
+                            self.addNextMoves(cap, BLANK, HIGH, msg)
+                            self.addNextMoves(limbs, BLANK, HIGH, msg)
 
                         ###  1-AND-2  ###
                         elif adjCell.reqSides == 2:
                             # Set boundary to BLANK
                             msg = "Set the boundary of 1-and-2 to blank."
-                            self.addNextMove(cell.sides[sideDir], BLANK, msg)
+                            self.addNextMove(cell.sides[sideDir], BLANK, HIGH, msg)
 
                         ###  1-AND-1  ###
                         elif adjCell.reqSides == 1:
                             # Set boundary to BLANK
                             msg = "Set the boundary of 1-and-1 to blank."
-                            self.addNextMove(cell.sides[sideDir], BLANK, msg)
+                            self.addNextMove(cell.sides[sideDir], BLANK, HIGH, msg)
 
             elif cell.reqSides == 5:
                 for sideDir in HexSideDir:
@@ -88,13 +96,13 @@ class HexSolver:
                             # Set boundary to ACTIVE, then cap the opposite ends,
                             # the remove the limbs of the cap
                             msg = "Set boundary of 5-and-5 to active."
-                            self.addNextMove(cell.sides[sideDir], ACTIVE, msg)
+                            self.addNextMove(cell.sides[sideDir], ACTIVE, HIGH, msg)
                             cap1, limbs1 = cell.getCap(sideDir.opposite())
                             cap2, limbs2 = adjCell.getCap(sideDir)
                             msg = "Activate the cap of both 5-and-5 cells."
-                            self.addNextMoves(cap1 + cap2, ACTIVE, msg)
+                            self.addNextMoves(cap1 + cap2, ACTIVE, HIGH, msg)
                             msg = "Remove dead limbs of both 5-and-5 cells."
-                            self.addNextMoves(limbs1 + limbs2, BLANK, msg)
+                            self.addNextMoves(limbs1 + limbs2, BLANK, HIGH, msg)
 
     def inspectEverything(self):
         """Inspect all cells and all sides."""
@@ -139,7 +147,7 @@ class HexSolver:
             # Also include the continuation of its link, if any
             hangingLink = SideLink.fromSide(side)
             msg = "Remove hanging side."
-            self.addNextMoves(hangingLink, BLANK, msg=msg, prioritize=True)
+            self.addNextMoves(hangingLink, BLANK, HIGHEST, msg=msg)
 
     def inspectConnectingToIntersection(self, side):
         """Set an UNSET side to BLANK if it is connecting to an intersection."""
@@ -148,7 +156,7 @@ class HexSolver:
             # Also include the continuation of its link, if any
             hangingLink = SideLink.fromSide(side)
             msg = "Remove side connecting to intersection."
-            self.addNextMoves(hangingLink, BLANK, msg=msg, prioritize=True)
+            self.addNextMoves(hangingLink, BLANK, HIGHEST, msg=msg)
 
     def inspectContinueActiveLink(self, side):
         """Set an UNSET side to ACTIVE if it is a continuation of an active link."""
@@ -156,7 +164,7 @@ class HexSolver:
             if side.isLinkedTo(connSide, ignoreStatus=True):
                 fullLink = SideLink.fromSide(side)
                 msg = "Activate the link continuation."
-                self.addNextMoves(fullLink, ACTIVE, msg=msg, prioritize=True)
+                self.addNextMoves(fullLink, ACTIVE, HIGHEST, msg=msg)
 
     def inspectLoopMaker(self, side):
         """Inspect a side if setting it to ACTIVE will create a loop. If so, set it to BLANK."""
@@ -175,7 +183,7 @@ class HexSolver:
 
                 if activeSide1.colorIdx == activeSide2.colorIdx:
                     if SideLink.isSameLink(activeSide1, activeSide2):
-                        self.addNextMove(side, BLANK, "Remove link which creates a loop.")
+                        self.addNextMove(side, BLANK, LOW, "Remove link which creates a loop.")
 
     ###########################################################################
     # INSPECT CELL
@@ -189,12 +197,12 @@ class HexSolver:
                 if cell.countActiveSides() == cell.reqSides:
                     msg = "Cell already has correct number of active sides, " + \
                         "so remove the other unset sides."
-                    self.addNextMoves(cell.getUnsetSides(), BLANK, msg, prioritize=True)
+                    self.addNextMoves(cell.getUnsetSides(), BLANK, HIGHEST, msg)
 
                 # If already has correct number of BLANK sides, set others to ACTIVE
                 elif cell.countBlankSides() == cell.requiredBlanks():
                     msg = "Cell already has enough blank sides, so activate the other unset sides."
-                    self.addNextMoves(cell.getUnsetSides(), ACTIVE, msg, prioritize=True)
+                    self.addNextMoves(cell.getUnsetSides(), ACTIVE, HIGHEST, msg)
 
             # Then, check each side individually, even for cells that have no required sides.
             for side in cell.sides:
@@ -230,13 +238,13 @@ class HexSolver:
                     limb2 = cell.getLimbAt(sideLink.endpoints[1])
                     # Set the limb at its endpoints to ACTIVE
                     msg = "Set the limbs at endpoints of symmetrical 3-Cell to active."
-                    self.addNextMove(limb1, ACTIVE, msg)
-                    self.addNextMove(limb2, ACTIVE, msg)
+                    self.addNextMove(limb1, ACTIVE, LOW, msg)
+                    self.addNextMove(limb2, ACTIVE, LOW, msg)
                     # Set all other limbs to BLANK
                     for limb in cell.getLimbs():
                         if limb != limb1 and limb != limb2:
                             msg = "Remove all other limbs of symmetrical 3-Cell."
-                            self.addNextMove(limb, BLANK, msg)
+                            self.addNextMove(limb, BLANK, LOW, msg)
 
     def inspectUnsetSideLinks(self, cell):
         """
@@ -260,21 +268,21 @@ class HexSolver:
 
                 # Check if the group should be active
                 if groupSize > cell.requiredBlanks() - actualBlankCount:
-                    self.addNextMoves(group, ACTIVE, "Side group should be active.")
+                    self.addNextMoves(group, ACTIVE, NORMAL, "Side group should be active.")
 
                 # Check if the group should be blank
                 elif groupSize > cell.reqSides - actualActiveCount:
-                    self.addNextMoves(group, BLANK, "Side group should be blank.")
+                    self.addNextMoves(group, BLANK, NORMAL, "Side group should be blank.")
 
                 # Check if all member sides of the group are not part of the theoretical sides
                 elif all(side not in theoreticalSides for side in group):
                     if groupSize > 1:
                         if groupSize > cell.requiredBlanks() - totalBlankCount:
                             msg = "Side group should be active (using theoretical clues)."
-                            self.addNextMoves(group, ACTIVE, msg)
+                            self.addNextMoves(group, ACTIVE, NORMAL, msg)
                         elif groupSize > cell.reqSides - totalActiveCount:
                             msg = "Side group should be blank (using theoretical clues)."
-                            self.addNextMoves(group, BLANK, msg)
+                            self.addNextMoves(group, BLANK, NORMAL, msg)
 
     def inspectTheoreticals(self, cell):
         """
@@ -299,7 +307,7 @@ class HexSolver:
                     if side is not None and side.isUnset() and side not in theoreticalSides:
                         msg = "Theoretical blanks plus actual blanks are enough. " + \
                             "Set other sides to active."
-                        self.addNextMove(side, ACTIVE, msg)
+                        self.addNextMove(side, ACTIVE, LOW, msg)
 
             # If we have enough actives, the unsure sides are deduced to be BLANK
             if theoreticalActiveCount + actualActiveCount == cell.reqSides:
@@ -307,7 +315,7 @@ class HexSolver:
                     if side is not None and side.isUnset() and side not in theoreticalSides:
                         msg = "Theoretical actives plus actual actives are enough. " + \
                             "Set other sides to blank."
-                        self.addNextMove(side, BLANK, msg)
+                        self.addNextMove(side, BLANK, LOW, msg)
 
             # If we need just 1 more active side
             elif theoreticalActiveCount + actualActiveCount == cell.reqSides - 1:
@@ -330,7 +338,7 @@ class HexSolver:
                         vtx = remainingUnsureSides[0].getConnectionVertex(
                             remainingUnsureSides[1])
                         limb = cell.getLimbAt(vtx)
-                        self.addNextMove(limb, ACTIVE, "Bisect the remaining 2 unsure sides.")
+                        self.addNextMove(limb, ACTIVE, LOW, "Bisect the remaining 2 unsure sides.")
 
     def inspectClosedOff5Cell(self, cell):
         """
@@ -384,8 +392,8 @@ class HexSolver:
                     if not isValidToCloseOff(adjCell, sideDir.opposite()):
                         cap, limbs = cell.getCap(sideDir.opposite())
                         msg = f"The 5-Cell cannot close off the {str(sideDir)} direction."
-                        self.addNextMoves(cap, ACTIVE, msg)
-                        self.addNextMoves(limbs, BLANK, msg)
+                        self.addNextMoves(cap, ACTIVE, LOW, msg)
+                        self.addNextMoves(limbs, BLANK, LOW, msg)
 
     def inspectOpen5Cell(self, cell):
         """
@@ -442,43 +450,40 @@ class HexSolver:
                     if not isValidToOpen(adjCell, sideDir.opposite()):
                         side = cell.sides[sideDir]
                         msg = f"The 5-Cell cannot be open in the {str(sideDir)} direction."
-                        self.addNextMove(side, ACTIVE, msg)
+                        self.addNextMove(side, ACTIVE, LOW, msg)
 
     ###########################################################################
     # ADD NEXT MOVE
     ###########################################################################
 
-    def addNextMove(self, side, newStatus, msg, prioritize=False):
+    def addNextMove(self, side, newStatus, priority, msg):
         """Add a `HexGameMove` to the `nextMoveList`.
         Only `UNSET` sides can be added to the `nextMoveList`.
 
         Args:
             side (HexSide): The side to be set.
             newStatus (SideStatus): The new status of the side.
+            priority (MovePriority): The priority of the move.
             msg (string): The explanation message of the move.
-            prioritize (bool): If true, add moves to the beginning of the queue.
         """
         if side is not None and side.isUnset() and newStatus != UNSET and \
                 side.id not in self.processedSideIds:
-            move = HexGameMove(side.id, newStatus, UNSET, msg=msg, fromSolver=True)
+            move = HexGameMove(side.id, newStatus, UNSET, priority, msg=msg, fromSolver=True)
+            self.nextMoveList.append(move)
             self.processedSideIds.add(side.id)
-            if prioritize:
-                self.nextMoveList.insert(0, move)
-            else:
-                self.nextMoveList.append(move)
 
-    def addNextMoves(self, sides, newStatus, msg, prioritize=False):
+    def addNextMoves(self, sides, newStatus, priority, msg):
         """Add multiple `HexGameMoves` to the `nextMoveList`.
         Uses `addNextMove(side, newStatus)` under the hood.
 
         Args:
             sides ([HexSide]): The list of sides to be set.
             newStatus (SideStatus): The new status of all the sides in the list.
+            priority (MovePriority): The priority of the move.
             msg (string): The explanation message of the moves.
-            prioritize (bool): If true, add moves to the beginning of the queue.
         """
         for side in sides:
-            self.addNextMove(side, newStatus, msg, prioritize=prioritize)
+            self.addNextMove(side, newStatus, priority, msg)
 
     def extendNextMoves(self, moves):
         """Add multiple `HexGameMoves` to the `nextMoveList`.
@@ -497,15 +502,25 @@ class HexSolver:
     # GET NEXT MOVE
     ###########################################################################
 
-    def getNextMove(self):
-        """Get the next correct move.
+    def getNextMove(self, prevCoords=None):
+        """
+        Get the next correct move.
+
+        Args:
+            prevCoords (Point): The coordinates of the previous move.
 
         Returns:
             GameMove: The next correct move.
         """
 
+        def sortKey(move):
+            sideCoords = self.game.sides[move.sideId].midpoint
+            dist = sideCoords.dist(prevCoords) if prevCoords is not None else 1
+            return (move.priority, dist)
+
         def getFromMoveList():
             if len(self.nextMoveList) > 0:
+                self.nextMoveList.sort(key=sortKey)
                 return self.nextMoveList.pop(0)
             return None
 
