@@ -21,7 +21,7 @@ class HexSolver:
         self.currMoveSequence = None
 
         self.initialBoardInspection()
-        self.solveAll()
+        # self.solveAll()
 
     def solveAll(self):
         """Solve the whole board."""
@@ -517,12 +517,15 @@ def completeCell1(cell, activeDir):
     """
     # First, set the ACTIVE side
     activeSide = cell.sides[activeDir]
-    moves = [HexGameMove(activeSide.id, ACTIVE)]
+    msg = f"Set the the {str(activeDir)} direction of the 1-Cell to active."
+    moves = [HexGameMove(activeSide.id, ACTIVE, msg=msg)]
     # Then get all the other sides of the 1-Cell and set them to BLANK
     allOtherSides = cell.getAllSidesExcept(activeSide)
-    moves.extend([HexGameMove(side.id, BLANK) for side in allOtherSides])
+    msg = "Set all other sides of the 1-Cell to blank."
+    moves.extend([HexGameMove(side.id, BLANK, msg=msg) for side in allOtherSides])
     # Then get all the hanging limbs connected to the 1-Cell
     hangingLimbs = list(filter(lambda limb: not limb.isConnectedTo(activeSide), cell.getLimbs()))
-    moves.extend([HexGameMove(hangingLimb.id, BLANK) for hangingLimb in hangingLimbs])
+    msg = "Set the hanging limbs of the 1-Cell to blank."
+    moves.extend([HexGameMove(hangingLimb.id, BLANK, msg=msg) for hangingLimb in hangingLimbs])
 
     return moves

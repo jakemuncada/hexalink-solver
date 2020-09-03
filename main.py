@@ -33,9 +33,11 @@ pygame.display.set_caption("Slitherlink")
 baseSurface = pygame.Surface((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT))
 vertexDotSurface = pygame.Surface((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT))
 reqNumSurface = pygame.Surface((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT))
+moveMsgSurface = pygame.Surface((500, 40))
 baseSurface.set_colorkey(colors.BLACK, pygame.RLEACCEL)
 vertexDotSurface.set_colorkey(colors.BLACK, pygame.RLEACCEL)
 reqNumSurface.set_colorkey(colors.BLACK, pygame.RLEACCEL)
+moveMsgSurface.set_colorkey(colors.PINK, pygame.RLEACCEL)
 
 # Clock
 clock = pygame.time.Clock()
@@ -47,11 +49,6 @@ def render(game):
 
     # Draw the base surface
     screen.blit(baseSurface, (0, 0))
-
-    # Margin
-    # drawMargins()
-
-    updateRects = []
 
     # Draw the sides
     for side in game.sides:
@@ -72,7 +69,6 @@ def render(game):
         # Add the dirty sides to the list
         if side.isDirty:
             side.isDirty = False
-            updateRects.append(rect)
 
     # Overlay the vertex dots
     screen.blit(vertexDotSurface, (0, 0))
@@ -82,22 +78,36 @@ def render(game):
 
     # Display FPS
     drawFps()
-    updateRects.append((10, 0, 30, 30))
+
+    # Display move msg
+    drawMoveMsg(game)
 
     # Display clicked cell coords
     rect = drawClickedCellCoords(game)
-    if rect is not None:
-        updateRects.append(rect)
 
-    # Update the screen, but only the areas/rects that have changed
+    # Update the screen
     pygame.display.update()
 
 
 def drawFps():
-    """Draw the FPS on the screen."""
+    """Display the FPS on the screen."""
     fps = str(int(clock.get_fps()))
     fpsText = FPS_FONT.render(fps, 1, pygame.Color("coral"), colors.BLACK)
     screen.blit(fpsText, (10, 0))
+
+
+def drawMoveMsg(game):
+    """Display the explanation message of the previous move on the screen."""
+    moveMsgSurface.fill(colors.BLACK)
+    if len(game.moveHistory) > 0:
+        prevMove = game.moveHistory[len(game.moveHistory) - 1]
+        side = game.sides[prevMove.sideId]
+        prevMoveStr = prevMove.msg
+        if prevMoveStr is not None:
+            locationStr = f"  {str(side)}"
+            text = FPS_FONT.render(prevMoveStr + locationStr, 1, colors.WHITE)
+            moveMsgSurface.blit(text, (0, 0))
+    screen.blit(moveMsgSurface, (10, 80))
 
 
 def drawClickedCellCoords(game):
@@ -271,7 +281,7 @@ def solveOne(solver):
     nextMove = solver.getNextMove()
     if nextMove is not None:
         side = solver.game.sides[nextMove.sideId]
-        solver.game.setSideStatus(side, nextMove.newStatus)
+        solver.game.setSideStatus(nextMove)
         solver.inspectObviousVicinity(side)
         print(f"Side {side} was set to {nextMove.newStatus}.")
     else:

@@ -16,7 +16,7 @@ class HexGameMove:
             newStatus (SideStatus): The new status.
             prevStatus (SideStatus): The previous status. Optional.
                 Only set when Move has been applied to board.
-            msg (string): An explanation of the move.
+            msg (string): An explanation of the move. Optional.
         """
         self.sideId = sideId
         self.newStatus = newStatus

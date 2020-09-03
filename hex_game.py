@@ -209,27 +209,35 @@ class HexGame:
     def toggleSideStatus(self, side):
         """Toggle the given Side's status from `UNSET` to `ACTIVE` to `BLANK`."""
         if side.status == SideStatus.UNSET:
-            self.setSideStatus(side, SideStatus.ACTIVE)
+            move = HexGameMove(side.id, SideStatus.ACTIVE, None, SideStatus.UNSET)
         elif side.status == SideStatus.ACTIVE:
-            self.setSideStatus(side, SideStatus.BLANK)
+            move = HexGameMove(side.id, SideStatus.BLANK, None, SideStatus.ACTIVE)
         elif side.status == SideStatus.BLANK:
-            self.setSideStatus(side, SideStatus.UNSET)
+            move = HexGameMove(side.id, SideStatus.UNSET, None, SideStatus.BLANK)
         else:
             raise AssertionError(f"Invalid side status: {side.status}")
+        self.setSideStatus(move)
 
-    def setSideStatus(self, side, newStatus):
+    def setSideStatus(self, gameMove):
         """Set the status of a side, then recalculate stuff.
 
         Args:
-            side (HexSide): The side whose status is to be set.
-            newStatus (SideStatus): The new status.
+            gameMove (HexGameMove): The move to be set.
         """
 
+        side = self.sides[gameMove.sideId]
+        newStatus = gameMove.newStatus
+        prevStatus = gameMove.prevStatus
+
+        # Do nothing if the current status is equal to the new status
         if side.status == newStatus:
             return
 
-        move = HexGameMove(side.id, newStatus, side.status)
-        self.moveHistory.append(move)
+        # Do nothing if the move object's prevStatus does not equal to the current status
+        if prevStatus is not None and prevStatus != side.status:
+            return
+
+        self.moveHistory.append(gameMove)
 
         if newStatus == SideStatus.ACTIVE:
             self._setSideActive(side)
