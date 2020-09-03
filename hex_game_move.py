@@ -8,7 +8,7 @@ class HexGameMove:
     PastMoves have their previous status recorded, while FutureMoves don't have a `prevStatus`.
     """
 
-    def __init__(self, sideId, newStatus, prevStatus=None):
+    def __init__(self, sideId, newStatus, prevStatus=None, msg=None):
         """Create a HexGameMove.
 
         Args:
@@ -16,10 +16,12 @@ class HexGameMove:
             newStatus (SideStatus): The new status.
             prevStatus (SideStatus): The previous status. Optional.
                 Only set when Move has been applied to board.
+            msg (string): An explanation of the move.
         """
         self.sideId = sideId
         self.newStatus = newStatus
         self.prevStatus = prevStatus
+        self.msg = msg
 
     def __eq__(self, other):
         return isinstance(other, HexGameMove) and \
