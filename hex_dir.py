@@ -70,17 +70,17 @@ class HexSideDir(IntEnum):
 
     def __str__(self):
         if self == HexSideDir.UL:
-            return "LR"
-        if self == HexSideDir.UR:
-            return "LL"
-        if self == HexSideDir.R:
-            return "L"
-        if self == HexSideDir.LR:
             return "UL"
-        if self == HexSideDir.LL:
+        if self == HexSideDir.UR:
             return "UR"
-        if self == HexSideDir.L:
+        if self == HexSideDir.R:
             return "R"
+        if self == HexSideDir.LR:
+            return "LR"
+        if self == HexSideDir.LL:
+            return "LL"
+        if self == HexSideDir.L:
+            return "L"
         raise AssertionError("Invalid Hex Side direction")
 
 
