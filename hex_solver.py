@@ -57,12 +57,7 @@ class HexSolver:
                             # Set boundary to ACTIVE
                             boundary = cell.sides[sideDir]
                             self.addNextMove(boundary, ACTIVE, "Set boundary of 1-and-5 to active.")
-                            # Which means that the 1-Cell is solved
-                            moves = completeCell1(cell, sideDir)
-                            self.extendNextMoves(moves)
-                            # Lastly, polish off the 5-Cell
-                            polish = adjCell.getAllCellSidesConnectedToSide(boundary)
-                            self.addNextMoves(polish, ACTIVE, "Set 5-Cell sides to active.")
+                            # Which means that the 1-Cell is solved, but it will be handled later
 
                         ###  1-AND-4  ###
                         elif adjCell.reqSides == 4:
@@ -501,31 +496,3 @@ class HexSolver:
         return ret
 
 
-#################################################################
-# CELL COMPLETIONS
-#################################################################
-
-def completeCell1(cell, activeDir):
-    """Returns the cells to be set to `ACTIVE` and `BLANK` after solving the 1-Cell.
-
-    Args:
-        cell (HexCell): The 1-Cell that has been solved.
-        activeDir: The direction of the 1-Cell's single ACTIVE side.
-
-    Returns:
-        [HexGameMove]: A list of Moves that sets the corresponding ACTIVE and BLANK states.
-    """
-    # First, set the ACTIVE side
-    activeSide = cell.sides[activeDir]
-    msg = f"Set the the {str(activeDir)} direction of the 1-Cell to active."
-    moves = [HexGameMove(activeSide.id, ACTIVE, msg=msg)]
-    # Then get all the other sides of the 1-Cell and set them to BLANK
-    allOtherSides = cell.getAllSidesExcept(activeSide)
-    msg = "Set all other sides of the 1-Cell to blank."
-    moves.extend([HexGameMove(side.id, BLANK, msg=msg) for side in allOtherSides])
-    # Then get all the hanging limbs connected to the 1-Cell
-    hangingLimbs = list(filter(lambda limb: not limb.isConnectedTo(activeSide), cell.getLimbs()))
-    msg = "Set the hanging limbs of the 1-Cell to blank."
-    moves.extend([HexGameMove(hangingLimb.id, BLANK, msg=msg) for hangingLimb in hangingLimbs])
-
-    return moves
