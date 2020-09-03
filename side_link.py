@@ -58,15 +58,21 @@ class SideLink:
         return None
 
     @classmethod
-    def fromSide(cls, side):
+    def fromSide(cls, side, filterFxn=None):
         """
-        Create a link from a given side. All sides will have the same status.
+        Create a link from a given side. All sides will have the same status.\n
+        Can optionally include a filter function to check if a particular side should be included.
 
         Returns None if the created link is invalid. For example:
             1. When the given side is BLANK.
             2. When the side is ACTIVE and contains a loop.
         """
+        # Blank sides cannot form a link
         if side.isBlank():
+            return None
+
+        # If the given side doesn't even pass the filter function, return None
+        if filterFxn is not None and not filterFxn(side):
             return None
 
         def getLink(side, groupSet):
@@ -74,6 +80,10 @@ class SideLink:
 
             # Recursion base case
             if side in groupSet:
+                return groupSet
+
+            # If the side does not pass the filter function, don't include it
+            if filterFxn is not None and not filterFxn(side):
                 return groupSet
 
             groupSet.add(side)
