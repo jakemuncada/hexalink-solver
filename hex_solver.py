@@ -284,16 +284,16 @@ class HexSolver:
             if theoreticalBlankCount + actualBlankCount == cell.requiredBlanks():
                 for side in cell.sides:
                     if side is not None and side.isUnset() and side not in theoreticalSides:
-                        msg = "Theoretical blanks plus actual blanks are enough. \
-                            Set other sides to active."
+                        msg = "Theoretical blanks plus actual blanks are enough. " + \
+                            "Set other sides to active."
                         self.addNextMove(side, ACTIVE, msg)
 
             # If we have enough actives, the unsure sides are deduced to be BLANK
             if theoreticalActiveCount + actualActiveCount == cell.reqSides:
                 for side in cell.sides:
                     if side is not None and side.isUnset() and side not in theoreticalSides:
-                        msg = "Theoretical actives plus actual actives are enough. \
-                            Set other sides to blank."
+                        msg = "Theoretical actives plus actual actives are enough. " + \
+                            "Set other sides to blank."
                         self.addNextMove(side, BLANK, msg)
 
             # If we need just 1 more active side
