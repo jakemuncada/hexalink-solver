@@ -21,7 +21,7 @@ class HexSolver:
         self.currMoveSequence = None
 
         self.initialBoardInspection()
-        # self.solveAll()
+        self.solveAll()
 
     def solveAll(self):
         """Solve the whole board."""
@@ -255,13 +255,15 @@ class HexSolver:
                 elif groupSize > cell.reqSides - actualActiveCount:
                     self.addNextMoves(group, BLANK, "Side group should be blank.")
 
-                # # Check if all member sides of the group are not part of the theoretical sides
-                # elif all(side not in theoreticalSides for side in group):
-                #     if groupSize > 1:
-                #         if groupSize > cell.requiredBlanks() - totalBlankCount:
-                #             self.addNextMoves(group, ACTIVE, "Side group should be active.")
-                #         elif groupSize > cell.reqSides - totalActiveCount:
-                #             self.addNextMoves(group, BLANK, "Side group should be blank.")
+                # Check if all member sides of the group are not part of the theoretical sides
+                elif all(side not in theoreticalSides for side in group):
+                    if groupSize > 1:
+                        if groupSize > cell.requiredBlanks() - totalBlankCount:
+                            msg = "Side group should be active (using theoretical clues)."
+                            self.addNextMoves(group, ACTIVE, msg)
+                        elif groupSize > cell.reqSides - totalActiveCount:
+                            msg = "Side group should be blank (using theoretical clues)."
+                            self.addNextMoves(group, BLANK, msg)
 
     def inspectTheoreticals(self, cell):
         """
