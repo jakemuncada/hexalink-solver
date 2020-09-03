@@ -261,40 +261,19 @@ class HexCell:
             [SideLink]: A list containing the links.
         """
 
-        def getLink(side, cell, groupSet):
-            """Returns set of all the `UNSET` sides that are part of the same group
-            as a given Side. Returns None if the side is not `UNSET`."""
-
-            # Return None if side is ACTIVE or BLANK.
-            if not side.isUnset():
-                return None
-
-            # Recursion base case
-            if side in groupSet:
-                return groupSet
-
-            groupSet.add(side)
-
-            connSides = self.getAllCellSidesConnectedToSide(side)
-            assert(len(connSides) == 2), "Expected two connected sides."
-
-            for connSide in connSides:
-                if connSide.isUnset() and side.isLinkedTo(connSide):
-                    connGroup = getLink(connSide, cell, groupSet)
-                    groupSet.update(connGroup)
-
-            return groupSet
+        def getLink(side):
+            return SideLink.fromSide(side, lambda side: side.isUnset and side in self.sides)
 
         ret = []
 
         finishedSides = set()
         for side in self.sides:
-            if side not in finishedSides:
-                group = getLink(side, self, set())
-                if group is not None:
-                    for groupMember in group:
-                        finishedSides.add(groupMember)
-                    ret.append(SideLink.fromList(group))
+            if side not in finishedSides and side.isUnset():
+                sideLink = getLink(side)
+                if sideLink is not None:
+                    for memberSide in sideLink:
+                        finishedSides.add(memberSide)
+                    ret.append(sideLink)
 
         return ret
 
