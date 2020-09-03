@@ -21,7 +21,7 @@ class HexSolver:
         self.currMoveSequence = None
 
         self.initialBoardInspection()
-        self.solveAll()
+        # self.solveAll()
 
     def solveAll(self):
         """Solve the whole board."""
@@ -99,28 +99,29 @@ class HexSolver:
     def inspectEverything(self):
         """Inspect all cells and all sides."""
         for cell in self.game.reqCells:
-            self.inspectObviousCell(cell)
+            self.inspectObviousCellClues(cell)
+            self.inspectLessObviousCellClues(cell)
         for side in self.game.sides:
-            self.inspectObviousSide(side)
+            self.inspectObviousSideClues(side)
 
     def inspectObviousVicinity(self, side):
         """Inspect the connected sides and adjacent cells of a given `HexSide`
         for obvious clues. Adds the obvious moves to the `nextMoveList`."""
         # Inspect the sides that are connected to this side
         for connSide in side.getAllConnectedSides():
-            self.inspectObviousSide(connSide)
+            self.inspectObviousSideClues(connSide)
         # Inspect the cells this side is connected to
         for adjCell in side.getAdjCells():
-            self.inspectObviousCell(adjCell)
+            self.inspectObviousCellClues(adjCell)
         # Inspect the cells for whom this side is a limb of
         for connCell in side.getConnectedCells():
-            self.inspectObviousCell(connCell)
+            self.inspectObviousCellClues(connCell)
 
     ###########################################################################
     # INSPECT SIDE
     ###########################################################################
 
-    def inspectObviousSide(self, side):
+    def inspectObviousSideClues(self, side):
         """Inspect a given `HexSide` for obvious clues. Does not process non-`UNSET` sides."""
 
         # Do not process non-`UNSET` sides.
@@ -135,19 +136,27 @@ class HexSolver:
     def inspectHangingSide(self, side):
         """Set side to BLANK if it is hanging."""
         if side.isHanging():
-            self.addNextMove(side, BLANK, "Remove hanging side.")
+            # Also include the continuation of its link, if any
+            hangingLink = SideLink.fromSide(side)
+            msg = "Remove hanging side."
+            self.addNextMoves(hangingLink, BLANK, msg=msg, prioritize=True)
 
     def inspectConnectingToIntersection(self, side):
         """Set an UNSET side to BLANK if it is connecting to an intersection."""
         vtx1, vtx2 = side.endpoints
         if side.isUnset() and (vtx1.isIntersection() or vtx2.isIntersection()):
-            self.addNextMove(side, BLANK, "Remove side connecting to intersection.")
+            # Also include the continuation of its link, if any
+            hangingLink = SideLink.fromSide(side)
+            msg = "Remove side connecting to intersection."
+            self.addNextMoves(hangingLink, BLANK, msg=msg, prioritize=True)
 
     def inspectContinueActiveLink(self, side):
         """Set an UNSET side to ACTIVE if it is a continuation of an active link."""
         for connSide in side.getAllActiveConnectedSides():
             if side.isLinkedTo(connSide, ignoreStatus=True):
-                self.addNextMove(side, ACTIVE, "Activate the link continuation.")
+                fullLink = SideLink.fromSide(side)
+                msg = "Activate the link continuation."
+                self.addNextMoves(fullLink, ACTIVE, msg=msg, prioritize=True)
 
     def inspectLoopMaker(self, side):
         """Inspect a side if setting it to ACTIVE will create a loop. If so, set it to BLANK."""
@@ -172,37 +181,39 @@ class HexSolver:
     # INSPECT CELL
     ###########################################################################
 
-    def inspectObviousCell(self, cell):
-        """Inspect a given cell for obvious clues.
-
-        Some obvious clues include:
-            ・If the cell already has the correct number of ACTIVE or BLANK sides.
-        """
+    def inspectObviousCellClues(self, cell):
+        """Inspect a given cell for obvious clues."""
         if not cell.isFullySet():
             if cell.reqSides is not None:
                 # If already has correct number of ACTIVE sides, set others to BLANK
                 if cell.countActiveSides() == cell.reqSides:
                     msg = "Cell already has correct number of active sides, " + \
                         "so remove the other unset sides."
-                    self.addNextMoves(cell.getUnsetSides(), BLANK, msg)
+                    self.addNextMoves(cell.getUnsetSides(), BLANK, msg, prioritize=True)
 
                 # If already has correct number of BLANK sides, set others to ACTIVE
                 elif cell.countBlankSides() == cell.requiredBlanks():
                     msg = "Cell already has enough blank sides, so activate the other unset sides."
-                    self.addNextMoves(cell.getUnsetSides(), ACTIVE, msg)
-
-                # Otherwise, check other clues
-                else:
-                    self.inspectSymmetrical3Cell(cell)
-                    self.inspectUnsetSideLinks(cell)
-                    self.inspectTheoreticals(cell)
-                    self.inspectClosedOff5Cell(cell)
-                    self.inspectOpen5Cell(cell)
+                    self.addNextMoves(cell.getUnsetSides(), ACTIVE, msg, prioritize=True)
 
             # Then, check each side individually, even for cells that have no required sides.
             for side in cell.sides:
                 if side.isUnset():
-                    self.inspectObviousSide(side)
+                    self.inspectObviousSideClues(side)
+
+            # Also, check each limb
+            for side in cell.limbs:
+                if side is not None and side.isUnset():
+                    self.inspectObviousSideClues(side)
+
+    def inspectLessObviousCellClues(self, cell):
+        """Inspect a given cell for less obvious clues."""
+        if not cell.isFullySet():
+            self.inspectSymmetrical3Cell(cell)
+            self.inspectUnsetSideLinks(cell)
+            self.inspectTheoreticals(cell)
+            self.inspectClosedOff5Cell(cell)
+            self.inspectOpen5Cell(cell)
 
     def inspectSymmetrical3Cell(self, cell):
         """
@@ -437,7 +448,7 @@ class HexSolver:
     # ADD NEXT MOVE
     ###########################################################################
 
-    def addNextMove(self, side, newStatus, msg):
+    def addNextMove(self, side, newStatus, msg, prioritize=False):
         """Add a `HexGameMove` to the `nextMoveList`.
         Only `UNSET` sides can be added to the `nextMoveList`.
 
@@ -445,14 +456,18 @@ class HexSolver:
             side (HexSide): The side to be set.
             newStatus (SideStatus): The new status of the side.
             msg (string): The explanation message of the move.
+            prioritize (bool): If true, add moves to the beginning of the queue.
         """
         if side is not None and side.isUnset() and newStatus != UNSET and \
                 side.id not in self.processedSideIds:
             move = HexGameMove(side.id, newStatus, UNSET, msg=msg, fromSolver=True)
-            self.nextMoveList.append(move)
             self.processedSideIds.add(side.id)
+            if prioritize:
+                self.nextMoveList.insert(0, move)
+            else:
+                self.nextMoveList.append(move)
 
-    def addNextMoves(self, sides, newStatus, msg):
+    def addNextMoves(self, sides, newStatus, msg, prioritize=False):
         """Add multiple `HexGameMoves` to the `nextMoveList`.
         Uses `addNextMove(side, newStatus)` under the hood.
 
@@ -460,9 +475,10 @@ class HexSolver:
             sides ([HexSide]): The list of sides to be set.
             newStatus (SideStatus): The new status of all the sides in the list.
             msg (string): The explanation message of the moves.
+            prioritize (bool): If true, add moves to the beginning of the queue.
         """
         for side in sides:
-            self.addNextMove(side, newStatus, msg)
+            self.addNextMove(side, newStatus, msg, prioritize=prioritize)
 
     def extendNextMoves(self, moves):
         """Add multiple `HexGameMoves` to the `nextMoveList`.
