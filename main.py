@@ -27,7 +27,7 @@ FPS_FONT = pygame.font.SysFont("Arial", 18)
 
 # Screen
 screen = pygame.display.set_mode((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT))
-pygame.display.set_caption("Slitherlink")
+pygame.display.set_caption("Slitherlink Hexagons")
 
 # Surfaces
 baseSurface = pygame.Surface((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT))
@@ -60,11 +60,11 @@ def render(game):
 
         if not isDashed:
             # If not dashed, draw a straight line
-            rect = pygame.draw.line(screen, color, ep1, ep2, lineWidth)
+            pygame.draw.line(screen, color, ep1, ep2, lineWidth)
         else:
             # Else, draw a dashed line
-            rect = pygame.draw.line(screen, colors.BLACK, ep1, ep2, 3)
-            rect = drawDashedLine(screen, color, ep1, ep2, lineWidth)
+            pygame.draw.line(screen, colors.BLACK, ep1, ep2, 3)
+            drawDashedLine(screen, color, ep1, ep2, lineWidth)
 
         # Add the dirty sides to the list
         if side.isDirty:
@@ -83,7 +83,7 @@ def render(game):
     drawMoveMsg(game)
 
     # Display clicked cell coords
-    rect = drawClickedCellCoords(game)
+    drawClickedCellCoords(game)
 
     # Update the screen
     pygame.display.update()
