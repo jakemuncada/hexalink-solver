@@ -23,6 +23,10 @@ class HexGameMove:
         self.prevStatus = prevStatus
         self.msg = msg
 
+    def reverse(self):
+        """Returns the reverse of this move."""
+        return HexGameMove(self.sideId, self.prevStatus, self.newStatus, self.msg, self.fromSolver)
+
     def __eq__(self, other):
         return isinstance(other, HexGameMove) and \
             self.sideId == other.sideId and \
