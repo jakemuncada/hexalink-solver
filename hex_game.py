@@ -218,11 +218,12 @@ class HexGame:
             raise AssertionError(f"Invalid side status: {side.status}")
         self.setSideStatus(move)
 
-    def setSideStatus(self, gameMove):
+    def setSideStatus(self, gameMove, appendToHistory=True):
         """Set the status of a side, then recalculate stuff.
 
         Args:
             gameMove (HexGameMove): The move to be set.
+            appendToHistory (bool): If true, the move will be appended to the history.
         """
 
         side = self.sides[gameMove.sideId]
@@ -234,10 +235,12 @@ class HexGame:
             return
 
         # Do nothing if the move object's prevStatus does not equal to the current status
-        if prevStatus is not None and prevStatus != side.status:
+        if prevStatus != side.status:
             return
 
-        self.moveHistory.append(gameMove)
+        # Append the move to the move history
+        if appendToHistory:
+            self.moveHistory.append(gameMove)
 
         if newStatus == SideStatus.ACTIVE:
             self._setSideActive(side)

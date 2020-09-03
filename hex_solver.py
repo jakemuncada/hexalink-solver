@@ -30,7 +30,7 @@ class HexSolver:
             if nextMove is None:
                 break
             side = self.game.sides[nextMove.sideId]
-            self.game.setSideStatus(side, nextMove.newStatus)
+            self.game.setSideStatus(nextMove)
             self.inspectObviousVicinity(side)
             # print(f"Side {side} was set to {nextMove.newStatus}.")
 
@@ -446,7 +446,7 @@ class HexSolver:
         """
         if side is not None and side.isUnset() and newStatus != UNSET and \
                 side.id not in self.processedSideIds:
-            move = HexGameMove(side.id, newStatus, msg=msg)
+            move = HexGameMove(side.id, newStatus, UNSET, msg=msg, fromSolver=True)
             self.nextMoveList.append(move)
             self.processedSideIds.add(side.id)
 
@@ -486,13 +486,23 @@ class HexSolver:
             GameMove: The next correct move.
         """
 
-        ret = None
-        if len(self.nextMoveList) > 0:
-            ret = self.nextMoveList.pop(0)
-        else:
+        def getFromMoveList():
+            if len(self.nextMoveList) > 0:
+                return self.nextMoveList.pop(0)
+            return None
+
+        # Get next move from list, but disregard if the side is not UNSET
+        while True:
+            nextMove = getFromMoveList()
+            if nextMove is None:
+                break
+            if self.game.sides[nextMove.sideId].isUnset():
+                return nextMove
+
+        # If there are no next moves,
+        # check everything and try to get next move again
+        if nextMove is None:
             self.inspectEverything()
-            ret = None if len(self.nextMoveList) == 0 else self.nextMoveList.pop(0)
+            return getFromMoveList()
 
-        return ret
-
-
+        return None

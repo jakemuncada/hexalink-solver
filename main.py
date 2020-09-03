@@ -276,16 +276,25 @@ def clickCell(game):
         game.clickedCell = cell
 
 
-def solveOne(solver):
+def solveOne(game, solver):
     """Get one move from the solver and apply it."""
     nextMove = solver.getNextMove()
     if nextMove is not None:
-        side = solver.game.sides[nextMove.sideId]
-        solver.game.setSideStatus(nextMove)
+        side = game.sides[nextMove.sideId]
+        game.setSideStatus(nextMove)
         solver.inspectObviousVicinity(side)
-        print(f"Side {side} was set to {nextMove.newStatus}.")
     else:
         print("No moves left.")
+
+
+def undoOne(game, solver):
+    """Undo the previous move."""
+    if len(game.moveHistory) > 0:
+        prevMove = game.moveHistory.pop()
+        reverseMove = prevMove.reverse()
+        game.setSideStatus(reverseMove, appendToHistory=False)
+        if prevMove.fromSolver:
+            solver.nextMoveList.insert(0, prevMove)
 
 
 def reset(game):
@@ -387,7 +396,11 @@ def main():
 
                 # RIGHT
                 if keys[pygame.K_RIGHT]:
-                    solveOne(solver)
+                    solveOne(game, solver)
+
+                # LEFT
+                if keys[pygame.K_LEFT]:
+                    undoOne(game, solver)
 
         render(game)
         clock.tick(FPS)
