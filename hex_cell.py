@@ -341,16 +341,16 @@ class HexCell:
             theoreticalBlanks.append(pair.sides[0])
             theoreticalBlanks.append(pair.sides[1])
 
-        # If the cell has an adjacent 5-Cell
-        for sideDir in HexSideDir:
-            adjCell = self.adjCells[sideDir]
-            if adjCell is not None and adjCell.reqSides == 5:
-                sides, _ = self.getCap(sideDir)
-                # Check if all the sides are UNSET
-                if checkAllSidesAreUnset(sides):
-                    # Check if all the sides are not yet in the theoretical blanks
-                    if all(side not in theoreticalBlanks for side in sides):
-                        count += 1
-                        theoreticalBlanks.extend(sides)
+        # # If the cell has an adjacent 5-Cell
+        # for sideDir in HexSideDir:
+        #     adjCell = self.adjCells[sideDir]
+        #     if adjCell is not None and adjCell.reqSides == 5:
+        #         sides, _ = self.getCap(sideDir)
+        #         # Check if all the sides are UNSET
+        #         if checkAllSidesAreUnset(sides):
+        #             # Check if all the sides are not yet in the theoretical blanks
+        #             if all(side not in theoreticalBlanks for side in sides):
+        #                 count += 1
+        #                 theoreticalBlanks.extend(sides)
 
         return count, theoreticalBlanks
