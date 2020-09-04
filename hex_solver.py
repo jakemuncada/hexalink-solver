@@ -50,7 +50,7 @@ class HexSolver:
 
         perfTime = measureEnd("SolveAll")
         print("Number of sides set:", countSidesSet)
-        print("Time to solve: {:.3f}ms".format(perfTime))
+        print("Time to solve: {:0.3f} seconds".format(perfTime / 1000))
 
     def initialBoardInspection(self):
         """Inspect the board and register one-time obvious moves into the `nextMoveList`.
