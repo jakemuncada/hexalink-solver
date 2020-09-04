@@ -4,6 +4,7 @@ from side_status import SideStatus
 from hex_game_move import HexGameMove, MovePriority
 from hex_dir import HexSideDir
 from side_link import SideLink
+from helpers import measureStart, measureEnd
 
 # Define SideStatus members
 BLANK = SideStatus.BLANK
@@ -32,6 +33,9 @@ class HexSolver:
 
     def solveAll(self):
         """Solve the whole board."""
+
+        measureStart("SolveAll")
+
         while True:
             nextMove = self.getNextMove()
             if nextMove is None:
@@ -40,6 +44,9 @@ class HexSolver:
             self.game.setSideStatus(nextMove)
             self.inspectObviousVicinity(side)
             # print(f"Side {side} was set to {nextMove.newStatus}.")
+
+        perfTime = measureEnd("SolveAll")
+        print("Time to solve: {:.3f}ms".format(perfTime))
 
     def initialBoardInspection(self):
         """Inspect the board and register one-time obvious moves into the `nextMoveList`.
