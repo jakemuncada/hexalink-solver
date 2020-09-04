@@ -15,12 +15,24 @@ class SideLink:
 
     __createKey = object()
 
-    def __init__(self, createKey, sides, linkVertices, endpoints):
+    def __init__(self, createKey, sides, linkVertices, endpoints, endLinks):
+        """
+        Instantiate a SideLink. Cannot be used directly. Please use `fromSide` or `fromList`.
+
+        Args:
+            sides ([HexSide]): The list of sides that compose the link.
+            linkVertices ([HexVertex]): The vertices on that connects each individual link member.
+                                        Does not include the endpoints.
+            endpoints (HexVertex, HexVertex): The endpoints of the link.
+            endLinks (HexSide, HexSide): The sides of the link connected to each endpoint.
+        """
+
         assert(createKey == self.__createKey), \
             "Please use class method 'fromSide' or 'fromList' to instantiate a SideLink."
         self.sides = sides
         self.linkVertices = linkVertices
         self.endpoints = endpoints
+        self.endLink = endLinks
 
     @classmethod
     def fromList(cls, sides):
@@ -32,10 +44,10 @@ class SideLink:
             AssertionError: If the sides do not form a valid link or if all the sides
                 do not have the same status.
         """
-        isValid, linkVertices, endpoints = cls._validate(sides)
+        isValid, linkVertices, endpoints, endLinks = cls._validate(sides)
 
         if isValid:
-            return cls(cls.__createKey, sides, linkVertices, endpoints)
+            return cls(cls.__createKey, sides, linkVertices, endpoints, endLinks)
         return None
 
     @classmethod
@@ -77,10 +89,10 @@ class SideLink:
             return groupSet
 
         sides = getLink(side, set())
-        isValid, linkVertices, endpoints = cls._validate(sides)
+        isValid, linkVertices, endpoints, endLinks = cls._validate(sides)
 
         if isValid:
-            return cls(cls.__createKey, sides, linkVertices, endpoints)
+            return cls(cls.__createKey, sides, linkVertices, endpoints, endLinks)
         return None
 
     @staticmethod
@@ -93,18 +105,19 @@ class SideLink:
             isValid (bool): True if the given list is valid.
             linkVertices (HexVertex): The list of vertices that connect the link sides.
                                       None if the list isn't valid.
-            enpoints (HexVertex, HexVertex): A tuple of the two endpoints of the link.
-                                             None if the list isn't valid.
+            endpoints (HexVertex, HexVertex): A tuple of the two endpoints of the link.
+                                              None if the list isn't valid.
+            endLinks (HexSide, HexSide): The sides of the link connected to each endpoint.
         """
         if sides is None or len(sides) <= 0:
-            return False, None, None
+            return False, None, None, None
 
         sides = list(sides)
 
         # Check if the sides[0] is BLANK.
         # The other sides should be equal to sides[0].
         if sides[0].isBlank():
-            return False, None, None
+            return False, None, None, None
 
         linkVertices = []
 
@@ -113,7 +126,7 @@ class SideLink:
 
         for side in sides:
             if side.status != sides[0].status:
-                return False, None, None
+                return False, None, None, None
             for vtx in side.endpoints:
                 if vtx not in vertexConnCount:
                     vertexConnCount[vtx] = 1
@@ -132,15 +145,23 @@ class SideLink:
                 linkVertices.append(vtx)
             # Else if the vertex has 3 or more sides connecting to it, the SideLink is invalid
             else:
-                return False, None, None
+                return False, None, None, None
 
         # Check that the number of endpoints and linkVertices are valid
         if len(endpoints) != 2:
-            return False, None, None
+            return False, None, None, None
         if len(linkVertices) != len(sides) - 1:
-            return False, None, None
+            return False, None, None, None
 
-        return True, linkVertices, tuple(endpoints)
+        endLinks = []
+        for endpoint in endpoints:
+            for side in sides:
+                if endpoint in side.endpoints:
+                    endLinks.append(side)
+                    break
+        assert(len(endLinks) == 2), "Expected there to be only 2 endlinks"
+
+        return True, linkVertices, tuple(endpoints), tuple(endLinks)
 
     @staticmethod
     def isSameLink(side1, side2):

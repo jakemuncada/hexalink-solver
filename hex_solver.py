@@ -183,9 +183,12 @@ class HexSolver:
         # Only process UNSET sides
         if side.isUnset():
 
+            # Get the whole link
+            link = SideLink.fromSide(side)
+
             # Get the connected sides on each endpoint
-            connActiveSides1 = side.endpoints[0].getActiveSidesExcept(side.id)
-            connActiveSides2 = side.endpoints[1].getActiveSidesExcept(side.id)
+            connActiveSides1 = link.endpoints[0].getActiveSidesExcept(link.endLink[0])
+            connActiveSides2 = link.endpoints[1].getActiveSidesExcept(link.endLink[1])
 
             # If both endpoints have an active side
             if len(connActiveSides1) > 0 and len(connActiveSides2) > 0:
