@@ -354,7 +354,7 @@ def prepareVertexDotSurface(game):
 def main():
     """Main function."""
 
-    rows = input_file.INPUT1["rows"]
+    rows = input_file.INPUT2["rows"]
     dataStr = re.sub(r"\s+", "", input_file.INPUT1["dataStr"])
 
     horizontalMargin = constants.SCREEN_LEFT_MARGIN + constants.SCREEN_RIGHT_MARGIN
