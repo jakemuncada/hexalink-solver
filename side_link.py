@@ -1,5 +1,7 @@
 """Side Link"""
 
+from hex_side import HexSide
+
 
 class SideLink:
     """
@@ -19,27 +21,6 @@ class SideLink:
         self.sides = sides
         self.linkVertices = linkVertices
         self.endpoints = endpoints
-
-    def isUnset(self):
-        """Returns true if all the sides in the link are unset. False otherwise."""
-        for side in self.sides:
-            if not side.isUnset():
-                return False
-        return True
-
-    def isActive(self):
-        """Returns true if all the sides in the link are active. False otherwise."""
-        for side in self.sides:
-            if not side.isActive():
-                return False
-        return True
-
-    def isBlank(self):
-        """Returns true if all the sides in the link are blank. False otherwise."""
-        for side in self.sides:
-            if not side.isBlank():
-                return False
-        return True
 
     @classmethod
     def fromList(cls, sides):
@@ -198,6 +179,48 @@ class SideLink:
             return False
 
         return findSideInLink(side1, side2, set())
+
+    def isUnset(self):
+        """Returns true if all the sides in the link are unset. False otherwise."""
+        for side in self.sides:
+            if not side.isUnset():
+                return False
+        return True
+
+    def isActive(self):
+        """Returns true if all the sides in the link are active. False otherwise."""
+        for side in self.sides:
+            if not side.isActive():
+                return False
+        return True
+
+    def isBlank(self):
+        """Returns true if all the sides in the link are blank. False otherwise."""
+        for side in self.sides:
+            if not side.isBlank():
+                return False
+        return True
+
+    def getConnectionVertex(self, other):
+        """
+        Get the vertex that is common between this SideLink and a given SideLink or Side.\n
+        Returns None if the two aren't connected.
+
+        Args:
+            other (SideLink or HexSide): The other sidelink or side.
+
+        Returns:
+            HexVertex: The common vertex. None if not connected.
+        """
+
+        if not isinstance(other, SideLink) and not isinstance(other, HexSide):
+            raise TypeError("Parameter should be either HexSide or SideLink.")
+
+        if other.endpoints[0] in self.endpoints:
+            return other.endpoints[0]
+        elif other.endpoints[1] in self.endpoints:
+            return other.endpoints[1]
+        return None
 
     def __len__(self):
         return len(self.sides)
