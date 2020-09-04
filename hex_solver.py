@@ -222,6 +222,7 @@ class HexSolver:
             self.inspectTheoreticals(cell)
             self.inspectClosedOff5Cell(cell)
             self.inspectOpen5Cell(cell)
+            self.inspectRemaining2Group(cell)
 
     def inspectSymmetrical3Cell(self, cell):
         """
@@ -270,21 +271,27 @@ class HexSolver:
 
                     # Check if the group should be active
                     if groupSize > cell.requiredBlanks() - actualBlankCount:
-                        self.addNextMoves(group, ACTIVE, NORMAL, "Side group should be active.")
+                        msg = "Side group (size: {}) of {}-Cell should be active.".format(
+                            groupSize, cell.reqSides)
+                        self.addNextMoves(group, ACTIVE, NORMAL, msg)
 
                     # Check if the group should be blank
                     elif groupSize > cell.reqSides - actualActiveCount:
-                        self.addNextMoves(group, BLANK, NORMAL, "Side group should be blank.")
+                        msg = "Side group (size: {}) of {}-Cell should be blank.".format(
+                            groupSize, cell.reqSides)
+                        self.addNextMoves(group, BLANK, NORMAL, msg)
 
                     # Check if all member sides of the group are not part of the theoretical sides
                     elif all(side not in theoreticalSides for side in group):
                         if groupSize > 1:
                             # Check the number of blanks/actives while considering theoreticals
                             if groupSize > cell.requiredBlanks() - totalBlankCount:
-                                msg = "Side group should be active (using theoretical clues)."
+                                msg = f"Side group of {cell.reqSides}-Cell should be active " + \
+                                    "(using theoretical clues)."
                                 self.addNextMoves(group, ACTIVE, NORMAL, msg)
                             elif groupSize > cell.reqSides - totalActiveCount:
-                                msg = "Side group should be blank (using theoretical clues)."
+                                msg = f"Side group of {cell.reqSides}-Cell should be blank " + \
+                                    "(using theoretical clues)."
                                 self.addNextMoves(group, BLANK, NORMAL, msg)
 
     def inspectTheoreticals(self, cell):
@@ -345,6 +352,54 @@ class HexSolver:
                             limb = cell.getLimbAt(vtx)
                             self.addNextMove(limb, ACTIVE, LOW,
                                              "Bisect the remaining 2 unsure sides.")
+
+    def inspectRemaining2Group(self, cell):
+        """
+        Inspect a cell if it only need 2 more active sides. Check if the remaining unset sides
+        should be grouped into a 2-link SideLink.
+        """
+
+        # If the cell needs 2 more active sides
+        if cell.remainingReqs() == 2:
+
+            unsetSideLinks = cell.getUnsetSideLinks()
+
+            links1 = []  # Links with size 1
+            links2 = []  # Links with size 2
+            otherLinks = []  # Links with size > 2
+
+            for sideLink in unsetSideLinks:
+                if len(sideLink) == 1:
+                    links1.append(sideLink)
+                elif len(sideLink) == 2:
+                    links2.append(sideLink)
+                else:
+                    otherLinks.append(sideLink)
+
+            # If there are of links whose size is greater than 2, they should be blank
+            if len(otherLinks) > 0:
+                for link in otherLinks:
+                    msg = f"Side group of {cell.reqSides}-Cell should be blank " + \
+                        "(using theoretical clues)."
+                    self.addNextMoves(link, BLANK, NORMAL, msg)
+
+            # If there are two links with size of 1 and they are adjacent each other,
+            # they should be connected.
+            elif len(links1) == 2 and links1[0].getConnectionVertex(links1[1]) is not None:
+                vertex = links1[0].getConnectionVertex(links1[1])
+                limb = cell.getLimbAt(vertex)
+                msg = "Remaining required sides of {}-Cell is 2, so fuse the two together.".format(
+                    cell.reqSides)
+                self.addNextMove(limb, BLANK, LOW, msg)
+
+            # If there are two links with size of 2 and they are adjacent each other,
+            # they should be bisected
+            elif len(links2) == 2 and links2[0].getConnectionVertex(links2[1]) is not None:
+                vertex = links2[0].getConnectionVertex(links2[1])
+                limb = cell.getLimbAt(vertex)
+                msg = "Remaining required sides of {}-Cell is 2, so bisect the two links.".format(
+                    cell.reqSides)
+                self.addNextMove(limb, ACTIVE, LOW, msg)
 
     def inspectClosedOff5Cell(self, cell):
         """
