@@ -39,7 +39,7 @@ class HexSolver:
         countSidesSet = 0
 
         while True:
-            nextMove = self.getNextMove()
+            nextMove = self.getNextMove(doSort=False)
             if nextMove is None:
                 break
             countSidesSet += 1
@@ -583,11 +583,12 @@ class HexSolver:
     # GET NEXT MOVE
     ###########################################################################
 
-    def getNextMove(self, prevCoords=None):
+    def getNextMove(self, prevCoords=None, doSort=True):
         """
         Get the next correct move.
 
         Args:
+            doSort (bool): If true, sort the list before returning the next move.
             prevCoords (Point): The coordinates of the previous move.
 
         Returns:
@@ -601,7 +602,8 @@ class HexSolver:
 
         def getFromMoveList():
             if len(self.nextMoveList) > 0:
-                self.nextMoveList.sort(key=sortKey)
+                if doSort:
+                    self.nextMoveList.sort(key=sortKey)
                 return self.nextMoveList.pop(0)
             return None
 
