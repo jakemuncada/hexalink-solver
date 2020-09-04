@@ -116,6 +116,7 @@ class HexSolver:
         for cell in self.game.reqCells:
             self.inspectObviousCellClues(cell)
             self.inspectLessObviousCellClues(cell)
+
         for side in self.game.sides:
             self.inspectObviousSideClues(side)
 
@@ -224,12 +225,18 @@ class HexSolver:
     def inspectLessObviousCellClues(self, cell):
         """Inspect a given cell for less obvious clues."""
         if not cell.isFullySet():
-            self.inspectSymmetrical3Cell(cell)
-            self.inspectUnsetSideLinks(cell)
-            self.inspectTheoreticals(cell)
-            self.inspectClosedOff5Cell(cell)
-            self.inspectOpen5Cell(cell)
-            self.inspectRemaining2Group(cell)
+            if len(self.nextMoveList) == 0:
+                self.inspectSymmetrical3Cell(cell)
+            if len(self.nextMoveList) == 0:
+                self.inspectUnsetSideLinks(cell)
+            if len(self.nextMoveList) == 0:
+                self.inspectTheoreticals(cell)
+            if len(self.nextMoveList) == 0:
+                self.inspectClosedOff5Cell(cell)
+            if len(self.nextMoveList) == 0:
+                self.inspectOpen5Cell(cell)
+            if len(self.nextMoveList) == 0:
+                self.inspectRemaining2Group(cell)
 
     def inspectSymmetrical3Cell(self, cell):
         """
