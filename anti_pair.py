@@ -23,7 +23,7 @@ class AntiPair:
     def isBlank(self):
         """Returns true if both sides are BLANK."""
         return self.sides[0].isBlank() and self.sides[1].isBlank()
-    
+
     def isActive(self):
         """Returns true if both sides are ACTIVE."""
         return self.sides[0].isActive() and self.sides[1].isActive()
