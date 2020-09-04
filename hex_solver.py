@@ -549,28 +549,30 @@ class HexSolver:
 
         for cell in self.game.cells:
             # If faction is unknown, do nothing
-            if not cell.isFactionUnknown():
-                # Look at each side
-                for sideDir in HexSideDir:
-                    side = cell.sides[sideDir]
-                    # If this side is unset, try to see if we can find out using faction clues
-                    if side.isUnset():
-                        adjCell = cell.adjCells[sideDir]
-                        sideFaction = CellFaction.OUTSIDE if adjCell is None else adjCell.faction
-                        # If own faction and the adjacent cell's faction is different,
-                        # set the side to ACTIVE
-                        if sideFaction != CellFaction.UNKNOWN and sideFaction != cell.faction:
-                            msg = "The cell at {} is {} so we separate it from {}.".format(
-                                str(cell), str(cell.faction),
-                                "the outside" if adjCell is None else str(adjCell))
-                            self.addNextMove(side, ACTIVE, LOWEST, msg)
-                        # If own faction and the adjacent cell's faction is the same,
-                        # set the side to BLANK
-                        elif sideFaction != CellFaction.UNKNOWN and sideFaction == cell.faction:
-                            msg = "The cell at {} is {} so we merge it with {}.".format(
-                                str(cell), str(cell.faction),
-                                "the outside" if adjCell is None else str(adjCell))
-                            self.addNextMove(side, BLANK, LOWEST, msg)
+            if cell.isFactionUnknown():
+                continue
+
+            # Look at each side
+            for sideDir in HexSideDir:
+                side = cell.sides[sideDir]
+                # If this side is unset, try to see if we can find out using faction clues
+                if side.isUnset():
+                    adjCell = cell.adjCells[sideDir]
+                    sideFaction = CellFaction.OUTSIDE if adjCell is None else adjCell.faction
+                    # If own faction and the adjacent cell's faction is different,
+                    # set the side to ACTIVE
+                    if sideFaction != CellFaction.UNKNOWN and sideFaction != cell.faction:
+                        msg = "The cell at {} is {} so we separate it from {}.".format(
+                            str(cell), str(cell.faction),
+                            "the outside" if adjCell is None else str(adjCell))
+                        self.addNextMove(side, ACTIVE, LOWEST, msg)
+                    # If own faction and the adjacent cell's faction is the same,
+                    # set the side to BLANK
+                    elif sideFaction != CellFaction.UNKNOWN and sideFaction == cell.faction:
+                        msg = "The cell at {} is {} so we merge it with {}.".format(
+                            str(cell), str(cell.faction),
+                            "the outside" if adjCell is None else str(adjCell))
+                        self.addNextMove(side, BLANK, LOWEST, msg)
 
     def resetFactions(self):
         """Reset all the factions to None."""
