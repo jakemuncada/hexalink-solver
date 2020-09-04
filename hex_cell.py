@@ -3,6 +3,7 @@
 import math
 from side_link import SideLink
 from hex_dir import HexSideDir, HexVertexDir
+from cell_faction import CellFaction
 from anti_pair import AntiPair
 from point import Point
 from helpers import checkAllSidesAreUnset
@@ -21,12 +22,14 @@ class HexCell:
     """
 
     def __init__(self, row, col, sideLength, reqSides):
+        self.id = f"{row},{col}"
         self.row = row
         self.col = col
         self.numDirty = True
         self.sideLength = sideLength
         self.center = Point()
         self.reqSides = reqSides
+        self.faction = CellFaction.UNKNOWN
         self.adjCells = [None for _ in HexSideDir]
         self.sides = [None for _ in HexSideDir]
         self.vertices = [None for _ in HexVertexDir]
