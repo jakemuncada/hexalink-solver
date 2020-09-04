@@ -367,7 +367,10 @@ def main():
     centerX = targetWidth // 2 + constants.SCREEN_LEFT_MARGIN
     centerY = targetHeight // 2 + constants.SCREEN_TOP_MARGIN
 
+    print("Creating game...")
     game = HexGame((centerX, centerY), cellSideWidth, rows, dataStr)
+    print("Created game with {} rows, {} cells, and {} sides.".format(
+        game.rows, len(game.cells), len(game.sides)))
 
     # Prepare the surfaces
     prepareBaseSurface(game)
