@@ -34,18 +34,21 @@ class HexSolver:
     def solveAll(self):
         """Solve the whole board."""
 
+        print("Solving the whole board...")
         measureStart("SolveAll")
+        countSidesSet = 0
 
         while True:
             nextMove = self.getNextMove()
             if nextMove is None:
                 break
+            countSidesSet += 1
             side = self.game.sides[nextMove.sideId]
             self.game.setSideStatus(nextMove)
             self.inspectObviousVicinity(side)
-            # print(f"Side {side} was set to {nextMove.newStatus}.")
 
         perfTime = measureEnd("SolveAll")
+        print("Number of sides set:", countSidesSet)
         print("Time to solve: {:.3f}ms".format(perfTime))
 
     def initialBoardInspection(self):
