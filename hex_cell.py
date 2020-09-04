@@ -39,6 +39,8 @@ class HexCell:
         self._memoAdjCells = None
         self._memoLimbs = None
         self._memoDirOfLimb = None
+        self._memoDirOfCell = None
+        self._memoDirOfSide = None
 
     def isFullySet(self):
         """Returns true if there are no more UNSET sides remaining in the cell."""
@@ -104,6 +106,29 @@ class HexCell:
                 if limbId is not None:
                     self._memoDirOfLimb[limbId] = limbDir
         return self._memoDirOfLimb[limb.id] if limb.id in self._memoDirOfLimb else None
+
+    def getDirOfAdjCell(self, adjCell):
+        """Returns the SideDir of a given adjacent cell.
+        Returns None if the given cell is not adjacent to this cell.
+        """
+        if self._memoDirOfCell is None:
+            self._memoDirOfCell = {}
+            for sideDir in HexSideDir:
+                _cell = self.adjCells[sideDir]
+                if _cell is not None:
+                    self._memoDirOfCell[_cell.id] = sideDir
+        return self._memoDirOfCell[adjCell.id] if adjCell.id in self._memoDirOfCell else None
+
+    def getDirOfSide(self, side):
+        """Returns the SideDir of a given Side.
+        Returns None if the given side is not a side of the cell.
+        """
+        if self._memoDirOfSide is None:
+            self._memoDirOfSide = {}
+            for sideDir in HexSideDir:
+                _side = self.sides[sideDir]
+                self._memoDirOfSide[_side.id] = sideDir
+        return self._memoDirOfSide[side.id] if side.id in self._memoDirOfSide else None
 
     def getLimbAt(self, vertex):
         """Returns the limb connected at the given HexVertex or HexVertexDir.
