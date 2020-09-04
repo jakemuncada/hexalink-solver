@@ -282,9 +282,10 @@ class HexCell:
         Get list of UNSET anti-pairs caused by active limbs.
 
         Returns:
-            [AntiPair]: The list of UNSET anti-pairs caused by active limbs.
+            [[AntiPair]]: The list of UNSET anti-pairs caused by active limbs,
+                          one for each dir combination.
         """
-        antiPairs = []
+        antiPairCombinations = []
 
         # The two sides connected at the vertex dir
         sidesAtVertexDir = {}
@@ -304,19 +305,26 @@ class HexCell:
             [HexVertexDir.LR, HexVertexDir.UL]
         ]
 
+        maxNumOfPairs = 0
+
         for dirs in dirCombinations:
             tempAntiPairs = []
             for vtxDir in dirs:
                 limb = self.getLimbAt(vtxDir)
+                # If limb is active
                 if limb is not None and limb.isActive():
-                    sides = sidesAtVertexDir[vtxDir]
-                    if checkAllSidesAreUnset(sides):
-                        tempAntiPairs.append(AntiPair(sides[0], sides[1]))
+                    sidesAtVtx = sidesAtVertexDir[vtxDir]
+                    # If both sides connected to the active limb are unset
+                    if checkAllSidesAreUnset(sidesAtVtx):
+                        tempAntiPairs.append(AntiPair(sidesAtVtx[0], sidesAtVtx[1]))
 
-            if len(tempAntiPairs) > len(antiPairs):
-                antiPairs = tempAntiPairs
+            if len(tempAntiPairs) > maxNumOfPairs:
+                maxNumOfPairs = len(tempAntiPairs)
+                antiPairCombinations = [tempAntiPairs]
+            elif len(tempAntiPairs) == maxNumOfPairs:
+                antiPairCombinations.append(tempAntiPairs)
 
-        return antiPairs
+        return antiPairCombinations
 
     def getTheoreticalBlanks(self):
         """
@@ -326,17 +334,21 @@ class HexCell:
         For example, if a limb is ACTIVE, one of the connected sides is sure to be BLANK.\n
 
         Returns:
-            (int, [HexSide]): The number of theoretical blanks and the Sides
-                              that are part of the subset.
+            (int, [[HexSide]]): The number of theoretical blanks and the Sides
+                              that are part of the subset for each dir combination.
         """
 
         count = 0
-        theoreticalBlanks = []
+        theoreticalBlankCombinations = []
 
-        antiPairs = self.getAntiPairsCausedByActiveLimbs()
-        for pair in antiPairs:
-            count += 1
-            theoreticalBlanks.append(pair.sides[0])
-            theoreticalBlanks.append(pair.sides[1])
+        antiPairCombinations = self.getAntiPairsCausedByActiveLimbs()
+        for antiPairList in antiPairCombinations:
+            theoreticalBlanks = []
+            count = 0
+            for antiPair in antiPairList:
+                count += 1
+                theoreticalBlanks.append(antiPair.sides[0])
+                theoreticalBlanks.append(antiPair.sides[1])
+            theoreticalBlankCombinations.append(theoreticalBlanks)
 
-        return count, theoreticalBlanks
+        return count, theoreticalBlankCombinations

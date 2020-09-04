@@ -28,7 +28,7 @@ class HexSolver:
         self.currMoveSequence = None
 
         self.initialBoardInspection()
-        # self.solveAll()
+        self.solveAll()
 
     def solveAll(self):
         """Solve the whole board."""
@@ -259,30 +259,33 @@ class HexSolver:
             # Get the actual count and the theoretical count of ACTIVE and BLANK sides
             actualActiveCount = cell.countActiveSides()
             actualBlankCount = cell.countBlankSides()
-            theoreticalCount, theoreticalSides = cell.getTheoreticalBlanks()
+            theoreticalCount, theoreticalSidesList = cell.getTheoreticalBlanks()
             totalBlankCount = theoreticalCount + actualBlankCount
             totalActiveCount = theoreticalCount + actualActiveCount
 
-            for group in unsetGroups:
-                groupSize = len(group)
+            for theoreticalSides in theoreticalSidesList:
 
-                # Check if the group should be active
-                if groupSize > cell.requiredBlanks() - actualBlankCount:
-                    self.addNextMoves(group, ACTIVE, NORMAL, "Side group should be active.")
+                for group in unsetGroups:
+                    groupSize = len(group)
 
-                # Check if the group should be blank
-                elif groupSize > cell.reqSides - actualActiveCount:
-                    self.addNextMoves(group, BLANK, NORMAL, "Side group should be blank.")
+                    # Check if the group should be active
+                    if groupSize > cell.requiredBlanks() - actualBlankCount:
+                        self.addNextMoves(group, ACTIVE, NORMAL, "Side group should be active.")
 
-                # Check if all member sides of the group are not part of the theoretical sides
-                elif all(side not in theoreticalSides for side in group):
-                    if groupSize > 1:
-                        if groupSize > cell.requiredBlanks() - totalBlankCount:
-                            msg = "Side group should be active (using theoretical clues)."
-                            self.addNextMoves(group, ACTIVE, NORMAL, msg)
-                        elif groupSize > cell.reqSides - totalActiveCount:
-                            msg = "Side group should be blank (using theoretical clues)."
-                            self.addNextMoves(group, BLANK, NORMAL, msg)
+                    # Check if the group should be blank
+                    elif groupSize > cell.reqSides - actualActiveCount:
+                        self.addNextMoves(group, BLANK, NORMAL, "Side group should be blank.")
+
+                    # Check if all member sides of the group are not part of the theoretical sides
+                    elif all(side not in theoreticalSides for side in group):
+                        if groupSize > 1:
+                            # Check the number of blanks/actives while considering theoreticals
+                            if groupSize > cell.requiredBlanks() - totalBlankCount:
+                                msg = "Side group should be active (using theoretical clues)."
+                                self.addNextMoves(group, ACTIVE, NORMAL, msg)
+                            elif groupSize > cell.reqSides - totalActiveCount:
+                                msg = "Side group should be blank (using theoretical clues)."
+                                self.addNextMoves(group, BLANK, NORMAL, msg)
 
     def inspectTheoreticals(self, cell):
         """
@@ -297,48 +300,51 @@ class HexSolver:
             actualActiveCount = cell.countActiveSides()
             setSidesCount = actualActiveCount + actualBlankCount
 
-            theoreticalCount, theoreticalSides = cell.getTheoreticalBlanks()
+            theoreticalCount, theoreticalSidesList = cell.getTheoreticalBlanks()
             theoreticalBlankCount = theoreticalCount
             theoreticalActiveCount = theoreticalCount
 
-            # If we have enough blanks, the unsure sides are deduced to be ACTIVE
-            if theoreticalBlankCount + actualBlankCount == cell.requiredBlanks():
-                for side in cell.sides:
-                    if side is not None and side.isUnset() and side not in theoreticalSides:
-                        msg = "Theoretical blanks plus actual blanks are enough. " + \
-                            "Set other sides to active."
-                        self.addNextMove(side, ACTIVE, LOW, msg)
+            for theoreticalSides in theoreticalSidesList:
 
-            # If we have enough actives, the unsure sides are deduced to be BLANK
-            if theoreticalActiveCount + actualActiveCount == cell.reqSides:
-                for side in cell.sides:
-                    if side is not None and side.isUnset() and side not in theoreticalSides:
-                        msg = "Theoretical actives plus actual actives are enough. " + \
-                            "Set other sides to blank."
-                        self.addNextMove(side, BLANK, LOW, msg)
-
-            # If we need just 1 more active side
-            elif theoreticalActiveCount + actualActiveCount == cell.reqSides - 1:
-                # If there are only 2 remaining unsure sides
-                if len(theoreticalSides) + setSidesCount == len(cell.sides) - 2:
-                    # Check the remaining sides
-                    remainingUnsureDirs = []
-                    remainingUnsureSides = []
-                    for sideDir in HexSideDir:
-                        side = cell.sides[sideDir]
+                # If we have enough blanks, the unsure sides are deduced to be ACTIVE
+                if theoreticalBlankCount + actualBlankCount == cell.requiredBlanks():
+                    for side in cell.sides:
                         if side is not None and side.isUnset() and side not in theoreticalSides:
-                            remainingUnsureDirs.append(sideDir)
-                            remainingUnsureSides.append(side)
+                            msg = "Theoretical blanks plus actual blanks are enough. " + \
+                                "Set other sides to active."
+                            self.addNextMove(side, ACTIVE, LOW, msg)
 
-                    assert(len(remainingUnsureSides) == 2), \
-                        "Expected only 2 remaining unsure sides."
+                # If we have enough actives, the unsure sides are deduced to be BLANK
+                if theoreticalActiveCount + actualActiveCount == cell.reqSides:
+                    for side in cell.sides:
+                        if side is not None and side.isUnset() and side not in theoreticalSides:
+                            msg = "Theoretical actives plus actual actives are enough. " + \
+                                "Set other sides to blank."
+                            self.addNextMove(side, BLANK, LOW, msg)
 
-                    # And if they are adjacent to each other, set the bisecting limb to ACTIVE
-                    if remainingUnsureDirs[0].isAdjacent(remainingUnsureDirs[1]):
-                        vtx = remainingUnsureSides[0].getConnectionVertex(
-                            remainingUnsureSides[1])
-                        limb = cell.getLimbAt(vtx)
-                        self.addNextMove(limb, ACTIVE, LOW, "Bisect the remaining 2 unsure sides.")
+                # If we need just 1 more active side
+                elif theoreticalActiveCount + actualActiveCount == cell.reqSides - 1:
+                    # If there are only 2 remaining unsure sides
+                    if len(theoreticalSides) + setSidesCount == len(cell.sides) - 2:
+                        # Check the remaining sides
+                        remainingUnsureDirs = []
+                        remainingUnsureSides = []
+                        for sideDir in HexSideDir:
+                            side = cell.sides[sideDir]
+                            if side is not None and side.isUnset() and side not in theoreticalSides:
+                                remainingUnsureDirs.append(sideDir)
+                                remainingUnsureSides.append(side)
+
+                        assert(len(remainingUnsureSides) == 2), \
+                            "Expected only 2 remaining unsure sides."
+
+                        # And if they are adjacent to each other, set the bisecting limb to ACTIVE
+                        if remainingUnsureDirs[0].isAdjacent(remainingUnsureDirs[1]):
+                            vtx = remainingUnsureSides[0].getConnectionVertex(
+                                remainingUnsureSides[1])
+                            limb = cell.getLimbAt(vtx)
+                            self.addNextMove(limb, ACTIVE, LOW,
+                                             "Bisect the remaining 2 unsure sides.")
 
     def inspectClosedOff5Cell(self, cell):
         """
