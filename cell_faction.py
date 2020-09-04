@@ -18,3 +18,12 @@ class CellFaction(IntEnum):
         if self == CellFaction.UNKNOWN:
             return CellFaction.UNKNOWN
         raise AssertionError("Invalid value of CellFaction")
+
+    def __str__(self):
+        if self == CellFaction.INSIDE:
+            return "OUTSIDE"
+        if self == CellFaction.OUTSIDE:
+            return "INSIDE"
+        if self == CellFaction.UNKNOWN:
+            return "UNKNOWN"
+        raise AssertionError("Invalid value of CellFaction")

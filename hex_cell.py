@@ -81,6 +81,38 @@ class HexCell:
                 count += 1
         return count
 
+    def isFactionUnknown(self):
+        """Returns true if the faction is UNKNOWN."""
+        return self.faction == CellFaction.UNKNOWN
+
+    def isFactionInside(self):
+        """Returns true if the faction is INSIDE."""
+        return self.faction == CellFaction.INSIDE
+
+    def isFactionOutside(self):
+        """Returns true if the faction is OUTSIDE."""
+        return self.faction == CellFaction.OUTSIDE
+
+    def setFactionUnknown(self):
+        """Set this cell's faction to UNKNOWN."""
+        if self.faction != CellFaction.UNKNOWN:
+            self.faction = CellFaction.UNKNOWN
+
+    def setFactionInside(self):
+        """Set this cell's faction to INSIDE."""
+        if self.faction != CellFaction.INSIDE:
+            self.faction = CellFaction.INSIDE
+
+    def setFactionOutside(self):
+        """Set this cell's faction to OUTSIDE."""
+        if self.faction != CellFaction.OUTSIDE:
+            self.faction = CellFaction.OUTSIDE
+
+    def setFaction(self, newFaction):
+        """Set this cell's faction to a new value."""
+        if self.faction != newFaction:
+            self.faction = newFaction
+
     def getAdjacentCells(self):
         """Returns the not-None adjacent cells."""
         if self._memoAdjCells is None:

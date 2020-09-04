@@ -2,6 +2,7 @@
 
 from side_status import SideStatus
 from hex_game_move import HexGameMove, MovePriority
+from cell_faction import CellFaction
 from hex_dir import HexSideDir
 from side_link import SideLink
 from helpers import measureStart, measureEnd
@@ -122,6 +123,10 @@ class HexSolver:
 
         for side in self.game.sides:
             self.inspectObviousSideClues(side)
+
+        # If there are still no moves
+        if len(self.nextMoveList) == 0:
+            self.inspectFactions()
 
     def inspectObviousVicinity(self, side):
         """Inspect the connected sides and adjacent cells of a given `HexSide`
@@ -532,6 +537,104 @@ class HexSolver:
                         side = cell.sides[sideDir]
                         msg = f"The 5-Cell cannot be open in the {str(sideDir)} direction."
                         self.addNextMove(side, ACTIVE, LOW, msg)
+
+    ###########################################################################
+    # FACTIONS
+    ###########################################################################
+
+    def inspectFactions(self):
+        """Inspect each cell's faction for clues."""
+
+        self.recalculateFactions()
+
+        for cell in self.game.cells:
+            # If faction is unknown, do nothing
+            if not cell.isFactionUnknown():
+                # Look at each side
+                for sideDir in HexSideDir:
+                    side = cell.sides[sideDir]
+                    # If this side is unset, try to see if we can find out using faction clues
+                    if side.isUnset():
+                        adjCell = cell.adjCells[sideDir]
+                        sideFaction = CellFaction.OUTSIDE if adjCell is None else adjCell.faction
+                        # If own faction and the adjacent cell's faction is different,
+                        # set the side to ACTIVE
+                        if sideFaction != CellFaction.UNKNOWN and sideFaction != cell.faction:
+                            msg = "The cell at {} is {} so we separate it from {}.".format(
+                                str(cell), str(cell.faction),
+                                "the outside" if adjCell is None else str(adjCell))
+                            self.addNextMove(side, ACTIVE, LOWEST, msg)
+                        # If own faction and the adjacent cell's faction is the same,
+                        # set the side to BLANK
+                        elif sideFaction != CellFaction.UNKNOWN and sideFaction == cell.faction:
+                            msg = "The cell at {} is {} so we merge it with {}.".format(
+                                str(cell), str(cell.faction),
+                                "the outside" if adjCell is None else str(adjCell))
+                            self.addNextMove(side, BLANK, LOWEST, msg)
+
+    def resetFactions(self):
+        """Reset all the factions to None."""
+        for cell in self.game.cells:
+            cell.setFactionUnknown()
+
+    def recalculateFactions(self):
+        """Calculate each cell's faction."""
+
+        self.resetFactions()
+
+        def setFaction(cell, newFaction):
+            """Sets the faction of the given cell, then recursively inform its
+            adjacent cells to update."""
+
+            if cell.faction != newFaction and cell.isFactionUnknown():
+                cell.setFaction(newFaction)
+
+                # Notify its adjacent cells
+                for sideDir in HexSideDir:
+                    adjCell = cell.adjCells[sideDir]
+                    # If the side is BLANK, set the adjacent cell to be the same
+                    if cell.sides[sideDir].isBlank() and adjCell is not None:
+                        setFaction(adjCell, newFaction)
+                    # If the side is ACTIVE, set the adjacent cell to be the opposite
+                    if cell.sides[sideDir].isActive() and adjCell is not None:
+                        setFaction(adjCell, newFaction.opposite())
+
+        def processEdgeCell(cell):
+            """Given a cell on the edge of the game board,
+            determine if it has an outer edge that is BLANK or ACTIVE.
+            If so, we know its faction."""
+
+            # If cell's faction is not unknown, it has already been processed
+            # so do nothing else.
+            if not cell.isFactionUnknown():
+                return
+
+            for sideDir in HexSideDir:
+                adjCell = cell.adjCells[sideDir]
+                # If adjacent cell is None, it is the outside of the board
+                if adjCell is None:
+                    # If the side to the outside is BLANK, the cell is OUTSIDE
+                    if cell.sides[sideDir].isBlank():
+                        setFaction(cell, CellFaction.OUTSIDE)
+                    # If the side to the outside is ACTIVE, the cell is INSIDE
+                    elif cell.sides[sideDir].isActive():
+                        setFaction(cell, CellFaction.INSIDE)
+                elif not adjCell.isFactionUnknown():
+                    if cell.sides[sideDir].isBlank():
+                        setFaction(cell, adjCell.faction)
+                    elif cell.sides[sideDir].isActive():
+                        setFaction(cell, adjCell.faction.opposite())
+
+        rows = self.game.rows
+        for row in range(rows):
+            rowArr = self.game.board[row]
+
+            if row == 0 or row == rows - 1:
+                for cell in rowArr:
+                    processEdgeCell(cell)
+            else:
+                processEdgeCell(rowArr[0])
+                processEdgeCell(rowArr[len(rowArr) - 1])
 
     ###########################################################################
     # ADD NEXT MOVE
