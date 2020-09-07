@@ -20,6 +20,14 @@ NORMAL = MovePriority.NORMAL
 LOW = MovePriority.LOW
 LOWEST = MovePriority.LOWEST
 
+# Define SideDir members
+S_UL = HexSideDir.UL
+S_UR = HexSideDir.UR
+S_R = HexSideDir.R
+S_LR = HexSideDir.LR
+S_LL = HexSideDir.LL
+S_L = HexSideDir.L
+
 
 class HexSolver:
     """A solver for HexGame."""
@@ -126,6 +134,11 @@ class HexSolver:
         for side in self.game.sides:
             self.inspectObviousSideClues(side)
             self.inspectLoopMaker(side)
+
+        for cell in self.game.cells:
+            if len(self.nextMoveList) > 0:
+                break
+            self.inspectFaceToFaceLoops(cell)
 
         # If there are still no moves
         if len(self.nextMoveList) == 0:
@@ -410,6 +423,157 @@ class HexSolver:
                             limb = cell.getLimbAt(vtx)
                             self.addNextMove(limb, ACTIVE, LOW,
                                              "Bisect the remaining 2 unsure sides.")
+
+    def inspectFaceToFaceLoops(self, cell):
+        """
+        Inspect if a loop in the given cell is face to face with a loop in an adjacent cell.
+        """
+
+        # Don't perform this check if there are still other moves left
+        if len(self.nextMoveList) > 0:
+            return
+
+        # Do nothing if a cell is fully set
+        if cell.isFullySet():
+            return
+
+        tempMemo = {}
+
+        # The direction of the two active sides that are part of the same loop
+        activesDirsList = [
+            (S_L, S_R),  # Compare to UL
+            (S_L, S_R),  # Compare to UR
+            (S_L, S_R),  # Compare to LL
+            (S_L, S_R),  # Compare to LR
+
+            (S_UL, S_LR),  # Compare to UR
+            (S_UL, S_LR),  # Compare to R
+            (S_UL, S_LR),  # Compare to LL
+            (S_UL, S_LR),  # Compare to L
+
+            (S_UR, S_LL),  # Compare to UL
+            (S_UR, S_LL),  # Compare to L
+            (S_UR, S_LL),  # Compare to R
+            (S_UR, S_LL)   # Compare to LR
+        ]
+
+        # The direction of the adjacent cell
+        adjCellDirList = [
+            S_UL,  # Compare to UL
+            S_UR,  # Compare to UR
+            S_LL,  # Compare to LL
+            S_LR,  # Compare to LR
+
+            S_UR,  # Compare to UR
+            S_R,  # Compare to R
+            S_LL,  # Compare to LL
+            S_L,  # Compare to L
+
+            S_UL,  # Compare to UL
+            S_L,  # Compare to L
+            S_R,  # Compare to R
+            S_LR  # Compare to LR
+        ]
+
+        # The direction of the unset dirs. First two values are for the cell,
+        # next two values are for the adjacent cell.
+        unsetDirsList = [
+            (S_UL, S_UR, S_LL, S_LR),  # Compare to UL
+            (S_UL, S_UR, S_LL, S_LR),  # Compare to UR
+            (S_LL, S_LR, S_UL, S_UR),  # Compare to LL
+            (S_LL, S_LR, S_UL, S_UR),  # Compare to LR
+
+            (S_UR, S_R, S_L, S_LL),  # Compare to UR
+            (S_UR, S_R, S_L, S_LL),  # Compare to R
+            (S_L, S_LL, S_R, S_UR),  # Compare to LL
+            (S_L, S_LL, S_R, S_UR),  # Compare to L
+
+            (S_UL, S_L, S_R, S_LR),  # Compare to UL
+            (S_UL, S_L, S_R, S_LR),  # Compare to L
+            (S_R, S_LR, S_UL, S_L),  # Compare to R
+            (S_R, S_LR, S_UL, S_L)  # Compare to LR
+        ]
+
+        # The side of the cell to activate if we have a face to face loop
+        activationList = [
+            S_UL,  # Compare to UL
+            S_UR,  # Compare to UR
+            S_LL,  # Compare to LL
+            S_LR,  # Compare to LR
+
+            S_UR,  # Compare to UR
+            S_R,  # Compare to R
+            S_LL,  # Compare to LL
+            S_L,  # Compare to L
+
+            S_UL,  # Compare to UL
+            S_L,  # Compare to L
+            S_R,  # Compare to R
+            S_LR  # Compare to LR
+        ]
+
+        # pylint: disable=consider-using-enumerate
+        for idx in range(len(activesDirsList)):
+            # Get the relevant directions
+            activeDirs = activesDirsList[idx]
+            adjCellDir = adjCellDirList[idx]
+            unsetDirs = unsetDirsList[idx]
+
+            # If the active dirs aren't active or not part of the same loop
+            if activeDirs in tempMemo and not tempMemo[activeDirs]:
+                continue
+
+            adjCell = cell.adjCells[adjCellDir]
+            if adjCell is None:
+                continue
+
+            # Get the relevant sides
+            cellActiveSide1 = cell.sides[activeDirs[0]]
+            cellActiveSide2 = cell.sides[activeDirs[1]]
+            adjCellActiveSide1 = adjCell.sides[activeDirs[0]]
+            adjCellActiveSide2 = adjCell.sides[activeDirs[1]]
+            cellUnsetSide1 = cell.sides[unsetDirs[0]]
+            cellUnsetSide2 = cell.sides[unsetDirs[1]]
+            adjCellUnsetSide1 = adjCell.sides[unsetDirs[2]]
+            adjCellUnsetSide2 = adjCell.sides[unsetDirs[3]]
+
+            # The four active sides should be active
+            if not cellActiveSide1.isActive() or not cellActiveSide2.isActive():
+                tempMemo[activeDirs] = False
+                continue
+            if not adjCellActiveSide1.isActive() or not adjCellActiveSide2.isActive():
+                continue
+
+            # The four unset sides should be unset
+            if not cellUnsetSide1.isUnset() or not cellUnsetSide2.isUnset() or \
+                    not adjCellUnsetSide1.isUnset() or not adjCellUnsetSide2.isUnset():
+                continue
+
+            # Check if the active sides have the same color
+            if cellActiveSide1.colorIdx != cellActiveSide2.colorIdx or \
+                    adjCellActiveSide1.colorIdx != adjCellActiveSide2.colorIdx:
+                continue
+
+            if activeDirs not in tempMemo:
+                # Check if the cell's active sides are part of the same loop
+                link = SideLink.fromSide(cellActiveSide1)
+                if cellActiveSide2 not in link.sides:
+                    tempMemo[activeDirs] = False
+                    continue
+                tempMemo[activeDirs] = True
+
+            # Check if the adjacent cell's active sides are part of the same loop
+            link = SideLink.fromSide(adjCellActiveSide1)
+            if adjCellActiveSide2 not in link.sides:
+                continue
+
+            # If all of those checks have been passed, we have a face-to-face loop
+            # so we should activate the relevant side.
+            activationDir = activationList[idx]
+            activateSide = cell.sides[activationDir]
+            msg = "Avoid the face to face loop."
+            self.addNextMove(activateSide, ACTIVE, LOWEST, msg)
+            break  # If we found a valid case, no need to check others
 
     def inspectRemaining2Group(self, cell):
         """
