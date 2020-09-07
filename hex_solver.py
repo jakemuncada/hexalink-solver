@@ -1,5 +1,6 @@
 """Solver for HexGame."""
 
+# from profilehooks import profile
 from side_status import SideStatus
 from hex_game_move import HexGameMove, MovePriority
 from cell_faction import CellFaction
@@ -32,6 +33,7 @@ class HexSolver:
         self.initialBoardInspection()
         self.solveAll()
 
+    # @profile(immediate=True)
     def solveAll(self):
         """Solve the whole board."""
 
@@ -123,6 +125,7 @@ class HexSolver:
 
         for side in self.game.sides:
             self.inspectObviousSideClues(side)
+            self.inspectLoopMaker(side)
 
         # If there are still no moves
         if len(self.nextMoveList) == 0:
@@ -155,7 +158,6 @@ class HexSolver:
         self.inspectHangingSide(side)
         self.inspectConnectingToIntersection(side)
         self.inspectContinueActiveLink(side)
-        self.inspectLoopMaker(side)
 
     def inspectHangingSide(self, side):
         """Set side to BLANK if it is hanging."""
