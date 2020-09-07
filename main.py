@@ -96,8 +96,8 @@ def reset(game):
 def main():
     """Main function."""
 
-    rows = input_file.INPUT2["rows"]
-    dataStr = re.sub(r"\s+", "", input_file.INPUT1["dataStr"])
+    rows = input_file.INPUT3["rows"]
+    dataStr = re.sub(r"\s+", "", input_file.INPUT3["dataStr"])
 
     horizontalMargin = constants.SCREEN_LEFT_MARGIN + constants.SCREEN_RIGHT_MARGIN
     verticalMargin = constants.SCREEN_TOP_MARGIN + constants.SCREEN_BOTTOM_MARGIN
