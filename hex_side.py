@@ -29,6 +29,7 @@ class HexSide:
 
         # Memo
         self._connSides = None  # Will be memoized by getAllConnectedSides()
+        self._memoConnVertex = None  # Will be memoized by getConnectionVertex(other)
 
         # Calculate midpoint
         midX = (vertex1.coords.x + vertex2.coords.x) / 2
@@ -116,12 +117,14 @@ class HexSide:
         Returns:
             HexVertex: The common vertex. None if the two sides aren't connected.
         """
-        if self.isConnectedTo(otherSide):
-            if self.endpoints[0] in otherSide.endpoints:
-                return self.endpoints[0]
-            elif self.endpoints[1] in otherSide.endpoints:
-                return self.endpoints[1]
-        return None
+        if self._memoConnVertex is None:
+            self._memoConnVertex = {}
+            for connSide in self.getAllConnectedSides():
+                if self.endpoints[0] in connSide.endpoints:
+                    self._memoConnVertex[connSide] = self.endpoints[0]
+                elif self.endpoints[1] in connSide.endpoints:
+                    self._memoConnVertex[connSide] = self.endpoints[1]
+        return None if otherSide not in self._memoConnVertex else self._memoConnVertex[otherSide]
 
     def isHanging(self):
         """Returns true if at least one endpoint has neither
