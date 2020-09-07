@@ -225,7 +225,7 @@ class HexSolver:
 
     def inspectObviousCellClues(self, cell):
         """Inspect a given cell for obvious clues."""
-        if not cell.isFullySet():
+        if not cell.isFullySet(memoize=True):
             if cell.reqSides is not None:
                 # If already has correct number of ACTIVE sides, set others to BLANK
                 if cell.countActiveSides() == cell.reqSides:
@@ -253,7 +253,7 @@ class HexSolver:
 
     def inspectLessObviousCellClues(self, cell):
         """Inspect a given cell for less obvious clues."""
-        if not cell.isFullySet():
+        if not cell.isFullySet(memoize=True):
             if len(self.nextMoveList) == 0:
                 self.inspectSymmetrical3Cell(cell)
             if len(self.nextMoveList) == 0:
@@ -272,7 +272,7 @@ class HexSolver:
         Inspect a 4-Cell if it has an UNSET group opposite of a 5-Cell.
         If so, set that group to ACTIVE.
         """
-        if fourCell.reqSides != 4 or fourCell.isFullySet():
+        if fourCell.reqSides != 4 or fourCell.isFullySet(memoize=True):
             return
 
         for cellDir in HexSideDir:
@@ -300,7 +300,7 @@ class HexSolver:
         Inspects if the 3-Cell fits the symmetrical pattern, which is the case where
         all 3 active sides are linked.
         """
-        if cell.reqSides == 3 and not cell.isFullySet():
+        if cell.reqSides == 3 and not cell.isFullySet(memoize=True):
             sideLinks = cell.getUnsetSideLinks()
             for sideLink in sideLinks:
                 # If a SideLink with len of 3 exists,
@@ -325,7 +325,7 @@ class HexSolver:
         """
 
         # Don't process non-required cells
-        if cell.reqSides is not None and not cell.isFullySet():
+        if cell.reqSides is not None and not cell.isFullySet(memoize=True):
             unsetGroups = cell.getUnsetSideLinks()
 
             # Get the actual count and the theoretical count of ACTIVE and BLANK sides
@@ -372,7 +372,7 @@ class HexSolver:
         If enough ACTIVE sides have been deduced, the remaining UNSET sides can be set to BLANK.
         """
 
-        if cell.reqSides is not None and not cell.isFullySet():
+        if cell.reqSides is not None and not cell.isFullySet(memoize=True):
             # Get the number of actual blank sides and actual active sides
             actualBlankCount = cell.countBlankSides()
             actualActiveCount = cell.countActiveSides()
@@ -434,7 +434,7 @@ class HexSolver:
             return
 
         # Do nothing if a cell is fully set
-        if cell.isFullySet():
+        if cell.isFullySet(memoize=True):
             return
 
         tempMemo = {}
@@ -631,7 +631,7 @@ class HexSolver:
         connected to the adjacent cell are ACTIVE.
         """
 
-        if cell.reqSides == 5 and not cell.isFullySet():
+        if cell.reqSides == 5 and not cell.isFullySet(memoize=True):
 
             def isValidToCloseOff(adjCell, sideDir):
                 """Returns true if the given cell (the cell adjacent to the 5-Cell)
@@ -686,7 +686,7 @@ class HexSolver:
         is still valid after gaining two ACTIVE sides.
         """
 
-        if cell.reqSides == 5 and not cell.isFullySet():
+        if cell.reqSides == 5 and not cell.isFullySet(memoize=True):
 
             def isValidToOpen(adjCell, sideDir):
                 """Returns true if the given cell (the cell adjacent to the 5-Cell)

@@ -41,9 +41,16 @@ class HexCell:
         self._memoDirOfLimb = None
         self._memoDirOfCell = None
         self._memoDirOfSide = None
+        self._memoIsFullySet = None
 
-    def isFullySet(self):
+    def isFullySet(self, memoize=False):
         """Returns true if there are no more UNSET sides remaining in the cell."""
+        # If memoizing is enabled, once the cell is fully set, it won't be unset
+        if memoize:
+            if not self._memoIsFullySet and self.countUnsetSides() == 0:
+                self._memoIsFullySet = True
+            return self._memoIsFullySet
+        # If memoizing is disabled, calculate every time
         return self.countUnsetSides() == 0
 
     def requiredBlanks(self):
