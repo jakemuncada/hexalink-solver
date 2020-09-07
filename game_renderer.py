@@ -1,6 +1,5 @@
 """Main renderer"""
 
-import os
 import pygame
 
 from point import Point
@@ -16,9 +15,6 @@ clock = pygame.time.Clock()
 
 class GameRenderer:
     """The class responsible for drawing stuff on the screen."""
-
-    # Screen
-    SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
     # Surfaces
     BASE_SURFACE = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -44,13 +40,10 @@ class GameRenderer:
     FPS_TEXT_COLOR = ORANGE
     INFO_TEXT_COLOR = WHITE
 
-    def __init__(self, game):
+    def __init__(self, game, screen, ):
 
+        self.screen = screen
         self.game = game
-
-        # Initialize window
-        os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (10, 20)
-        pygame.display.set_caption("Slitherlink Hexagons")
 
         # Initialize the surfaces.
         GameRenderer.BASE_SURFACE.set_colorkey(BLACK, pygame.RLEACCEL)
@@ -65,7 +58,7 @@ class GameRenderer:
     def render(self):
         """Draws the game board."""
 
-        GameRenderer.SCREEN.fill(BLACK)
+        self.screen.fill(BLACK)
 
         self.__drawBase__()
         self.__drawSides__()
@@ -125,29 +118,29 @@ class GameRenderer:
 
     def __drawBase__(self):
         """Draw the board base. The board base is the entire board with all sides UNSET."""
-        GameRenderer.SCREEN.blit(GameRenderer.BASE_SURFACE, (0, 0))
+        self.screen.blit(GameRenderer.BASE_SURFACE, (0, 0))
 
     def __drawSides__(self):
         """Draw the blank and active sides of the board."""
         for side in self.game.sides:
             if side.isBlank():
-                self.__drawBlankSide__(side, GameRenderer.SCREEN)
+                self.__drawBlankSide__(side, self.screen)
             elif side.isActive():
-                self.__drawActiveSide__(side, GameRenderer.SCREEN)
+                self.__drawActiveSide__(side, self.screen)
 
     def __drawVertices__(self):
         """Draw the vertices."""
-        GameRenderer.SCREEN.blit(GameRenderer.VERTEX_SURFACE, (0, 0))
+        self.screen.blit(GameRenderer.VERTEX_SURFACE, (0, 0))
 
     def __drawCellNumbers__(self):
         """Draw the vertices."""
-        GameRenderer.SCREEN.blit(GameRenderer.CELL_NUM_SURFACE, (0, 0))
+        self.screen.blit(GameRenderer.CELL_NUM_SURFACE, (0, 0))
 
     def __drawFps__(self):
         """Draw the FPS."""
         fps = str(int(clock.get_fps()))
         fpsText = GameRenderer.INFO_FONT.render(fps, 1, GameRenderer.FPS_TEXT_COLOR, BLACK)
-        GameRenderer.SCREEN.blit(fpsText, (10, 0))
+        self.screen.blit(fpsText, (10, 0))
 
     def __drawMoveMsg__(self):
         """Draw the explanation message of the previous move on the screen."""
@@ -162,7 +155,7 @@ class GameRenderer:
                 displayStr = f"{prevMoveStr}  {str(side)}"
                 text = GameRenderer.INFO_FONT.render(displayStr, 1, WHITE)
                 GameRenderer.MOVE_MSG_SURFACE.blit(text, (0, 0))
-        GameRenderer.SCREEN.blit(GameRenderer.MOVE_MSG_SURFACE, (10, 80))
+        self.screen.blit(GameRenderer.MOVE_MSG_SURFACE, (10, 80))
 
     def __drawClickedCellCoords__(self):
         """Draw the clicked cell coordinates."""
@@ -171,7 +164,7 @@ class GameRenderer:
                                                  1, GameRenderer.INFO_TEXT_COLOR, BLACK)
             self.game.prevClickedCell = self.game.clickedCell
             self.game.clickedCell = None
-            GameRenderer.SCREEN.blit(text, (10, 30))
+            self.screen.blit(text, (10, 30))
 
     ################################################################################
     # DRAW SIDES

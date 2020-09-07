@@ -30,7 +30,7 @@ class HexSolver:
         self.currMoveSequence = None
 
         self.initialBoardInspection()
-        # self.solveAll()
+        self.solveAll()
 
     def solveAll(self):
         """Solve the whole board."""

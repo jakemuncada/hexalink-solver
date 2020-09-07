@@ -1,20 +1,28 @@
 """A Hexagon Slitherlink Game"""
 
+import os
 import re
 import sys
 import pygame
 
 from game_renderer import GameRenderer
-import constants
 import helpers as helper
-
+import constants
 import input_file
+
 from point import Point
 from hex_game import HexGame
 from hex_solver import HexSolver
 
+# Initialize window
+os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (10, 30)
+
 # Initialize pygame
 pygame.init()
+
+# Initialize screen
+SCREEN = pygame.display.set_mode((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT))
+pygame.display.set_caption("Slitherlink Hexagons")
 
 # Clock
 clock = pygame.time.Clock()
@@ -109,7 +117,7 @@ def main():
     # Initialize the solver
     solver = HexSolver(game)
 
-    gameRenderer = GameRenderer(game)
+    gameRenderer = GameRenderer(game, SCREEN)
 
     while True:
         for event in pygame.event.get():
