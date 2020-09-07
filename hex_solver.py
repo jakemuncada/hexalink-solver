@@ -225,6 +225,9 @@ class HexSolver:
                     msg = "Cell already has enough blank sides, so activate the other unset sides."
                     self.addNextMoves(cell.getUnsetSides(), ACTIVE, HIGHEST, msg)
 
+                else:
+                    self.inspect4CellGroupOpposite5Cell(cell)
+
             # Then, check each side individually, even for cells that have no required sides.
             for side in cell.sides:
                 if side.isUnset():
@@ -250,6 +253,34 @@ class HexSolver:
                 self.inspectOpen5Cell(cell)
             if len(self.nextMoveList) == 0:
                 self.inspectRemaining2Group(cell)
+
+    def inspect4CellGroupOpposite5Cell(self, fourCell):
+        """
+        Inspect a 4-Cell if it has an UNSET group opposite of a 5-Cell.
+        If so, set that group to ACTIVE.
+        """
+        if fourCell.reqSides != 4 or fourCell.isFullySet():
+            return
+
+        for cellDir in HexSideDir:
+            # If the 4-Cell has an adjacent 5-Cell
+            adjCell = fourCell.adjCells[cellDir]
+            if adjCell is not None and adjCell.reqSides == 5:
+                links = fourCell.getUnsetSideLinks()
+                for link in links:
+                    # If the link is size 2
+                    if len(link) == 2:
+                        # We must first check if they're not touching the 5-Cell
+                        isTouching = False
+                        for side in link:
+                            sideDir = fourCell.getDirOfSide(side)
+                            if sideDir == cellDir or sideDir.isAdjacent(cellDir):
+                                isTouching = True
+                                break
+                        # If they're not touching, then they should be ACTIVE
+                        if not isTouching:
+                            msg = "The side group of 4-Cell opposite a 5-Cell should be active."
+                            self.addNextMoves(link, ACTIVE, HIGH, msg)
 
     def inspectSymmetrical3Cell(self, cell):
         """
