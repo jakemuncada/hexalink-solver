@@ -207,7 +207,7 @@ class HexSide:
         return self.status
 
     def __eq__(self, other):
-        return isinstance(other, HexSide) and other.id == self.id
+        return other.id == self.id
 
     def __hash__(self):
         return hash(self.id)
