@@ -305,7 +305,8 @@ class HexSolver:
             If none, recursively process the cell in the given direction if it is also a 4-Cell."""
 
             # Base case
-            if fourCell is None or fourCell.reqSides != 4 or not fourCell.sides[targetDir].isUnset():
+            if fourCell is None or fourCell.reqSides != 4 or \
+                    not fourCell.sides[targetDir].isUnset():
                 return
 
             # Get the relevant sides
