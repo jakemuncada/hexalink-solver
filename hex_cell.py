@@ -36,7 +36,6 @@ class HexCell:
         self.limbs = [None for _ in HexVertexDir]
 
         # Memoized stuff
-        self._memoAdjCells = None
         self._memoLimbs = None
         self._memoDirOfLimb = None
         self._memoDirOfCell = None
@@ -134,21 +133,6 @@ class HexCell:
         """Set this cell's faction to a new value."""
         if self.faction != newFaction:
             self.faction = newFaction
-
-    def getAdjacentCells(self):
-        """Returns the not-None adjacent cells."""
-        if self._memoAdjCells is None:
-            self._memoAdjCells = list(filter(lambda adjCell: adjCell is not None, self.adjCells))
-        return self._memoAdjCells
-
-    def getLimbs(self, statusFilter=None):
-        """Returns the not-None limbs. Can optionally set a status filter
-        where the returned limbs' status must be equal to the given value."""
-        if self._memoLimbs is None:
-            self._memoLimbs = list(filter(lambda limb: limb is not None, self.limbs))
-        if statusFilter is not None:
-            return list(filter(lambda limb: limb.status == statusFilter, self._memoLimbs))
-        return self._memoLimbs
 
     def getDirOfLimb(self, limb):
         """Returns the VertexDir of a given limb.

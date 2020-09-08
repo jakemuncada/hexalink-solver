@@ -80,7 +80,7 @@ class HexSolver:
                 # Remove all sides and limbs of zero-cells
                 for cellSide in cell.sides:
                     self.addNextMove(cellSide, BLANK, HIGH, "Remove sides of zero-cell.")
-                for limb in cell.getLimbs():
+                for limb in cell.limbs:
                     self.addNextMove(limb, BLANK, HIGH, "Remove limbs of zero-cell.")
 
             elif cell.reqSides == 1:
@@ -358,8 +358,8 @@ class HexSolver:
                     self.addNextMove(limb1, ACTIVE, LOW, msg)
                     self.addNextMove(limb2, ACTIVE, LOW, msg)
                     # Set all other limbs to BLANK
-                    for limb in cell.getLimbs():
-                        if limb != limb1 and limb != limb2:
+                    for limb in cell.limbs:
+                        if limb is not None and limb != limb1 and limb != limb2:
                             msg = "Remove all other limbs of symmetrical 3-Cell."
                             self.addNextMove(limb, BLANK, LOW, msg)
 
