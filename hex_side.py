@@ -144,19 +144,6 @@ class HexSide:
 
         return False
 
-        # if self.status == UNSET or self.status == ACTIVE:
-        #     # Check the first endpoint
-        #     connectedSides = self.endpoints[0].getAllSidesExcept(self.id)
-        #     if checkAllSidesAreBlank(connectedSides):
-        #         return True
-
-        #     # Check the second endpoint
-        #     connectedSides = self.endpoints[1].getAllSidesExcept(self.id)
-        #     if checkAllSidesAreBlank(connectedSides):
-        #         return True
-
-        # return False
-
     def getAllConnectedSides(self):
         """Returns list of all the connected sides."""
         if self._connSides is None:
