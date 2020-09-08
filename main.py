@@ -6,9 +6,9 @@ import sys
 import pygame
 
 from game_renderer import GameRenderer
+from input_file import INPUT2 as DATA
 import helpers as helper
 import constants
-import input_file
 
 from point import Point
 from hex_game import HexGame
@@ -102,8 +102,8 @@ def solveAll(solver):
 def main():
     """Main function."""
 
-    rows = input_file.INPUT3["rows"]
-    dataStr = re.sub(r"\s+", "", input_file.INPUT3["dataStr"])
+    rows = DATA["rows"]
+    dataStr = re.sub(r"\s+", "", DATA["dataStr"])
 
     horizontalMargin = constants.SCREEN_LEFT_MARGIN + constants.SCREEN_RIGHT_MARGIN
     verticalMargin = constants.SCREEN_TOP_MARGIN + constants.SCREEN_BOTTOM_MARGIN
