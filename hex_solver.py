@@ -1,5 +1,7 @@
 """Solver for HexGame."""
 
+# pylint: disable=too-many-lines
+
 # from profilehooks import profile
 from side_status import SideStatus
 from hex_game_move import HexGameMove, MovePriority
@@ -123,6 +125,7 @@ class HexSolver:
                         # Then those two dirs should be ACTIVE
                         msg = "The two sides of the 2-Cell adjacent 5-Cells should be active."
                         self.addNextMove(cell.sides[adj5CellDirs[0]], ACTIVE, HIGH, msg)
+                        self.addNextMove(cell.sides[adj5CellDirs[1]], ACTIVE, HIGH, msg)
 
             elif cell.reqSides == 5:
                 for sideDir in HexSideDir:
