@@ -38,6 +38,7 @@ class HexSolver:
         self.game = game
         self.nextMoveList = []
         self.processedSideIds = set()
+        self.resetFactions()
 
         self.initialBoardInspection()
         self.solveAll()
@@ -47,6 +48,7 @@ class HexSolver:
         self.nextMoveList = []
         self.processedSideIds = set()
         self.initialBoardInspection()
+        self.resetFactions()
 
     # @profile(immediate=True)
     def solveAll(self):
@@ -847,8 +849,6 @@ class HexSolver:
 
     def recalculateFactions(self):
         """Calculate each cell's faction."""
-
-        self.resetFactions()
 
         def setFaction(cell, newFaction):
             """Sets the faction of the given cell, then recursively inform its
