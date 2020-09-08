@@ -2,7 +2,6 @@
 
 from point import Point
 from side_status import SideStatus
-from helpers import checkAllSidesAreBlank
 
 # Define SideStatus members
 UNSET = SideStatus.UNSET
@@ -31,6 +30,7 @@ class HexSide:
         self._connSides = None  # Will be memoized by getAllConnectedSides()
         self._connSidesVtx = None  # Will be memoized by getConnectedSidesByVertex()
         self._memoConnVertex = None  # Will be memoized by getConnectionVertex(other)
+        self._memoLinkedTo = {}  # Will be memoized by isLinkedTo(otherSide)
 
         # Calculate midpoint
         midX = (vertex1.coords.x + vertex2.coords.x) / 2
@@ -98,14 +98,26 @@ class HexSide:
         """
         if (self.status == ACTIVE or self.status == UNSET):
             if ignoreStatus or self.status == otherSide.status:
-                # Get common vertex
-                commonVertex = self.getConnectionVertex(otherSide)
-                if commonVertex is not None:
-                    # Check if all other sides which share the common vertex are BLANK
-                    for vertSide in commonVertex.sides:
-                        if vertSide != self and vertSide != otherSide and not vertSide.isBlank():
-                            return False
-                    return True
+                # Make sure that the memo contains the other Sides connected to both Sides
+                if otherSide.id not in self._memoLinkedTo:
+                    self._memoLinkedTo[otherSide.id] = []
+                    # Get common vertex
+                    commonVertex = self.getConnectionVertex(otherSide)
+                    if commonVertex is not None:
+                        # Get all other sides which share the common vertex
+                        for connSide in commonVertex.sides:
+                            if connSide != self and connSide != otherSide:
+                                self._memoLinkedTo[otherSide.id].append(connSide)
+
+                # If the other commonly connected Sides are BLANK, return True.
+                # Otherwise, return False.
+                ret = True
+                for connSide in self._memoLinkedTo[otherSide.id]:
+                    if not connSide.isBlank():
+                        ret = False
+                        break
+                return ret
+
         return False
 
     def getConnectionVertex(self, otherSide):
