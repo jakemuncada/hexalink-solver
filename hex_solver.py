@@ -387,6 +387,9 @@ class HexSolver:
                 for group in unsetGroups:
                     groupSize = len(group)
 
+                    if groupSize == 1:
+                        continue
+
                     # Check if the group should be active
                     if groupSize > cell.requiredBlanks() - actualBlankCount:
                         msg = "Side group (size: {}) of {}-Cell should be active.".format(
@@ -400,8 +403,14 @@ class HexSolver:
                         self.addNextMoves(group, BLANK, NORMAL, msg)
 
                     # Check if all member sides of the group are not part of the theoretical sides
-                    elif all(side not in theoreticalSides for side in group):
-                        if groupSize > 1:
+                    else:
+                        allSidesNotInTheoretical = True
+                        for side in group:
+                            if side in theoreticalSides:
+                                allSidesNotInTheoretical = False
+                                break
+
+                        if allSidesNotInTheoretical:
                             # Check the number of blanks/actives while considering theoreticals
                             if groupSize > cell.requiredBlanks() - totalBlankCount:
                                 msg = f"Side group of {cell.reqSides}-Cell should be active " + \
