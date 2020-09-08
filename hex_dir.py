@@ -30,6 +30,22 @@ class HexSideDir(IntEnum):
             return otherDir == HexSideDir.LL or otherDir == HexSideDir.UL
         raise AssertionError("Invalid Hex Side direction.")
 
+    def getAdjacentSides(self):
+        """Returns a tuple of the two adjacent directions."""
+        if self == HexSideDir.UL:
+            return (HexSideDir.L, HexSideDir.UR)
+        if self == HexSideDir.UR:
+            return (HexSideDir.UL, HexSideDir.R)
+        if self == HexSideDir.R:
+            return (HexSideDir.UR, HexSideDir.LR)
+        if self == HexSideDir.LR:
+            return (HexSideDir.R, HexSideDir.LL)
+        if self == HexSideDir.LL:
+            return (HexSideDir.LR, HexSideDir.L)
+        if self == HexSideDir.L:
+            return (HexSideDir.LL, HexSideDir.UL)
+        raise AssertionError("Invalid Hex Side direction.")
+
     def opposite(self):
         """Get the opposite direction of a give HexSideDir."""
         if self == HexSideDir.UL:
