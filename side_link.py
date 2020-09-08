@@ -49,7 +49,7 @@ class SideLink:
         return None
 
     @classmethod
-    def fromSide(cls, side, filterFxn=None):
+    def fromSide(cls, side, filterFxn=None, simple=True):
         """
         Create a link from a given side. All sides will have the same status.\n
         Can optionally include a filter function to check if a particular side should be included.
@@ -87,10 +87,14 @@ class SideLink:
             return groupSet
 
         sides = getLink(side, set())
-        isValid, linkVertices, endpoints, endLinks = cls._validate(sides)
 
+        if simple:
+            return cls(cls.__createKey, sides, None, None, None)
+
+        isValid, linkVertices, endpoints, endLinks = cls._validate(sides)
         if isValid:
             return cls(cls.__createKey, sides, linkVertices, endpoints, endLinks)
+
         return None
 
     @staticmethod

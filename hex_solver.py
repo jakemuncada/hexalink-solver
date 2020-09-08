@@ -228,7 +228,7 @@ class HexSolver:
         if side.isUnset():
 
             # Get the whole link
-            link = SideLink.fromSide(side)
+            link = SideLink.fromSide(side, simple=False)
 
             # Get the connected sides on each endpoint
             connActiveSides1 = link.endpoints[0].getActiveSidesExcept(link.endLink[0].id)
@@ -346,7 +346,7 @@ class HexSolver:
         all 3 active sides are linked.
         """
         if cell.reqSides == 3 and not cell.isFullySet(memoize=True):
-            sideLinks = cell.getUnsetSideLinks()
+            sideLinks = cell.getUnsetSideLinks(simple=False)
             for sideLink in sideLinks:
                 # If a SideLink with len of 3 exists,
                 if len(sideLink) == 3:
@@ -629,7 +629,7 @@ class HexSolver:
         # If the cell needs 2 more active sides
         if cell.remainingReqs() == 2:
 
-            unsetSideLinks = cell.getUnsetSideLinks()
+            unsetSideLinks = cell.getUnsetSideLinks(simple=False)
 
             links1 = []  # Links with size 1
             links2 = []  # Links with size 2

@@ -112,16 +112,18 @@ class HexSide:
                                  If false, both sides is required to have the same status.
                                  Optional. Defaults to False.
         """
-        if (self.status == ACTIVE or self.status == UNSET):
-            if ignoreStatus or self.status == otherSide.status:
-                # If the other commonly connected Sides are BLANK, return True.
-                # Otherwise, return False.
-                ret = True
-                for connSide in self._memoLinkedTo[otherSide.id]:
-                    if not connSide.isBlank():
-                        ret = False
-                        break
-                return ret
+        if self.status == BLANK or otherSide.status == BLANK:
+            return False
+
+        if ignoreStatus or self.status == otherSide.status:
+            # If the other commonly connected Sides are BLANK, return True.
+            # Otherwise, return False.
+            ret = True
+            for connSide in self._memoLinkedTo[otherSide.id]:
+                if not connSide.isBlank():
+                    ret = False
+                    break
+            return ret
 
         return False
 

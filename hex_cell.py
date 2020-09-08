@@ -289,23 +289,22 @@ class HexCell:
 
         return cap, limbs
 
-    def getUnsetSideLinks(self):
+    def getUnsetSideLinks(self, simple=True):
         """
         Returns a list of `SideLinks` whose status is `UNSET`.
+
+        Args:
+            simple (bool): If true, will return a simple SideLink.
 
         Returns:
             [SideLink]: A list containing the links.
         """
-
-        def getLink(side):
-            return SideLink.fromSide(side, lambda side: side.isUnset and side in self.sides)
-
         ret = []
 
         finishedSides = set()
         for side in self.sides:
             if side not in finishedSides and side.isUnset():
-                sideLink = getLink(side)
+                sideLink = SideLink.fromSide(side, lambda side: side in self.sides, simple=simple)
                 if sideLink is not None:
                     for memberSide in sideLink:
                         finishedSides.add(memberSide)
