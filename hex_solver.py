@@ -726,52 +726,76 @@ class HexSolver:
         is still valid after gaining two ACTIVE sides.
         """
 
-        if cell.reqSides == 5 and not cell.isFullySet(memoize=True):
+        if cell.reqSides != 5 or cell.isFullySet(memoize=True):
+            return
 
-            def isValidToOpen(adjCell, sideDir):
-                """Returns true if the given cell (the cell adjacent to the 5-Cell)
-                is fine with being opened to the 5-Cell."""
+        def getActiveSet(cell, targetDir):
+            """Returns a set of sides that will become (or already are) active.
+            The targetDir is the side bordering the 5-Cell.\n
+            Returns None if an invalid case is encountered.
+            """
+            # Add the already active sides
+            activeSet = set().union(filter(lambda side: side.isActive(), cell.sides))
+            # Get the sides adjacent the targetDir
+            adjSideDirs = targetDir.getAdjacentSides()
+            for adjSideDir in adjSideDirs:
+                adjSide = cell.sides[adjSideDir]
+                # If the adjSide is BLANK, it is invalid
+                if adjSide.isBlank():
+                    return None
+                # Add the adjSide and its whole side group
+                link = SideLink.fromSide(adjSide, filterFxn=lambda x: x in cell.sides)
+                activeSet.update(link.sides)
 
-                # If the adjCell has no required sides, then it is valid
-                if adjCell.reqSides is None:
+            return activeSet
+
+        def hasAntiPairOppositeDir(cell, targetDir, activeSides):
+            """Returns true if the cell has an anti-pair opposite a given side.
+            The anti-pair must also not be already in the given activeSides set."""
+            vtx1, vtx2 = targetDir.opposite().connectedVertexDirs()
+            antiPair1 = cell.getAntiPair(vtx1)
+            antiPair2 = cell.getAntiPair(vtx2)
+            if antiPair1 is not None:
+                if all(side not in activeSides for side in antiPair1.sides):
                     return True
+            if antiPair2 is not None:
+                if all(side not in activeSides for side in antiPair2.sides):
+                    return True
+            return False
 
-                countActive = adjCell.countActiveSides()
+        def isValidToOpen(targetCell, sideDir):
+            """Returns true if the given cell (the cell adjacent to the 5-Cell)
+            is fine with being opened to the 5-Cell."""
 
-                # The side bordering the adjCell and the 5-Cell (will become blank).
-                # If it is already active, then obviously it cannot be opened.
-                borderSide = adjCell.sides[sideDir]
-                if borderSide.isActive():
-                    return False
+            # The side bordering the targetCell and the 5-Cell (will become blank).
+            # If it is already active, then obviously it cannot be opened.
+            borderSide = targetCell.sides[sideDir]
+            if borderSide.isActive():
+                return False
 
-                # The other sides of the adjCell that will become active
-                otherSides = adjCell.getAllCellSidesConnectedToSide(borderSide)
-                for otherSide in otherSides:
-                    # If the otherSide is already blank, it is invalid to open to this adjCell.
-                    if otherSide.isBlank():
-                        return False
+            # Set of sides that will become active (or are already active)
+            activeSides = getActiveSet(targetCell, sideDir)
+            if activeSides is None:
+                return False
+            countActive = len(activeSides)
 
-                    if otherSide.isUnset():
-                        countActive += 1
+            # Check if the targetCell has anti-pairs opposite the 5-Cell
+            if hasAntiPairOppositeDir(targetCell, sideDir, activeSides):
+                countActive += 1
 
-                        # Consider the linked sides
-                        # (the link is sure to be UNSET because otherSide is UNSET)
-                        linkedSides = otherSide.getAllLinkedSides()
-                        for linkedSide in linkedSides:
-                            if linkedSide in adjCell.sides:
-                                countActive += 1
+            # If we have exceeded the number of required active sides
+            if countActive > targetCell.reqSides:
+                return False
 
-                # If we have exceeded the number of required active sides
-                if countActive > adjCell.reqSides:
-                    return False
+            return True
 
-                return True
-
-            for sideDir in HexSideDir:
+        for sideDir in HexSideDir:
+            if cell.sides[sideDir].isUnset():
                 adjCell = cell.adjCells[sideDir]
-                if adjCell is not None:
+                if adjCell is not None and adjCell.reqSides is not None:
                     if not isValidToOpen(adjCell, sideDir.opposite()):
                         side = cell.sides[sideDir]
+                        print(cell, side)
                         msg = f"The 5-Cell cannot be open in the {str(sideDir)} direction."
                         self.addNextMove(side, ACTIVE, LOW, msg)
 
