@@ -283,33 +283,53 @@ class HexSolver:
             if len(self.nextMoveList) == 0:
                 self.inspectRemaining2Group(cell)
 
-    def inspect4CellGroupOpposite5Cell(self, fourCell):
+    def inspect4CellGroupOpposite5Cell(self, cell):
         """
         Inspect a 4-Cell if it has an UNSET group opposite of a 5-Cell.
         If so, set that group to ACTIVE.
+
+        This applies recursively to the chain of 4-Cells from a 5-Cell.
         """
-        if fourCell.reqSides != 4 or fourCell.isFullySet(memoize=True):
+        if cell.reqSides != 4 or cell.isFullySet(memoize=True):
             return
+
+        def hasUnset2LinkInDir(targetSide, adjSide1, adjSide2):
+            """Returns true if the targetSide is unset and is linked to either one
+            of the adjacent sides."""
+            if not targetSide.isUnset():
+                return False
+            return targetSide.isLinkedTo(adjSide1) or targetSide.isLinkedTo(adjSide2)
+
+        def processFourCell(fourCell, targetDir):
+            """Check if the given 4-Cell has an unset link of size 2 in the given direction.
+            If none, recursively process the cell in the given direction if it is also a 4-Cell."""
+
+            # Base case
+            if fourCell is None or fourCell.reqSides != 4 or not fourCell.sides[targetDir].isUnset():
+                return
+
+            # Get the relevant sides
+            targetSide = fourCell.sides[targetDir]
+            dir1, dir2 = targetDir.getAdjacentSides()
+            adjSide1 = fourCell.sides[dir1]
+            adjSide2 = fourCell.sides[dir2]
+
+            # If it has what we are looking for, set that side to ACTIVE and terminate recursion
+            if hasUnset2LinkInDir(targetSide, adjSide1, adjSide2):
+                msg = "Unset size-2 group of 4-Cell opposite a 5-Cell should be active."
+                self.addNextMove(fourCell.sides[targetDir], ACTIVE, NORMAL, msg)
+                return
+
+            # Check if the targetDir and its adjacent sides are UNSET
+            if targetSide.isUnset() and adjSide1.isUnset() and adjSide2.isUnset():
+                # If so, recursively process the next cell
+                processFourCell(fourCell.adjCells[targetDir], targetDir)
 
         for cellDir in HexSideDir:
             # If the 4-Cell has an adjacent 5-Cell
-            adjCell = fourCell.adjCells[cellDir]
+            adjCell = cell.adjCells[cellDir]
             if adjCell is not None and adjCell.reqSides == 5:
-                links = fourCell.getUnsetSideLinks()
-                for link in links:
-                    # If the link is size 2
-                    if len(link) == 2:
-                        # We must first check if they're not touching the 5-Cell
-                        isTouching = False
-                        for side in link:
-                            sideDir = fourCell.getDirOfSide(side)
-                            if sideDir == cellDir or sideDir.isAdjacent(cellDir):
-                                isTouching = True
-                                break
-                        # If they're not touching, then they should be ACTIVE
-                        if not isTouching:
-                            msg = "The side group of 4-Cell opposite a 5-Cell should be active."
-                            self.addNextMoves(link, ACTIVE, HIGH, msg)
+                processFourCell(cell, cellDir.opposite())
 
     def inspectSymmetrical3Cell(self, cell):
         """
