@@ -194,9 +194,6 @@ class HexCell:
             HexSide: The limb connected at the given vertex.
                      None if there is no limb at that location.
         """
-        if isinstance(vertex, HexVertexDir):
-            return self.limbs[vertex]
-
         if vertex is not None:
             for candidateLimb in vertex.sides:
                 if candidateLimb not in self.sides:
@@ -233,7 +230,7 @@ class HexCell:
         self.sides[sideDir] = hexSide
 
     def __eq__(self, other):
-        return isinstance(other, HexCell) and other.row == self.row and other.col == self.col
+        return other.row == self.row and other.col == self.col
 
     def __str__(self):
         """Returns the string describing the Cell."""
@@ -392,7 +389,7 @@ class HexCell:
         for dirs in dirCombinations:
             tempAntiPairs = []
             for vtxDir in dirs:
-                limb = self.getLimbAt(vtxDir)
+                limb = self.limbs[vtxDir]
                 # If limb is active
                 if limb is not None and limb.isActive():
                     sidesAtVtx = sidesAtVertexDir[vtxDir]

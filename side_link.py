@@ -234,9 +234,6 @@ class SideLink:
             HexVertex: The common vertex. None if not connected.
         """
 
-        if not isinstance(other, SideLink) and not isinstance(other, HexSide):
-            raise TypeError("Parameter should be either HexSide or SideLink.")
-
         if other.endpoints[0] in self.endpoints:
             return other.endpoints[0]
         elif other.endpoints[1] in self.endpoints:

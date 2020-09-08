@@ -14,8 +14,6 @@ class HexSideDir(IntEnum):
 
     def isAdjacent(self, otherDir):
         """Returns true if the other direction is adjacent of this direction."""
-        assert(isinstance(otherDir, HexSideDir)), \
-            "Can only compare adjacency with another HexSideDir."
         if self == HexSideDir.UL:
             return otherDir == HexSideDir.L or otherDir == HexSideDir.UR
         if self == HexSideDir.UR:

@@ -38,8 +38,7 @@ class HexGameMove:
                            self.msg, self.fromSolver)
 
     def __eq__(self, other):
-        return isinstance(other, HexGameMove) and \
-            self.sideId == other.sideId and \
+        return self.sideId == other.sideId and \
             self.newStatus == other.newStatus and \
             self.prevStatus == other.prevStatus
 
