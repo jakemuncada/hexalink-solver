@@ -2,7 +2,7 @@
 
 # pylint: disable=too-many-lines
 
-# from profilehooks import profile
+from profilehooks import profile
 from side_status import SideStatus
 from hex_game_move import HexGameMove, MovePriority
 from cell_faction import CellFaction
@@ -172,7 +172,7 @@ class HexSolver:
         """Inspect the connected sides and adjacent cells of a given `HexSide`
         for obvious clues. Adds the obvious moves to the `nextMoveList`."""
         # Inspect the sides that are connected to this side
-        for connSide in side.getAllConnectedSides():
+        for connSide in side.connectedSides:
             self.inspectObviousSideClues(connSide)
         # Inspect the cells this side is connected to
         for adjCell in side.getAdjCells():

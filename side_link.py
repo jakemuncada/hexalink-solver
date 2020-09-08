@@ -1,7 +1,5 @@
 """Side Link"""
 
-from hex_side import HexSide
-
 
 class SideLink:
     """

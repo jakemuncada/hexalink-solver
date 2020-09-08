@@ -276,7 +276,7 @@ class HexCell:
             [HexSide]: A list of all sides of the cell which are connected to the given side.
         """
         ret = []
-        validSides = set(side.getAllConnectedSides())
+        validSides = set(side.connectedSides)
         for candidateSide in self.sides:
             if candidateSide in validSides:
                 ret.append(candidateSide)
@@ -318,7 +318,7 @@ class HexCell:
         limbs = []
 
         targetSide = self.sides[direction]
-        connSides = targetSide.getAllConnectedSides()
+        connSides = targetSide.connectedSides
         for side in connSides:
             if side in self.sides:
                 cap.append(side)

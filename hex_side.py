@@ -1,6 +1,7 @@
 """The side of a HexCell."""
 
 from point import Point
+from hex_side_init import HexSideInitializer
 from side_status import SideStatus
 
 # Define SideStatus members
@@ -26,11 +27,19 @@ class HexSide:
         self.connCells = {}  # Can be listed by getConnectedCells()
         self.endpoints = (vertex1, vertex2)
 
-        # Memo
-        self._connSides = None  # Will be memoized by getAllConnectedSides()
-        self._connSidesVtx = None  # Will be memoized by getConnectedSidesByVertex()
-        self._memoConnVertex = None  # Will be memoized by getConnectionVertex(other)
-        self._memoLinkedTo = {}  # Will be memoized by isLinkedTo(otherSide)
+        ### Connectivity ###
+
+        # The other sides connected to this Side
+        self.connectedSides = None
+
+        # The other sides connected to this Side, organized by vertex
+        self.connectedSidesByVertex = None
+
+        # A dict of the common vertex between this Side and another Side
+        self.connectionVertex = None
+
+        # The memo dict of the other Sides commonly connected to this Side and another Side
+        self._memoLinkedTo = None
 
         # Calculate midpoint
         midX = (vertex1.coords.x + vertex2.coords.x) / 2
@@ -40,6 +49,13 @@ class HexSide:
         # Register yourself to the vertex
         vertex1.sides.append(self)
         vertex2.sides.append(self)
+
+    def initConnectivity(self):
+        """Initialize the connected sides, vertices, and links."""
+        self.connectedSides = HexSideInitializer.getAllConnectedSides(self)
+        self.connectedSidesByVertex = HexSideInitializer.getConnectedSidesByVertex(self)
+        self.connectionVertex = HexSideInitializer.getConnectionVertices(self)
+        self._memoLinkedTo = HexSideInitializer.getOtherConnectedSidesMemo(self)
 
     def setStatus(self, newStatus):
         """Sets the status. Does nothing if the new status is equal
@@ -78,7 +94,7 @@ class HexSide:
     def isConnectedTo(self, otherSide):
         """Returns true if this `Side` shares a common vertex with a given `Side`.
         Returns false otherwise."""
-        return otherSide in self.getAllConnectedSides()
+        return otherSide in self.connectedSides
 
     def isLinkedTo(self, otherSide, ignoreStatus=False):
         """
@@ -98,17 +114,6 @@ class HexSide:
         """
         if (self.status == ACTIVE or self.status == UNSET):
             if ignoreStatus or self.status == otherSide.status:
-                # Make sure that the memo contains the other Sides connected to both Sides
-                if otherSide.id not in self._memoLinkedTo:
-                    self._memoLinkedTo[otherSide.id] = []
-                    # Get common vertex
-                    commonVertex = self.getConnectionVertex(otherSide)
-                    if commonVertex is not None:
-                        # Get all other sides which share the common vertex
-                        for connSide in commonVertex.sides:
-                            if connSide != self and connSide != otherSide:
-                                self._memoLinkedTo[otherSide.id].append(connSide)
-
                 # If the other commonly connected Sides are BLANK, return True.
                 # Otherwise, return False.
                 ret = True
@@ -130,14 +135,9 @@ class HexSide:
         Returns:
             HexVertex: The common vertex. None if the two sides aren't connected.
         """
-        if self._memoConnVertex is None:
-            self._memoConnVertex = {}
-            for connSide in self.getAllConnectedSides():
-                if self.endpoints[0] in connSide.endpoints:
-                    self._memoConnVertex[connSide] = self.endpoints[0]
-                elif self.endpoints[1] in connSide.endpoints:
-                    self._memoConnVertex[connSide] = self.endpoints[1]
-        return self._memoConnVertex[otherSide]
+        if otherSide.id in self.connectionVertex:
+            return self.connectionVertex[otherSide.id]
+        return None
 
     def isHanging(self):
         """Returns true if at least one endpoint has neither
@@ -148,31 +148,12 @@ class HexSide:
         """
 
         if self.status == UNSET or self.status == ACTIVE:
-            connSidesByVtx = self.getConnectedSidesByVertex()
-            if all(side.isBlank() for side in connSidesByVtx[0]):
+            if all(side.isBlank() for side in self.connectedSidesByVertex[0]):
                 return True
-            if all(side.isBlank() for side in connSidesByVtx[1]):
+            if all(side.isBlank() for side in self.connectedSidesByVertex[1]):
                 return True
 
         return False
-
-    def getAllConnectedSides(self):
-        """Returns list of all the connected sides."""
-        if self._connSides is None:
-            self._connSides = []
-            for connSide in self.endpoints[0].getAllSidesExcept(self.id):
-                self._connSides.append(connSide)
-            for connSide in self.endpoints[1].getAllSidesExcept(self.id):
-                self._connSides.append(connSide)
-        return self._connSides
-
-    def getConnectedSidesByVertex(self):
-        """Returns the connected sides sorted by vertex."""
-        if self._connSidesVtx is None:
-            connSidesAtVtx1 = self.endpoints[0].getAllSidesExcept(self.id)
-            connSidesAtVtx2 = self.endpoints[1].getAllSidesExcept(self.id)
-            self._connSidesVtx = (connSidesAtVtx1, connSidesAtVtx2)
-        return self._connSidesVtx
 
     def getAllLinkedSides(self, ignoreStatus=False):
         """
@@ -184,7 +165,7 @@ class HexSide:
                                  Optional. Defaults to False.
         """
         ret = []
-        for connSide in self.getAllConnectedSides():
+        for connSide in self.connectedSides:
             if self.isLinkedTo(connSide, ignoreStatus):
                 ret.append(connSide)
         return ret
