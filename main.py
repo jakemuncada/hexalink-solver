@@ -88,9 +88,15 @@ def undoOne(game, solver):
             solver.nextMoveList.insert(0, prevMove)
 
 
-def reset(game):
+def reset(game, solver):
     """Reset the board."""
     game.init()
+    solver.reset()
+
+
+def solveAll(solver):
+    """Solve the board."""
+    solver.solveAll()
 
 
 def main():
@@ -135,10 +141,6 @@ def main():
                 keys = pygame.key.get_pressed()
                 kmods = pygame.key.get_mods()
 
-                # Ctrl-R
-                if (kmods & pygame.KMOD_CTRL) and keys[pygame.K_r]:
-                    reset(game)
-
                 # RIGHT
                 if keys[pygame.K_RIGHT]:
                     solveOne(game, solver)
@@ -146,6 +148,14 @@ def main():
                 # LEFT
                 if keys[pygame.K_LEFT]:
                     undoOne(game, solver)
+
+                # Ctrl-R
+                if (kmods & pygame.KMOD_CTRL) and keys[pygame.K_r]:
+                    reset(game, solver)
+
+                # Ctrl-X
+                if (kmods & pygame.KMOD_CTRL) and keys[pygame.K_x]:
+                    solveAll(solver)
 
         gameRenderer.render()
         clock.tick(FPS)

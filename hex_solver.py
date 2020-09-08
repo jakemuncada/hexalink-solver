@@ -38,10 +38,15 @@ class HexSolver:
         self.game = game
         self.nextMoveList = []
         self.processedSideIds = set()
-        self.currMoveSequence = None
 
         self.initialBoardInspection()
         self.solveAll()
+
+    def reset(self):
+        """Reset the solver"""
+        self.nextMoveList = []
+        self.processedSideIds = set()
+        self.initialBoardInspection()
 
     # @profile(immediate=True)
     def solveAll(self):
