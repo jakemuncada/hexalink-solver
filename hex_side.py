@@ -150,11 +150,14 @@ class HexSide:
         """
 
         if self.status == UNSET or self.status == ACTIVE:
-            if all(side.isBlank() for side in self.connectedSidesByVertex[0]):
-                return True
-            if all(side.isBlank() for side in self.connectedSidesByVertex[1]):
-                return True
-
+            for connectedSides in self.connectedSidesByVertex:
+                allBlank = True
+                for side in connectedSides:
+                    if not side.isBlank():
+                        allBlank = False
+                        break
+                if allBlank:
+                    return True
         return False
 
     def getAllLinkedSides(self, ignoreStatus=False):
