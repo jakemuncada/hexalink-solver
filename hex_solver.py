@@ -108,6 +108,22 @@ class HexSolver:
                             msg = "Set the boundary of 1-and-1 to blank."
                             self.addNextMove(cell.sides[sideDir], BLANK, HIGH, msg)
 
+            elif cell.reqSides == 2:
+                ###  5-AND-2-AND-5  ###
+                adj5CellDirs = []
+                for sideDir in HexSideDir:
+                    adjCell = cell.adjCells[sideDir]
+                    if adjCell is not None and adjCell.reqSides == 5:
+                        adj5CellDirs.append(sideDir)
+
+                # If the 2-Cell has two adjacent 5-Cells
+                if len(adj5CellDirs) == 2:
+                    # And if the two 5-Cells are not adjacent themselves
+                    if not adj5CellDirs[0].isAdjacent(adj5CellDirs[1]):
+                        # Then those two dirs should be ACTIVE
+                        msg = "The two sides of the 2-Cell adjacent 5-Cells should be active."
+                        self.addNextMove(cell.sides[adj5CellDirs[0]], ACTIVE, HIGH, msg)
+
             elif cell.reqSides == 5:
                 for sideDir in HexSideDir:
                     adjCell = cell.adjCells[sideDir]
