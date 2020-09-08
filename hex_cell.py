@@ -2,6 +2,7 @@
 
 import math
 from side_link import SideLink
+from hex_cell_init import HexCellInitializer as initializer
 from hex_dir import HexSideDir, HexVertexDir
 from cell_faction import CellFaction
 from anti_pair import AntiPair
@@ -36,11 +37,12 @@ class HexCell:
         self.limbs = [None for _ in HexVertexDir]
 
         # Memoized stuff
-        self._memoLimbs = None
         self._memoDirOfLimb = None
-        self._memoDirOfCell = None
-        self._memoDirOfSide = None
         self._memoIsFullySet = None
+
+    def initCell(self):
+        """Initialize the cell memos."""
+        self._memoDirOfLimb = initializer.getDirOfLimbDict(self)
 
     def isFullySet(self, memoize=False):
         """Returns true if there are no more UNSET sides remaining in the cell."""
@@ -137,36 +139,7 @@ class HexCell:
     def getDirOfLimb(self, limb):
         """Returns the VertexDir of a given limb.
         Returns None if the given Side is not a limb of the cell."""
-        if self._memoDirOfLimb is None:
-            self._memoDirOfLimb = {}
-            for limbDir in HexVertexDir:
-                limbId = self.limbs[limbDir].id if self.limbs[limbDir] is not None else None
-                if limbId is not None:
-                    self._memoDirOfLimb[limbId] = limbDir
         return self._memoDirOfLimb[limb.id] if limb.id in self._memoDirOfLimb else None
-
-    def getDirOfAdjCell(self, adjCell):
-        """Returns the SideDir of a given adjacent cell.
-        Returns None if the given cell is not adjacent to this cell.
-        """
-        if self._memoDirOfCell is None:
-            self._memoDirOfCell = {}
-            for sideDir in HexSideDir:
-                _cell = self.adjCells[sideDir]
-                if _cell is not None:
-                    self._memoDirOfCell[_cell.id] = sideDir
-        return self._memoDirOfCell[adjCell.id] if adjCell.id in self._memoDirOfCell else None
-
-    def getDirOfSide(self, side):
-        """Returns the SideDir of a given Side.
-        Returns None if the given side is not a side of the cell.
-        """
-        if self._memoDirOfSide is None:
-            self._memoDirOfSide = {}
-            for sideDir in HexSideDir:
-                _side = self.sides[sideDir]
-                self._memoDirOfSide[_side.id] = sideDir
-        return self._memoDirOfSide[side.id] if side.id in self._memoDirOfSide else None
 
     def getLimbAt(self, vertex):
         """Returns the limb connected at the given HexVertex or HexVertexDir.

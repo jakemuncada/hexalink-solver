@@ -71,7 +71,7 @@ class HexGame:
         self._registerVertices()
         self._registerSides()
         self._registerLimbs()
-        self._initSideConnectivity()
+        self._initAll()
 
     def _registerAdjacentCells(self):
         """Register the adjacent cells of each cell."""
@@ -178,7 +178,9 @@ class HexGame:
                 if limb is not None:
                     limb.connCells[vtxDir] = cell
 
-    def _initSideConnectivity(self):
+    def _initAll(self):
+        for cell in self.cells:
+            cell.initCell()
         for side in self.sides:
             side.initConnectivity()
 
