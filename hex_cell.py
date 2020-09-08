@@ -88,6 +88,21 @@ class HexCell:
                 count += 1
         return count
 
+    def getAntiPair(self, vtxDir):
+        """Returns an AntiPair if the two sides in the given vertex direction is an anti-pair.
+        Returns None if the sides in that vertex is not an anti-pair."""
+        # If the limb at the given vertex is none or not active, it isn't an anti-pair
+        if self.limbs[vtxDir] is None or not self.limbs[vtxDir].isActive():
+            return None
+        # Get the two sides in that vertex
+        sideDir1, sideDir2 = vtxDir.connectedSideDirs()
+        side1 = self.sides[sideDir1]
+        side2 = self.sides[sideDir2]
+        # If the limb is active (checked above) and the two sides are unset, it is an anti-pair
+        if side1.isUnset() and side2.isUnset():
+            return AntiPair(side1, side2)
+        return None
+
     def isFactionUnknown(self):
         """Returns true if the faction is UNKNOWN."""
         return self.faction == CellFaction.UNKNOWN
