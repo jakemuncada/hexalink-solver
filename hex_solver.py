@@ -769,14 +769,14 @@ class HexSolver:
             """Returns true if the cell has an anti-pair opposite a given side.
             The anti-pair must also not be already in the given activeSides set."""
             vtx1, vtx2 = targetDir.opposite().connectedVertexDirs()
-            antiPair1 = cell.getAntiPair(vtx1)
-            antiPair2 = cell.getAntiPair(vtx2)
-            if antiPair1 is not None:
-                if all(side not in activeSides for side in antiPair1.sides):
-                    return True
-            if antiPair2 is not None:
-                if all(side not in activeSides for side in antiPair2.sides):
-                    return True
+            antiPairs = (cell.getAntiPair(vtx1), cell.getAntiPair(vtx2))
+            for antiPair in antiPairs:
+                if antiPair is not None:
+                    # Test if both sides of the pair are not in the activeSides
+                    sidesNotInActiveSides = antiPair.sides[0] not in activeSides \
+                        and antiPair.sides[1] not in activeSides
+                    if sidesNotInActiveSides:
+                        return True
             return False
 
         def isValidToOpen(targetCell, sideDir):
