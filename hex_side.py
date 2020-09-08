@@ -29,6 +29,7 @@ class HexSide:
 
         # Memo
         self._connSides = None  # Will be memoized by getAllConnectedSides()
+        self._connSidesVtx = None  # Will be memoized by getConnectedSidesByVertex()
         self._memoConnVertex = None  # Will be memoized by getConnectionVertex(other)
 
         # Calculate midpoint
@@ -124,7 +125,7 @@ class HexSide:
                     self._memoConnVertex[connSide] = self.endpoints[0]
                 elif self.endpoints[1] in connSide.endpoints:
                     self._memoConnVertex[connSide] = self.endpoints[1]
-        return None if otherSide not in self._memoConnVertex else self._memoConnVertex[otherSide]
+        return self._memoConnVertex[otherSide]
 
     def isHanging(self):
         """Returns true if at least one endpoint has neither
@@ -135,17 +136,26 @@ class HexSide:
         """
 
         if self.status == UNSET or self.status == ACTIVE:
-            # Check the first endpoint
-            connectedSides = self.endpoints[0].getAllSidesExcept(self.id)
-            if checkAllSidesAreBlank(connectedSides):
+            connSidesByVtx = self.getConnectedSidesByVertex()
+            if all(side.isBlank() for side in connSidesByVtx[0]):
                 return True
-
-            # Check the second endpoint
-            connectedSides = self.endpoints[1].getAllSidesExcept(self.id)
-            if checkAllSidesAreBlank(connectedSides):
+            if all(side.isBlank() for side in connSidesByVtx[1]):
                 return True
 
         return False
+
+        # if self.status == UNSET or self.status == ACTIVE:
+        #     # Check the first endpoint
+        #     connectedSides = self.endpoints[0].getAllSidesExcept(self.id)
+        #     if checkAllSidesAreBlank(connectedSides):
+        #         return True
+
+        #     # Check the second endpoint
+        #     connectedSides = self.endpoints[1].getAllSidesExcept(self.id)
+        #     if checkAllSidesAreBlank(connectedSides):
+        #         return True
+
+        # return False
 
     def getAllConnectedSides(self):
         """Returns list of all the connected sides."""
@@ -156,6 +166,14 @@ class HexSide:
             for connSide in self.endpoints[1].getAllSidesExcept(self.id):
                 self._connSides.append(connSide)
         return self._connSides
+
+    def getConnectedSidesByVertex(self):
+        """Returns the connected sides sorted by vertex."""
+        if self._connSidesVtx is None:
+            connSidesAtVtx1 = self.endpoints[0].getAllSidesExcept(self.id)
+            connSidesAtVtx2 = self.endpoints[1].getAllSidesExcept(self.id)
+            self._connSidesVtx = (connSidesAtVtx1, connSidesAtVtx2)
+        return self._connSidesVtx
 
     def getAllLinkedSides(self, ignoreStatus=False):
         """
